@@ -14,10 +14,10 @@
       --c-text: #1a1a1a;
       --c-muted: #6b6b6b;
       --c-rule: #d0d0d0;
-      --c-apparatus: #8b3a3a;        /* Bordeaux für Apparat-Anker */
+      --c-apparatus: #8b3a3a;
       --c-apparatus-soft: #f6efef;
-      --c-term: #1d4e89;             /* Blau für Theol. Termini */
-      --c-quote: #2d5016;            /* Dunkelgrün für Anselm-Zitate */
+      --c-term: #1d4e89;
+      --c-quote: #2d5016;
       --c-link: #1d4e89;
       --c-bg-hover: #fff8e1;
     }
@@ -36,6 +36,7 @@
     h1 { font-size: 1.3rem; color: var(--c-muted);
          border-bottom: 1px solid var(--c-rule);
          padding-bottom: 0.4em; margin-bottom: 1.5em; }
+
     /* ============================================================
        Header bar
        ============================================================ */
@@ -64,10 +65,10 @@
     .controls button:hover:not(.active) { background: var(--c-bg-hover); }
 
     /* ============================================================
-       teiHeader  — komplett verbergen in der Leseansicht
+       teiHeader — verbergen in Leseansicht
        ============================================================ */
-    tei-teiheader { display: none; }
-    body.source-view tei-teiheader {
+    .tei-teiHeader { display: none; }
+    body.source-view .tei-teiHeader {
       display: block;
       font-family: ui-monospace, "SF Mono", Menlo, monospace;
       font-size: 0.78rem;
@@ -78,22 +79,20 @@
       white-space: pre-wrap;
       color: var(--c-muted);
     }
-    body.source-view tei-teiheader * { display: inline; }
 
     /* ============================================================
        Grundstruktur
        ============================================================ */
-    tei-tei, tei-text, tei-body, tei-front { display: block; }
-    tei-div[type="chapter"] { display: block; }
-    tei-head {
+    .tei-TEI, .tei-text, .tei-body, .tei-front { display: block; }
+    .tei-div { display: block; margin: 1em 0; }
+    .tei-head {
       display: block;
       font-family: "Source Sans Pro", sans-serif;
       font-size: 1.15rem;
       font-weight: 600;
       margin: 1.5em 0 1em;
     }
-    tei-head tei-num::after { content: " "; }
-    tei-p {
+    .tei-p {
       display: block;
       margin: 1em 0;
       text-align: justify;
@@ -103,75 +102,48 @@
     /* ============================================================
        Visuelle Ebene (Šimek 2)
        ============================================================ */
-    /* rendition=#letter-spaced  ->  Sperrsatz */
-    tei-hi[rend~="#letter-spaced"] { letter-spacing: 0.18em; }
-    /* rendition=#italic  ->  Kursiv */
-    tei-hi[rend~="#italic"] { font-style: italic; }
+    .tei-hi-letter-spaced { letter-spacing: 0.18em; }
+    .tei-hi-italic { font-style: italic; }
 
-    /* foreign  ->  Latein in deutschem Fließtext */
-    tei-foreign[xml\:lang="la"] { /* nicht doppelt kursivieren */ }
-
-    /* Seitenumbruch-Marker. Druckbild der GA-Edition setzt diese
-       als gefettete Marginalien |n|; hier inline als kleine
-       Hochgestellung in Grau wiedergegeben. */
-    tei-pb {
+    .tei-pb {
       display: inline;
       color: var(--c-muted);
       font-size: 0.75em;
       vertical-align: super;
       margin: 0 0.15em;
     }
-    tei-pb::before { content: "|"; }
-    tei-pb::after  { content: attr(n) "|"; }
-    /* Unterscheidung GA-Seiten vs. A-1931-Seiten */
-    tei-pb[ed="#GA"] { color: #444; font-weight: 600; }
-    tei-pb[ed="#A"]  { color: #888; font-style: italic; }
+    .tei-pb::before { content: "|"; }
+    .tei-pb-GA { color: #444; font-weight: 600; }
+    .tei-pb-A  { color: #888; font-style: italic; }
 
     /* ============================================================
-       Extensionale Ebene (Šimek 4) — die heiEDITIONS-Klassen
-       sichtbar machen
+       Extensionale Ebene (Šimek 4)
        ============================================================ */
-    /* SubjectReference: theologische Termini, blau unterstrichelt */
-    tei-rs[ana~="hc:SubjectReference"] {
+    .tei-rs-SubjectReference {
       color: var(--c-term);
       border-bottom: 1px dotted var(--c-term);
       cursor: help;
     }
-    tei-rs[ana~="hc:SubjectReference"]:hover {
-      background: var(--c-bg-hover);
-    }
-    /* @ref-Wert als Tooltip per JS unten ergänzt */
+    .tei-rs-SubjectReference:hover { background: var(--c-bg-hover); }
 
-    /* PersonReference */
-    tei-persname[ana~="hc:PersonReference"] {
+    .tei-persName-PersonReference {
       font-variant: small-caps;
       font-size: 0.95em;
     }
 
-    /* WorkReference: kursiv beibehalten, dazu leichter Anker-Look */
-    tei-title[ana~="hc:WorkReference"] {
-      color: var(--c-text);
-    }
-
-    /* PrimarySourceQuotation: Anselm-Latein, dunkelgrün, indented */
-    tei-quote[ana~="hc:PrimarySourceQuotation"] {
-      display: inline;
+    .tei-quote-PrimarySourceQuotation {
       color: var(--c-quote);
       font-style: italic;
     }
-    /* Wenn das Zitat länger als ein Satz ist: optional als Blockzitat
-       ausspielen — hier inline gelassen, weil Barth die Zitate
-       eingewoben drucken läßt. */
 
     /* ============================================================
-       Varianzebene (Šimek 5) — apparatus criticus
+       Varianzebene (Šimek 5)
        ============================================================ */
-    /* Inline-app: Lemma anzeigen, rdg-Geschwister verbergen */
-    tei-app { display: inline; }
-    tei-app tei-lem { display: inline; }
-    tei-app tei-rdg { display: none; }
-    /* In der Quellenansicht alle Lesarten zeigen */
-    body.source-view tei-app tei-rdg {
+    .tei-app { display: inline; }
+    .tei-lem { display: inline; }
+    .tei-rdg { display: none; }
+
+    body.source-view .tei-rdg {
       display: inline;
       color: var(--c-apparatus);
       background: var(--c-apparatus-soft);
@@ -179,34 +151,32 @@
       margin: 0 0.1em;
       font-size: 0.85em;
     }
-    body.source-view tei-app tei-rdg::before {
-      content: " ⫶ " attr(wit) ": ";
+    body.source-view .tei-rdg::before {
+      content: " ⫶ " attr(data-wit) ": ";
       color: var(--c-muted);
     }
 
-    /* Fußnoten-Anker (<ref type="note" target="#fn-1">) */
-    tei-ref[type="note"] {
+    /* Fußnoten-Anker */
+    .tei-ref-note {
       display: inline;
       vertical-align: super;
       font-size: 0.7em;
       color: var(--c-link);
       cursor: pointer;
     }
-    tei-ref[type="note"]::before { content: "["; }
-    tei-ref[type="note"]::after  { content: "]"; }
+    .tei-ref-note::before { content: "["; }
+    .tei-ref-note::after  { content: "]"; }
 
-    /* Bibel-Stellen-Verweis */
-    tei-ref[type="bibl"] {
+    .tei-ref-bibl {
       display: inline;
       color: var(--c-muted);
       font-size: 0.92em;
     }
 
     /* ============================================================
-       Fußnoten-Block: Barths Anmerkungen + Apparat
+       Fußnoten-Block
        ============================================================ */
-    /* Vor dem ersten <note place="foot"> eine Trennlinie und Überschrift. */
-    tei-note[place="foot"] {
+    .tei-note-foot {
       display: block;
       font-size: 0.84rem;
       line-height: 1.45;
@@ -214,55 +184,38 @@
       padding-left: 2.2em;
       text-indent: -2.2em;
     }
-    /* Marker (Ziffer/Buchstabe) vor jeder Fußnote */
-    tei-note[place="foot"][type="authorial"]::before {
-      content: attr(n) "  ";
+    .tei-note-foot-authorial::before {
       font-weight: 600;
       color: var(--c-text);
     }
-    tei-note[place="foot"][type="editorial"]::before {
-      content: attr(n) "  ";
+    .tei-note-foot-editorial::before {
       font-weight: 600;
       color: var(--c-apparatus);
     }
-
-    /* Eine optische Trennlinie vor dem ersten Note-Block.
-       CSS hat kein "vor erstem Sibling vom Typ X" Selektor, aber
-       der erste <note place="foot"> folgt immer einem <p>, also
-       genügt: */
-    tei-note[place="foot"][n="1"] {
+    .tei-note-foot-first {
       margin-top: 2em;
       padding-top: 1em;
       border-top: 1px solid var(--c-rule);
     }
-    tei-note[place="foot"][n="a"] {
+    .tei-note-foot-first-app {
       margin-top: 1.5em;
       padding-top: 1em;
       border-top: 1px dashed var(--c-apparatus);
       color: #444;
     }
 
-    /* bibl + citedRange in Fußnoten */
-    tei-bibl { display: inline; }
-    tei-bibl tei-title { /* kursiv kommt schon von <hi rend=italic> */ }
-    tei-bibl tei-citedrange { display: inline; }
-
-    /* q-Element für Halbzitate */
-    tei-q { display: inline; }
-    tei-q::before { content: "„"; }
-    tei-q::after  { content: "“"; }
-    tei-q[xml\:lang="la"]::before { content: "«"; }
-    tei-q[xml\:lang="la"]::after  { content: "»"; }
+    .tei-bibl { display: inline; }
+    .tei-q { display: inline; }
+    .tei-q::before { content: "„"; }
+    .tei-q::after  { content: """; }
+    .tei-q-la::before { content: "«"; }
+    .tei-q-la::after  { content: "»"; }
 
     /* ============================================================
-       Quellenansicht: zusätzlich alle ana-Werte als kleine Marker
+       Quellenansicht: ana-Marker
        ============================================================ */
-    body.source-view tei-rs::after,
-    body.source-view tei-persname::after,
-    body.source-view tei-title[ana]::after,
-    body.source-view tei-quote[ana]::after,
-    body.source-view tei-note[ana]::after {
-      content: " {" attr(ana) "}";
+    body.source-view .has-ana::after {
+      content: " {" attr(data-ana) "}";
       font-family: ui-monospace, monospace;
       font-size: 0.65em;
       color: var(--c-muted);
@@ -270,7 +223,7 @@
     }
 
     /* ============================================================
-       Tooltip: zeigt @ref-Ziel bei Hover über rs/persName/title
+       Tooltip
        ============================================================ */
     [data-tooltip] { position: relative; }
     [data-tooltip]:hover::after {
@@ -320,49 +273,364 @@
   <div id="status">Lade TEI-Daten…</div>
   <div id="TEI"></div>
 
-  <!-- CETEIcean von jsDelivr (gepinnte Version, ZDR-frei) -->
-  <script src="CETEI.js" type="module"></script>
-
+  <!-- Kein externes Skript — rein nativer fetch + DOMParser -->
   <script>
-    const TEI_FILE = "fqi-barth-1931-section1-heiEDITIONS.xml";
-    const statusEl = document.getElementById("status");
+    "use strict";
+
+    const TEI_FILE    = "fqi-barth-1931-section1-heiEDITIONS.xml";
+    const statusEl    = document.getElementById("status");
     const teiContainer = document.getElementById("TEI");
 
-    const ceteicean = new CETEI();
+    /* ------------------------------------------------------------------ */
+    /* TEI-Namespace                                                        */
+    /* ------------------------------------------------------------------ */
+    const TEI_NS = "http://www.tei-c.org/ns/1.0";
 
-    ceteicean.getHTML5(TEI_FILE, (data) => {
-      statusEl.remove();
-      teiContainer.appendChild(data);
-      enhanceTooltips();
-      wireFootnoteJumps();
-    });
+    /* ------------------------------------------------------------------ */
+    /* Hilfsfunktionen                                                      */
+    /* ------------------------------------------------------------------ */
 
-    // Nach dem Anhängen: jedes <tei-rs>, <tei-persname>, <tei-title>
-    // mit @ref erhält data-tooltip mit dem Zielwert. Daraus baut CSS
-    // einen Hover-Tooltip.
-    function enhanceTooltips() {
-      document.querySelectorAll("tei-rs[ref], tei-persname[ref], tei-title[ref]")
-        .forEach((el) => {
-          const ref = el.getAttribute("ref");
-          if (ref) el.setAttribute("data-tooltip", "→ " + ref);
-        });
+    /** Gibt den lokalen Tag-Namen ohne Namespace zurück. */
+    function localName(node) {
+      return node.localName || node.nodeName.replace(/^.*:/, "");
     }
 
-    // Fußnoten-Anker scrollen zum Ziel
-    function wireFootnoteJumps() {
-      document.querySelectorAll("tei-ref[type='note']").forEach((el) => {
-        const tgt = el.getAttribute("target");
-        if (!tgt || !tgt.startsWith("#")) return;
-        el.addEventListener("click", () => {
-          const id = tgt.slice(1);
-          // <note xml:id="fn-1"> wird zu <tei-note id="fn-1"> umgesetzt
-          const noteEl = document.getElementById(id);
-          if (noteEl) noteEl.scrollIntoView({ behavior: "smooth", block: "center" });
+    /** Liest ein Attribut über alle Namespace-Varianten. */
+    function attr(node, name) {
+      return node.getAttribute(name)
+          || node.getAttributeNS(null, name)
+          || node.getAttributeNS("http://www.w3.org/XML/1998/namespace",
+                                  name.replace(/^xml:/, ""))
+          || null;
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* Konvertierung: XML-Node → HTML-Element                               */
+    /* ------------------------------------------------------------------ */
+    function convertNode(xmlNode, htmlParent) {
+      /* Text-Knoten direkt anhängen */
+      if (xmlNode.nodeType === Node.TEXT_NODE) {
+        htmlParent.appendChild(document.createTextNode(xmlNode.nodeValue));
+        return;
+      }
+      if (xmlNode.nodeType !== Node.ELEMENT_NODE) return;
+
+      const tag  = localName(xmlNode);
+      let   el   = null;
+
+      switch (tag) {
+
+        /* ── Strukturebene (Šimek 1) ── */
+        case "TEI":
+          el = span("div", "tei-TEI"); break;
+        case "teiHeader":
+          el = span("div", "tei-teiHeader");
+          el.textContent = xmlNode.textContent;
+          htmlParent.appendChild(el);
+          return;                       /* keine Rekursion in teiHeader */
+        case "text":
+          el = span("div", "tei-text"); break;
+        case "front":
+          el = span("div", "tei-front"); break;
+        case "body":
+          el = span("div", "tei-body"); break;
+        case "div":
+          el = span("div", "tei-div");
+          if (attr(xmlNode, "type"))
+            el.dataset.type = attr(xmlNode, "type");
+          break;
+        case "head":
+          el = span("div", "tei-head"); break;
+        case "p":
+          el = span("p", "tei-p"); break;
+        case "s":
+          el = span("span", "tei-s"); break;
+
+        /* ── Visuelle Ebene (Šimek 2) ── */
+        case "pb": {
+          el = span("span", "tei-pb");
+          const n  = attr(xmlNode, "n")  || "";
+          const ed = attr(xmlNode, "ed") || "";
+          el.dataset.n = n;
+          if (ed === "#GA") el.classList.add("tei-pb-GA");
+          if (ed === "#A")  el.classList.add("tei-pb-A");
+          el.setAttribute("data-n", n);
+          /* ::after zeigt attr(n) — wir setzen auch ein data-n */
+          el.style.cssText += "";
+          /* Seiten-Nummer direkt als CSS-Custom-Property oder
+             einfacher: text-content via JS */
+          el.insertAdjacentHTML("beforeend",
+            `<span style="display:none">${n}</span>`);
+          /* Stattdessen: zwei Pseudo-Spans für ::before / ::after */
+          el = null;
+          /* Vereinfachter Weg: direkt einen <span> mit Text */
+          const pbEl = document.createElement("span");
+          pbEl.className = "tei-pb" + (ed === "#GA" ? " tei-pb-GA" : ed === "#A" ? " tei-pb-A" : "");
+          pbEl.textContent = "|" + n + "|";
+          pbEl.title = "Seitenumbruch " + (ed || "") + " S. " + n;
+          htmlParent.appendChild(pbEl);
+          return;
+        }
+
+        case "lb":
+          htmlParent.appendChild(document.createElement("br"));
+          return;
+
+        case "hi": {
+          const rend = attr(xmlNode, "rend") || attr(xmlNode, "rendition") || "";
+          el = span("span", "tei-hi");
+          if (rend.includes("letter-spaced") || rend.includes("spaced"))
+            el.classList.add("tei-hi-letter-spaced");
+          if (rend.includes("italic") || rend.includes("i"))
+            el.classList.add("tei-hi-italic");
+          break;
+        }
+
+        /* ── Linguistische Ebene (Šimek 3) ── */
+        case "foreign":
+          el = span("span", "tei-foreign");
+          el.lang = attr(xmlNode, "xml:lang") || attr(xmlNode, "lang") || "";
+          break;
+
+        /* ── Extensionale Ebene (Šimek 4) ── */
+        case "rs": {
+          el = span("span", "tei-rs");
+          applyAna(xmlNode, el, "SubjectReference", "tei-rs-SubjectReference");
+          applyRef(xmlNode, el);
+          break;
+        }
+        case "persName": {
+          el = span("span", "tei-persName");
+          applyAna(xmlNode, el, "PersonReference", "tei-persName-PersonReference");
+          applyRef(xmlNode, el);
+          break;
+        }
+        case "placeName":
+          el = span("span", "tei-placeName");
+          applyRef(xmlNode, el);
+          break;
+        case "title": {
+          el = span("span", "tei-title");
+          const rend = attr(xmlNode, "rend") || attr(xmlNode, "rendition") || "";
+          if (rend.includes("italic") || rend.includes("i"))
+            el.classList.add("tei-hi-italic");
+          applyAna(xmlNode, el, "WorkReference", "tei-title-WorkReference");
+          applyRef(xmlNode, el);
+          break;
+        }
+        case "term":
+          el = span("span", "tei-term");
+          applyRef(xmlNode, el);
+          break;
+
+        case "quote": {
+          el = span("span", "tei-quote");
+          applyAna(xmlNode, el, "PrimarySourceQuotation",
+                   "tei-quote-PrimarySourceQuotation");
+          break;
+        }
+        case "q": {
+          el = span("span", "tei-q");
+          const qlang = attr(xmlNode, "xml:lang") || "";
+          if (qlang === "la") el.classList.add("tei-q-la");
+          break;
+        }
+
+        case "ref": {
+          const type   = attr(xmlNode, "type")   || "";
+          const target = attr(xmlNode, "target") || "";
+          el = span("span", "tei-ref-" + (type || "ref"));
+          if (target) {
+            el.dataset.target = target;
+            if (type === "note") {
+              el.addEventListener("click", () => {
+                const id = target.startsWith("#") ? target.slice(1) : target;
+                const noteEl = document.getElementById(id);
+                if (noteEl) noteEl.scrollIntoView({ behavior: "smooth", block: "center" });
+              });
+            }
+          }
+          break;
+        }
+
+        case "bibl":
+          el = span("span", "tei-bibl"); break;
+        case "citedRange":
+          el = span("span", "tei-citedRange"); break;
+
+        /* ── Varianzebene (Šimek 5) ── */
+        case "app":
+          el = span("span", "tei-app"); break;
+        case "lem":
+          el = span("span", "tei-lem"); break;
+        case "rdg": {
+          el = span("span", "tei-rdg");
+          const wit = attr(xmlNode, "wit") || "";
+          if (wit) el.dataset.wit = wit;
+          break;
+        }
+        case "choice": {
+          /* <choice><sic>/<corr> oder <orig>/<reg> */
+          el = span("span", "tei-choice");
+          /* In Leseansicht: corr/reg bevorzugen, sic/orig verbergen */
+          const corr = xmlNode.querySelector("corr, reg");
+          const sic  = xmlNode.querySelector("sic, orig");
+          if (corr) {
+            const corrEl = span("span", "tei-corr");
+            convertChildren(corr, corrEl);
+            htmlParent.appendChild(corrEl);
+          } else if (sic) {
+            convertChildren(sic, htmlParent);
+          }
+          return;
+        }
+        case "sic":
+          el = span("span", "tei-sic"); break;
+        case "corr":
+          el = span("span", "tei-corr"); break;
+        case "subst":
+          el = span("span", "tei-subst"); break;
+        case "add":
+          el = span("span", "tei-add"); break;
+        case "del":
+          el = span("span", "tei-del");
+          el.style.display = "none";  /* Tilgungen in Leseansicht unterdrücken */
+          break;
+
+        /* ── Fußnoten ── */
+        case "note": {
+          const place = attr(xmlNode, "place") || "";
+          const type  = attr(xmlNode, "type")  || "";
+          const n     = attr(xmlNode, "n")      || "";
+          const xmlId = attr(xmlNode, "xml:id") || "";
+
+          el = span("div", "tei-note-foot");
+          if (type === "authorial") {
+            el.classList.add("tei-note-foot-authorial");
+            el.dataset.marker = n;
+            el.style.setProperty("--note-marker", JSON.stringify(n + "  "));
+          }
+          if (type === "editorial") {
+            el.classList.add("tei-note-foot-editorial");
+            el.dataset.marker = n;
+          }
+          /* Marker als erstes Kind einfügen */
+          if (n) {
+            const marker = document.createElement("span");
+            marker.className = "note-marker";
+            marker.style.fontWeight = "600";
+            marker.style.color = type === "editorial" ? "var(--c-apparatus)" : "var(--c-text)";
+            marker.style.marginRight = "0.4em";
+            marker.textContent = n;
+            el.appendChild(marker);
+          }
+          if (xmlId) el.id = xmlId;
+          break;
+        }
+
+        /* ── Sonstige, stillschweigend weiterlaufen ── */
+        default:
+          /* Unbekannte Elemente: Inhalt trotzdem rendern */
+          convertChildren(xmlNode, htmlParent);
+          return;
+      }
+
+      if (!el) return;
+      convertChildren(xmlNode, el);
+      htmlParent.appendChild(el);
+    }
+
+    /* Erstellt ein HTML-Element mit Klasse */
+    function span(tag, cls) {
+      const el = document.createElement(tag);
+      if (cls) el.className = cls;
+      return el;
+    }
+
+    /* Überträgt ana-Klasse und data-ana */
+    function applyAna(xmlNode, el, concept, cssClass) {
+      const ana = attr(xmlNode, "ana") || "";
+      if (ana.includes(concept)) {
+        el.classList.add(cssClass);
+        el.classList.add("has-ana");
+        el.dataset.ana = ana;
+      }
+    }
+
+    /* Überträgt @ref als data-tooltip */
+    function applyRef(xmlNode, el) {
+      const ref = attr(xmlNode, "ref") || "";
+      if (ref) {
+        el.dataset.tooltip = "→ " + ref;
+      }
+    }
+
+    /* Rekursiv alle Kinder konvertieren */
+    function convertChildren(xmlNode, htmlParent) {
+      xmlNode.childNodes.forEach(child => convertNode(child, htmlParent));
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* Hauptlogik: fetch → parse → render                                  */
+    /* ------------------------------------------------------------------ */
+    fetch(TEI_FILE)
+      .then(res => {
+        if (!res.ok) throw new Error("HTTP " + res.status + " beim Laden von " + TEI_FILE);
+        return res.text();
+      })
+      .then(xmlText => {
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(xmlText, "application/xml");
+
+        /* Parsing-Fehler abfangen */
+        const parseErr = xmlDoc.querySelector("parsererror");
+        if (parseErr) throw new Error("XML-Parsing-Fehler: " + parseErr.textContent);
+
+        /* Erste-Fußnoten-Klasse: Trennlinie vor erstem authorial- und
+           erstem editorial-note setzen */
+        const notes = xmlDoc.querySelectorAll("note[place='foot']");
+        let firstAuth = true, firstEdit = true;
+        notes.forEach(n => {
+          const t = n.getAttribute("type");
+          if (t === "authorial" && firstAuth) {
+            n.setAttribute("data-first", "authorial");
+            firstAuth = false;
+          }
+          if (t === "editorial" && firstEdit) {
+            n.setAttribute("data-first", "editorial");
+            firstEdit = false;
+          }
         });
+
+        /* Rendern */
+        statusEl.remove();
+        const root = xmlDoc.documentElement;
+        convertNode(root, teiContainer);
+
+        /* Trennlinien nachträglich setzen */
+        const firstAuthEl = teiContainer.querySelector(
+          ".tei-note-foot-authorial:first-of-type, .tei-note-foot-authorial"
+        );
+        if (firstAuthEl) firstAuthEl.classList.add("tei-note-foot-first");
+
+        const allEditEl = teiContainer.querySelectorAll(".tei-note-foot-editorial");
+        if (allEditEl.length > 0) allEditEl[0].classList.add("tei-note-foot-first-app");
+      })
+      .catch(err => {
+        statusEl.classList.add("error");
+        statusEl.innerHTML =
+          "<strong>Fehler beim Laden der TEI-Datei:</strong><br><br>" +
+          err.message + "<br><br>" +
+          "Falls Sie diese Datei lokal mit Doppelklick geöffnet haben " +
+          "(Protokoll <code>file://</code>), starten Sie bitte einen " +
+          "lokalen HTTP-Server:<br><br>" +
+          "<code>python3 -m http.server 8000</code><br>" +
+          "→ <code>http://localhost:8000/viewer.html</code>";
       });
-    }
 
-    // Reading- vs. Source-View Toggle
+    /* ------------------------------------------------------------------ */
+    /* Reading- vs. Source-View Toggle                                     */
+    /* ------------------------------------------------------------------ */
     const btnR = document.getElementById("btn-reading");
     const btnS = document.getElementById("btn-source");
     btnR.addEventListener("click", () => {
@@ -373,27 +641,6 @@
       document.body.classList.add("source-view");
       btnS.classList.add("active"); btnR.classList.remove("active");
     });
-
-    // Fehlerfall: getHTML5 fängt CORS / 404 nicht selbst. Daher
-    // setzen wir nach 4 s einen Hinweis, falls weder Inhalt noch
-    // Status verschwunden sind.
-    setTimeout(() => {
-      if (document.getElementById("status")) {
-        statusEl.classList.add("error");
-        statusEl.innerHTML =
-          "<strong>TEI-Datei konnte nicht geladen werden.</strong><br><br>" +
-          "Wahrscheinlichste Ursache: Sie haben diese Datei mit Doppelklick " +
-          "geöffnet (Protokoll <code>file://</code>). Browser blockieren in " +
-          "diesem Fall den XML-Ladevorgang aus Sicherheitsgründen.<br><br>" +
-          "Lösung: Starten Sie im selben Ordner einen kleinen HTTP-Server.<br><br>" +
-          "<u>macOS / Linux</u>:<br>" +
-          "<code>python3 -m http.server 8000</code><br><br>" +
-          "<u>Windows (PowerShell, mit Python installiert)</u>:<br>" +
-          "<code>python -m http.server 8000</code><br><br>" +
-          "Anschließend im Browser öffnen:<br>" +
-          "<code>http://localhost:8000/viewer.html</code>";
-      }
-    }, 4000);
   </script>
 </body>
 </html>
