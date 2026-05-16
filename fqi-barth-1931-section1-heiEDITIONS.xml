@@ -644,7 +644,7 @@
           <bibl><title ref="works.xml#proslogion" ana="hc:WorkReference" xml:lang="la">
             <hi rend="#italic">Pros<pb n="15" ed="#A" xml:id="a-15"/>logion</hi></title></bibl>
           nach jenem <rs ref="terms.xml#unum-argumentum" ana="hc:SubjectReference" xml:lang="la"><foreign xml:lang="la"><hi rend="#italic">unum
-          argumentum</hi></foreign></rs> gesucht zu haben
+          argumentum</hi></foreign></rs> gesucht zu<pb n="14" ed="#GA" xml:id="ga-14"/> haben
           erklärt<ref type="note" target="#fn-5"/>, darum nicht weniger
           ernst gewesen zu sein braucht, weil er außer der freilich
           unentbehrlichen Kampfhaltung des theologischen Arbeiters
@@ -653,7 +653,6 @@
           hatte. Warum eigentlich nicht? Warum nicht gerade? Jedenfalls
           hat man diesen zweiten <q>Zweck</q> des anselmischen
           <foreign xml:lang="la"><hi rend="#italic">intelligere</hi></foreign>
-          <pb n="14" ed="#GA" xml:id="ga-14"/>
           sehr ernst zu nehmen und darf der Vorfrage nicht ausweichen,
           was wohl Beweisen heißen möchte, wenn es die Wirkung
           desselben Tuns ist, das außerdem auch einfach zur
@@ -765,7 +764,7 @@
             <lem wit="#GA #A2 #A">der</lem>
             <rdg wit="#B">also der</rdg>
           </app>
-          theologisch Fragende um der Existenz seines Glaubens willen,
+          theologisch Fragende um der <pb n="16" ed="#GA" xml:id="ga-16"/>Existenz seines Glaubens willen,
           noch kann die größere oder geringere Vollständigkeit seiner
           theologischen Antworten eine Bedeutung für die Existenz
           seines Glaubens haben.
@@ -810,7 +809,6 @@
         </p>
 
         <p xml:id="p-16-2">
-          <pb n="16" ed="#GA" xml:id="ga-16"/>
           Es ist nicht die Existenz, es ist aber — wir wenden uns nun
           der anselmischen <rs ref="terms.xml#position" ana="hc:SubjectReference" xml:lang="de"><hi rend="#letter-spaced">Position</hi></rs> zu —
           das <rs ref="terms.xml#wesen-des-glaubens" ana="hc:SubjectReference" xml:lang="de"><hi rend="#letter-spaced">Wesen</hi> des Glaubens</rs>, das
