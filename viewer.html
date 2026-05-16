@@ -156,16 +156,24 @@
       color: var(--c-muted);
     }
 
-    /* Fußnoten-Anker */
+    /* Fußnoten-Anker (Šimek 1: semantisch-logisch, hier:
+       Verknüpfung Sinneinheit ↔ Anmerkung). Marker-Text wird
+       per JS aus @n der Ziel-<note> übernommen; daher kein
+       statisches ::before/::after mehr. — Färbung trennt
+       Barth-Anmerkungen (authorial, dunkel) von Herausgeber-
+       Apparat (editorial, dunkelrot wie Apparat-CSS). */
     .tei-ref-note {
       display: inline;
       vertical-align: super;
       font-size: 0.7em;
-      color: var(--c-link);
       cursor: pointer;
+      font-weight: 600;
+      padding: 0 0.1em;
     }
-    .tei-ref-note::before { content: "["; }
-    .tei-ref-note::after  { content: "]"; }
+    .tei-ref-note-authorial { color: var(--c-text); }
+    .tei-ref-note-authorial:hover { background: var(--c-bg-hover); }
+    .tei-ref-note-editorial { color: var(--c-apparatus); }
+    .tei-ref-note-editorial:hover { background: var(--c-apparatus-soft); }
 
     .tei-ref-bibl {
       display: inline;
@@ -443,11 +451,39 @@
           if (target) {
             el.dataset.target = target;
             if (type === "note") {
+              /* A-Lösung: das Marker-Zeichen aus dem Ziel-<note>
+                 dereferenzieren. Der XML-Knoten ist hier ein
+                 leeres Element <ref type="note" target="#fn-X"/>;
+                 das anzuzeigende Zeichen (1, 2, …, a, b, …) steht
+                 als @n auf der Ziel-<note>. */
+              const id = target.startsWith("#") ? target.slice(1) : target;
+              /* xml:id ist kein HTML-id, deshalb über Attribut-
+                 Selektor; DOMParser indiziert xml:id im allgemeinen
+                 nicht via getElementById. */
+              const noteEl = xmlNode.ownerDocument.querySelector(
+                '[*|id="' + id + '"]'
+              );
+              if (noteEl) {
+                const markerText = noteEl.getAttribute("n") || "";
+                const noteType   = noteEl.getAttribute("type") || "";
+                el.textContent = markerText;
+                if (noteType === "authorial") {
+                  el.classList.add("tei-ref-note-authorial");
+                } else if (noteType === "editorial") {
+                  el.classList.add("tei-ref-note-editorial");
+                }
+              }
               el.addEventListener("click", () => {
-                const id = target.startsWith("#") ? target.slice(1) : target;
-                const noteEl = document.getElementById(id);
-                if (noteEl) noteEl.scrollIntoView({ behavior: "smooth", block: "center" });
+                const noteHtml = document.getElementById(id);
+                if (noteHtml) noteHtml.scrollIntoView(
+                  { behavior: "smooth", block: "center" }
+                );
               });
+              /* Inhalt ist gesetzt; convertChildren würde nichts
+                 anhängen (leeres Element), aber zur Sicherheit:
+                 wir umgehen den Standard-Append-Pfad. */
+              htmlParent.appendChild(el);
+              return;
             }
           }
           break;
