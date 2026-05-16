@@ -1,0 +1,1164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-model href="https://tei-c.org/release/xml/tei/custom/schema/relaxng/tei_all.rng"
+            type="application/xml"
+            schematypens="http://relaxng.org/ns/structure/1.0"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0"
+     xmlns:hc="https://lod.ub.uni-heidelberg.de/ontologies/heieditions/hc/current/"
+     xml:id="fqi-barth-section1" xml:lang="de">
+
+  <!-- =========================================================
+       Digitale Edition von Karl Barth, Fides quaerens intellectum
+       (GA II.13), § 1.1 = S. 13–16 der GA-Ausgabe.
+
+       Strukturprinzip: Šimek 2022, fünf editionsrelevante
+       Textdimensionen (semantisch-logisch, visuell-materiell,
+       linguistisch, extensional, Überlieferungsvarianz).
+
+       Editionsphilologische Grundlage: Vorwort der Herausgeber
+       Jüngel/Dalferth (GA II.13, S. VII–XIV, Tübingen Juli 1979).
+       Sigel der Lesartenanmerkungen (a, b, c …) folgen den
+       dort festgelegten Konventionen.
+
+       heiEDITIONS-Conform-Variante: zusätzlich zur reinen TEI-
+       Kodierung werden zentrale Elemente per @ana an die
+       Klassenontologie heiEDITIONS Concepts gebunden. Die
+       benutzten Klassen sind:
+         hc:SubjectReference         — auf <rs> für Konzeptverweise
+         hc:PersonReference          — auf <persName> (Abweichung
+                                       von der heiEDITIONS-Vorgabe
+                                       <rs>; vgl. README)
+         hc:WorkReference            — auf <title> (Abweichung
+                                       von der heiEDITIONS-Vorgabe
+                                       <rs>; vgl. README)
+         hc:PrimarySourceQuotation   — auf <quote xml:lang="la">
+         hc:AuthorialNote            — auf Barths Anmerkungen 1–17
+         hc:VariantNote              — auf Herausgeber-Apparat a–l
+       ========================================================= -->
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title type="main">Fides quaerens intellectum</title>
+        <title type="sub">Anselms Beweis der Existenz Gottes
+          im Zusammenhang seines theologischen Programms</title>
+        <title type="part" n="1">§ 1: Die Notwendigkeit der Theologie</title>
+        <author>
+          <persName ref="persons.xml#barth" xml:id="author-barth">Karl Barth</persName>
+        </author>
+        <!-- Reihen-Hrsg. der gesamten Karl Barth Gesamtausgabe.
+             Stoevesandt ist auf dem Schmutztitel des Bandes
+             genannt; Drewes erscheint im CIP-Eintrag, weil er
+             zum Zeitpunkt der 3. Aufl. 2002 die Reihen-Hrsg.-
+             Funktion übernommen hatte. -->
+        <editor role="editor-series" subtype="historical">
+          <persName ref="persons.xml#stoevesandt">Hinrich Stoevesandt</persName>
+        </editor>
+        <editor role="editor-series" subtype="current">
+          <persName ref="persons.xml#drewes">Hans-Anton Drewes</persName>
+        </editor>
+        <!-- Bandherausgeber von GA II.13. -->
+        <editor role="editor-volume">
+          <persName ref="persons.xml#juengel">Eberhard Jüngel</persName>
+        </editor>
+        <editor role="editor-volume">
+          <persName ref="persons.xml#dalferth">Ingolf U. Dalferth</persName>
+        </editor>
+        <funder>
+          <orgName ref="persons.xml#kb-stiftung">Karl Barth-Stiftung</orgName>
+        </funder>
+        <respStmt>
+          <resp>Digitale Edition, TEI-Encoding</resp>
+          <persName>[Bearbeiter:in der Promotion]</persName>
+        </respStmt>
+      </titleStmt>
+
+      <publicationStmt>
+        <publisher>Prototyp einer digitalen Edition
+          (Portfolio, nicht offiziell publiziert)</publisher>
+        <availability status="restricted">
+          <licence target="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+            CC BY-NC-SA 4.0 für die TEI-Datenmodellierung,
+            Encoding-Entscheidungen und Apparat-Tiefenerschließung;
+            der edierte Text selbst bleibt urheberrechtlich beim
+            Theologischen Verlag Zürich (©1981 TVZ, Karl Barth
+            Gesamtausgabe).
+          </licence>
+        </availability>
+        <date when="2026">2026</date>
+      </publicationStmt>
+
+      <sourceDesc>
+        <!-- ============================================
+             listWit: vier textgeschichtliche Zeugen.
+
+             Sigel-Konvention nach Vorwort GA II.13, S. XIf.:
+               A  = 1. Auflage 1931 (Chr. Kaiser / München)
+               B  = Vorabdruck 1931 (Kattenbusch-FS, ZThK.NF)
+                    — nur für S. 13–20 relevant!
+               A2 = 2. Aufl. 1958 (Leithandschrift der
+                    Neuausgabe; inhaltlich identisch mit GA
+                    außer an 5 explizit gemeldeten Stellen)
+               GA = Neuausgabe innerhalb der Gesamtausgabe
+                    (1. Aufl. 1981, hier zit. n. 3. Aufl. 2002,
+                    ISBN 3-290-17247-3)
+             ============================================ -->
+        <listWit>
+          <witness xml:id="A">
+            <bibl>
+              <author>Karl Barth</author>
+              <title type="main">Fides quaerens intellectum</title>
+              <title type="sub">Anselms Beweis der Existenz Gottes
+                im Zusammenhang seines theologischen Programms</title>
+              <series>
+                <title>Forschungen zur Geschichte und Lehre des
+                  Protestantismus</title>
+                <biblScope unit="reihe">IV</biblScope>
+                <biblScope unit="band">3</biblScope>
+                <editor>P. Althaus</editor>
+                <editor>K. Barth</editor>
+                <editor>K. Heim</editor>
+              </series>
+              <pubPlace>München</pubPlace>
+              <publisher>Chr. Kaiser</publisher>
+              <date when="1931">1931</date>
+              <extent>X, 199 S.</extent>
+              <note>Erstausgabe. Widmungstext: <q xml:lang="de">Der
+                hochwürdigen theologischen Fakultät der Universität
+                Glasgow als Zeichen des Dankes für die dem Verfasser
+                am 18. Juni 1930 verliehene Würde eines D. D.
+                ehrerbietigst gewidmet</q> (entfällt ab 2. Aufl.).</note>
+            </bibl>
+          </witness>
+
+          <witness xml:id="B">
+            <bibl>
+              <author>Karl Barth</author>
+              <title type="main">Die Notwendigkeit der Theologie bei
+                Anselm von Canterbury</title>
+              <note>Vorabdruck des ersten Abschnitts des ersten
+                Kapitels (= GA II.13, S. 13–20).</note>
+              <title type="hostFestschrift">Festgabe für Ferdinand
+                Kattenbusch zu seinem 80. Geburtstag</title>
+              <title type="hostJournal">Zeitschrift für Theologie
+                und Kirche</title>
+              <biblScope unit="series">N. F.</biblScope>
+              <biblScope unit="jg">12</biblScope>
+              <biblScope unit="page" from="350" to="358">350–358</biblScope>
+              <date when="1931">1931</date>
+              <note>Geltungsbereich des Sigels B: <emph>nur</emph>
+                S. 13–20 der GA-Ausgabe. Außerhalb dieses Bereichs
+                steht B nicht für eine eigenständige Lesart zur
+                Verfügung.</note>
+            </bibl>
+          </witness>
+
+          <witness xml:id="A2">
+            <bibl>
+              <author>Karl Barth</author>
+              <title>Fides quaerens intellectum. Anselms Beweis der
+                Existenz Gottes im Zusammenhang seines theologischen
+                Programms</title>
+              <edition n="2">2., neu durchgesehene Auflage</edition>
+              <pubPlace>Zollikon-Zürich</pubPlace>
+              <publisher>Evangelischer Verlag</publisher>
+              <date when="1958">1958</date>
+              <note>Gleichzeitige Lizenzausgabe der Wissenschaftlichen
+                Buchgesellschaft, Darmstadt. — Letzte von Barth selbst
+                besorgte Auflage; inhaltliche Leithandschrift der
+                GA-Edition. Wird im Apparat nicht eigens
+                referenziert, weil der GA-Text (außer an 5 explizit
+                gemeldeten Stellen) identisch ist.</note>
+              <note>Die 3. Auflage 1966 (Zollikon, EVZ-Verlag) wurde
+                <q xml:lang="de">ab Stehsatz</q> nach der 2. Aufl. im
+                Bleisatz nachgedruckt und enthält ausschließlich
+                einen Druckfehler auf S. 103
+                (<q xml:lang="de">Duchrführung</q> statt
+                <q xml:lang="de">Durchführung</q>); sie wird daher
+                textgeschichtlich nicht als eigener Zeuge geführt.</note>
+            </bibl>
+          </witness>
+
+          <witness xml:id="GA">
+            <bibl>
+              <author>Karl Barth</author>
+              <title type="main">Fides quaerens intellectum. Anselms
+                Beweis der Existenz Gottes im Zusammenhang seines
+                theologischen Programms</title>
+              <title type="series-main">Karl Barth Gesamtausgabe</title>
+              <biblScope unit="abteilung">II</biblScope>
+              <biblScope unit="abteilung-titel">Akademische Werke</biblScope>
+              <biblScope unit="band">13</biblScope>
+              <editor>Eberhard Jüngel</editor>
+              <editor>Ingolf U. Dalferth</editor>
+              <edition n="1" subtype="ga">1. Aufl. der GA-Edition</edition>
+              <pubPlace>Zürich</pubPlace>
+              <publisher>Theologischer Verlag Zürich</publisher>
+              <date when="1981">1981</date>
+              <idno type="ISBN">3-290-17247-3</idno>
+              <note>Leithandschrift dieser digitalen Edition zitiert
+                aus der 3. Aufl. 2002 (unverändert ggü. 1981).</note>
+              <relatedItem type="reprint">
+                <bibl>
+                  <edition n="3" subtype="ga">3. Aufl. der GA-Edition</edition>
+                  <date when="2002">2002</date>
+                  <publisher>Theologischer Verlag Zürich</publisher>
+                  <respStmt>
+                    <resp>Druck</resp>
+                    <orgName>ROSCH BUCH GmbH</orgName>
+                    <placeName>Scheßlitz</placeName>
+                  </respStmt>
+                </bibl>
+              </relatedItem>
+            </bibl>
+          </witness>
+        </listWit>
+
+        <msDesc>
+          <msIdentifier>
+            <country>Deutschland</country>
+            <settlement>Heidelberg</settlement>
+            <repository>Privatbestand des Bearbeiters
+              (parallel UB Heidelberg, Signatur tba)</repository>
+            <idno>GA II.13, 3. Aufl. 2002</idno>
+          </msIdentifier>
+          <physDesc>
+            <objectDesc form="print">
+              <supportDesc>
+                <support>Gedrucktes Buch</support>
+              </supportDesc>
+            </objectDesc>
+            <typeDesc>
+              <typeNote>Antiqua für deutschen Haupttext, Kursivsatz
+                für fremdsprachliche (überwiegend lateinische)
+                Wendungen, Sperrsatz für Hervorhebungen — eine
+                typographische Festlegung, die nach Vorwort
+                S. XII ausdrücklich aus der 2. Aufl. 1958
+                übernommen und entgegen den allgemeinen
+                Editionsrichtlinien der GA beibehalten wurde,
+                <q xml:lang="de">um der besonderen Eigenart dieses
+                Textes Rechnung zu tragen</q>.</typeNote>
+            </typeDesc>
+          </physDesc>
+        </msDesc>
+      </sourceDesc>
+    </fileDesc>
+
+    <encodingDesc>
+      <projectDesc>
+        <p>Diese Datei ist ein Demonstrator (Portfolio) für eine
+          digitale Edition von Karl Barths <title>Fides quaerens
+          intellectum</title> (1931). Sie kodiert § 1 (Die Notwendigkeit
+          der Theologie), S. 13–16 der GA-Ausgabe, als minimal
+          vollständigen Showcase aller fünf editionsrelevanten
+          Textdimensionen nach <bibl><author>Šimek</author>,
+          <date>2022</date>: <title>heiEDITIONS</title></bibl>.</p>
+        <p xml:id="proj-heieditions-conform">Diese Variante der Datei
+          bindet zentrale TEI-Elemente zusätzlich an die Klassenontologie
+          <ref target="https://heieditions.github.io/concepts/concepts.html">heiEDITIONS Concepts</ref>
+          (Heidelberger UB, RDF/OWL, LOD-URIs). Verwendet werden die
+          Klassen <code>hc:SubjectReference</code> (auf <gi>rs</gi>),
+          <code>hc:PrimarySourceQuotation</code> (auf <gi>quote</gi>),
+          <code>hc:AuthorialNote</code> und <code>hc:VariantNote</code>
+          (auf <gi>note</gi>), <code>hc:PersonReference</code> (auf
+          <gi>persName</gi>) und <code>hc:WorkReference</code> (auf
+          <gi>title</gi>). Die letzten beiden weichen bewußt von der
+          heiEDITIONS-Vorgabe (<gi>rs</gi>) ab, um die semantische
+          Sub-Spezifizierung der TEI-Elemente <gi>persName</gi> und
+          <gi>title</gi> zu erhalten; vgl. README, Abschnitt zur
+          Interoperabilität nach Holmes 2017.</p>
+      </projectDesc>
+
+      <editorialDecl>
+
+        <p xml:id="ed-decl-base">Grundlage der Transkription ist eine
+          ABBYY-OCR-Ausgabe der Seiten 13–16 des Bandes GA II.13
+          (3. Aufl. 2002). Die OCR wurde gegen das PDF-Original Seite
+          für Seite korrigiert. Offensichtliche OCR-Artefakte
+          (z. B. <mentioned>intetilgens</mentioned> statt
+          <mentioned>intelligens</mentioned>;
+          <mentioned>ineam.</mentioned> statt
+          <mentioned>incarn.</mentioned>) sind <emph>stillschweigend
+          korrigiert</emph>, da sie nicht zum überlieferten Text
+          gehören. Die Liste dieser Korrekturen wird in einer
+          Begleitdatei <ident>ocr-corrections.tsv</ident> separat
+          dokumentiert.</p>
+
+        <p xml:id="ed-decl-vorwort">Die Edition folgt den im Vorwort
+          der Herausgeber (<ptr target="#GA"/>, S. VII–XIV, Tübingen
+          Juli 1979) formulierten <emph>Editionsrichtlinien</emph>.
+          Die folgenden acht Punkte fassen diese Richtlinien
+          zusammen, soweit sie für die digitale Kodierung
+          unmittelbar relevant sind:</p>
+
+        <list type="ordered" xml:id="ed-richtlinien">
+          <item xml:id="er-1">Die Neuausgabe fußt textlich auf der
+            <emph>2. Auflage 1958</emph> (<ptr target="#A2"/>) als der
+            letzten von Barth selbst durchgesehenen Fassung. Ihre
+            Seitenzählung wird im fortlaufenden Text durch eingelegte
+            Marker wiedergegeben (siehe Richtlinie 8 zu
+            <gi>pb</gi>).</item>
+          <item xml:id="er-2">Abweichungen der <emph>1. Auflage 1931</emph>
+            gegenüber der 2. Auflage werden in eigens hinzugefügten
+            Herausgeberanmerkungen unter dem Sigel
+            <mentioned>A</mentioned> nachgewiesen
+            (<ptr target="#A"/>).</item>
+          <item xml:id="er-3">Abweichungen des <emph>Vorabdrucks
+            1931</emph> (Kattenbusch-Festgabe, ZThK.NF 12, S. 350–358
+            — vgl. <ptr target="#B"/>) werden analog unter dem Sigel
+            <mentioned>B</mentioned> nachgewiesen. <emph>Dieser
+            Geltungsbereich beschränkt sich auf die Seiten 13–20 der
+            GA-Ausgabe.</emph></item>
+          <item xml:id="er-4">Sämtliche neu hinzugefügten
+            Herausgeberanmerkungen sind durch kleine Buchstaben
+            (a, b, c …) markiert und kapitelweise durchgezählt.
+            Barths eigene Anmerkungen sind durch arabische Ziffern
+            (1, 2, 3 …) markiert und gleichfalls kapitelweise
+            durchgezählt (so bereits seit der 2. Aufl.).</item>
+          <item xml:id="er-5">Druckfehler und eindeutig syntaktisch-
+            grammatische Versehen wurden stillschweigend korrigiert
+            (in beide Richtungen: A-Fehler nicht vermerkt, wenn die
+            2. Aufl. korrekt ist; ebensowenig A2-Druckfehler, wenn die
+            1. Aufl. korrekt ist). Solche Korrekturen werden in dieser
+            digitalen Edition nicht durch
+            <gi>choice</gi>-<gi>sic</gi>-<gi>corr</gi> markiert,
+            sondern folgen stillschweigend der Vorgabe der
+            Gedruckten.</item>
+          <item xml:id="er-6">An <emph>fünf</emph> namentlich
+            genannten Stellen (S. 34 Anm. e, S. 47 Anm. d, S. 122
+            Anm. j, S. 147 Anm. h, S. 150 Anm. k) wurde die
+            <q xml:lang="de">deutlich bessere Lesart</q> der 1. Aufl.
+            in den Haupttext der Edition übernommen, während die
+            Lesart der 2. Aufl. in der Herausgeberanmerkung erscheint.
+            Solche Stellen tragen in unserer TEI-Kodierung
+            <gi>app</gi>-Elemente mit
+            <att>type</att>=<val>emendation</val>.
+            (Keine dieser fünf Stellen liegt in § 1.1.)</item>
+          <item xml:id="er-7">Vor Stellenangaben in den
+            Herausgeberanmerkungen markiert die Konvention
+            <mentioned>[vgl.]</mentioned>, daß Barth den Anselmtext
+            nicht wörtlich zitiert, sondern paraphrasiert oder
+            zusammenstellt (übliche Geringfügigkeiten:
+            Kasusangleichungen, Flexionsänderungen, Auslassungen).
+            Im TEI-Markup wird dies durch das Attribut
+            <att>rend</att>=<val>cf</val> am betreffenden
+            <gi>bibl</gi> kenntlich gemacht.</item>
+          <item xml:id="er-8">Typographische Festlegungen der
+            Druckausgabe (Antiqua / Kursiv / Sperrsatz) werden
+            beibehalten und in TEI durch <gi>foreign</gi> bzw.
+            <gi>hi rend="…"</gi> reproduziert. Die GA-Seitenzählung
+            wird durch <gi>pb ed="#GA"</gi> markiert; die
+            ursprüngliche Seitenzählung der 1. Aufl. 1931 ist in der
+            Druckausgabe an Spaltenrand bzw. fettgesetzt mit
+            <mentioned>|n|</mentioned> markiert und wird im TEI
+            durch <gi>pb ed="#A"</gi> wiedergegeben.</item>
+        </list>
+
+        <p xml:id="ed-decl-apparatus">Die Variantenkodierung folgt dem
+          TEI-Modell der <emph>parallel segmentation</emph>: jeder
+          inline-<gi>app</gi> trägt einen <gi>lem</gi> (Lesart des
+          Basistexts, hier <ptr target="#GA"/> = inhaltlich
+          <ptr target="#A2"/>) und ein oder mehrere
+          <gi>rdg</gi>-Elemente mit
+          <att>wit</att>-Verweisen auf abweichende Zeugen. Dieselbe
+          Information ist zusätzlich als druckbildtreue
+          <gi>note type="editorial"</gi> am Kapitelende abgebildet
+          (Standoff via <att>target</att>) — diese Doppelkodierung
+          dient (a) der Frontend-Synopse via CETEIcean und
+          (b) der editionsphilologischen Treue gegenüber der
+          gedruckten Ausgabe. — Über <att>type</att> hinaus tragen
+          die Herausgeberanmerkungen das Attribut
+          <att>ana</att>=<val>hc:VariantNote</val>, das sie als
+          Instanzen der heiEDITIONS-Klasse
+          <code>VariantNote</code> (Unterklasse von
+          <code>TextCriticalNote</code> ← <code>EditorialNote</code>)
+          ausweist; Barths eigene Anmerkungen tragen entsprechend
+          <att>ana</att>=<val>hc:AuthorialNote</val>.</p>
+
+        <p xml:id="ed-decl-terms">Über die Šimekschen vier Standardebenen
+          hinaus markiert die Edition eine fünfte semantische
+          Erweiterung: eine <emph>theologische Terminologieebene</emph>.
+          Sie ist als eigene Begriffsdatei
+          <ref target="terms.xml">terms.xml</ref> realisiert
+          (analog zu <ref target="persons.xml">persons.xml</ref> und
+          <ref target="works.xml">works.xml</ref>) und im Fließtext
+          durch <gi>rs</gi>-Elemente mit
+          <att>ref</att>-Verweisen instanziiert. Jedes solche
+          <gi>rs</gi> trägt zusätzlich
+          <att>ana</att>=<val>hc:SubjectReference</val> und gehört
+          damit zur heiEDITIONS-Klasse <code>SubjectReference</code>
+          („Verweis auf eine Sache, typischerweise ein Konzept,
+          ein Thema oder einen Begriff“). — Geltungsregel:
+          markiert werden nicht lateinische oder hervorgehobene
+          Wörter <emph>als solche</emph>, sondern nur diejenigen
+          Vorkommen, die im FQI-Kontext eine theologisch
+          definitorische Funktion erfüllen. So bleibt
+          <mentioned>Aufgabe</mentioned> für sich genommen
+          unmarkiert; das Konzept erscheint nur in der Phrase
+          <mentioned>Notwendigkeit der Theologie</mentioned>.
+          — Ökonomieregel: häufig wiederkehrende Termini wie
+          <foreign xml:lang="la">intelligere</foreign> (9× im
+          Haupttext) werden bei der <emph>ersten</emph> Erwähnung
+          eines Abschnitts vollständig durch <gi>rs</gi> umschlossen;
+          spätere Vorkommen desselben Begriffs im selben Abschnitt
+          bleiben sprachlich-visuell durch <gi>foreign</gi> und
+          <gi>hi</gi> markiert, aber nicht semantisch
+          re-instanziiert. Diese Entscheidung dient der Lesbarkeit
+          des XML und ist <emph>editorial</emph>, nicht philologisch
+          kontingent. — Granularität: Einwortbegriffe folgen dem
+          Lemma-Konzept-Modell (alle Flexionsformen unter einem
+          Lemma), Mehrwortbegriffe (<foreign xml:lang="la">intellectus
+          fidei</foreign>, <foreign xml:lang="la">esse rei in
+          intellectu</foreign>, <q xml:lang="la">Credo ut
+          intelligam</q>) sind eigene Konzeptknoten.</p>
+
+        <p xml:id="ed-decl-lang">Lateinische Wendungen und längere
+          Zitate (überwiegend aus Anselms Werken in der Ausgabe
+          Schmitt) sind mit <gi>foreign</gi> bzw. <gi>quote</gi>
+          ausgezeichnet und mit <att>xml:lang</att>=<val>la</val>
+          markiert. Die <gi>quote</gi>-Elemente tragen zudem
+          <att>ana</att>=<val>hc:PrimarySourceQuotation</val>
+          (heiEDITIONS-Klasse für Zitate aus historischen
+          Primärtexten in der jeweiligen Originalsprache). Die
+          bibliographischen Kürzel Barths
+          (<mentioned>Monol.</mentioned>, <mentioned>Prosl.</mentioned>,
+          <mentioned>C. D. h.</mentioned>,
+          <mentioned>Ep. de incarn.</mentioned>) verweisen via
+          <gi>title ref="works.xml#…" ana="hc:WorkReference"</gi> auf
+          Anselms Werke. Die Stellenangaben (z. B.
+          <mentioned>II 47,9</mentioned>) gelten als Band/Seite/Zeile
+          der Ausgabe <bibl><author>F. S. Schmitt</author>,
+          <title>S. Anselmi Cantuariensis archiepiscopi Opera
+          Omnia</title>, 6 Bde., Edinburgh
+          <date>1946–1961</date></bibl>. Bei Anselm-Schriften, die
+          Schmitt als unecht aussonderte, zitiert Barth nach
+          <bibl><title>Patrologia Latina</title>
+          <biblScope unit="vol">158</biblScope> (Migne)</bibl>.</p>
+      </editorialDecl>
+
+      <tagsDecl>
+        <rendition xml:id="letter-spaced" scheme="css">
+          letter-spacing: 0.18em;
+        </rendition>
+        <rendition xml:id="italic" scheme="css">
+          font-style: italic;
+        </rendition>
+      </tagsDecl>
+    </encodingDesc>
+
+    <profileDesc>
+      <langUsage>
+        <language ident="de">Deutsch (Haupttext)</language>
+        <language ident="la">Latein (Zitate aus Anselm; Fachterminologie)</language>
+      </langUsage>
+      <textClass>
+        <keywords scheme="GND">
+          <term ref="https://d-nb.info/gnd/118503065">Anselm von
+            Canterbury, Erzbischof von Canterbury, Heiliger
+            (1033/34–1109)</term>
+          <term ref="https://d-nb.info/gnd/118506838">Barth, Karl
+            (1886–1968)</term>
+          <term ref="https://d-nb.info/gnd/4174333-2">Proslogion</term>
+          <term ref="https://d-nb.info/gnd/4135796-4">Theologie</term>
+        </keywords>
+        <!-- Zweite Keywords-Gruppe: Verweise in das eigene
+             Begriffsregister terms.xml. Dies ist die Eintrittspforte
+             vom teiHeader in die theologische Terminologieebene.
+             Innerhalb von <keywords> bleibt <term> stehen, da hier
+             die *Indexstruktur* selbst notiert wird (Einträge eines
+             Sachregisters), nicht die *Vorkommen im Fließtext*. -->
+        <keywords scheme="terms.xml">
+          <term ref="terms.xml#intelligere">intelligere</term>
+          <term ref="terms.xml#intellectus-fidei">intellectus fidei</term>
+          <term ref="terms.xml#ratio">ratio</term>
+          <term ref="terms.xml#fides">fides</term>
+          <term ref="terms.xml#veritas">veritas</term>
+          <term ref="terms.xml#rei-veritas">rei veritas</term>
+          <term ref="terms.xml#fqi-motto">Fides quaerens intellectum</term>
+          <term ref="terms.xml#credo-ut-intelligam">Credo ut intelligam</term>
+          <term ref="terms.xml#notwendigkeit-der-theologie">Notwendigkeit der Theologie</term>
+          <term ref="terms.xml#wesen-des-glaubens">Wesen des Glaubens</term>
+          <term ref="terms.xml#gottesbeweis">Gottesbeweis</term>
+        </keywords>
+      </textClass>
+    </profileDesc>
+
+    <revisionDesc>
+      <change when="2026-05-16" who="#bearbeiter" status="draft">
+        v4 (heiEDITIONS-Variante): Zusätzliche Bindung zentraler
+        Elemente an die Klassenontologie <ref
+        target="https://heieditions.github.io/concepts/concepts.html"
+        >heiEDITIONS Concepts</ref> via <att>ana</att>-Attribut.
+        Änderungen ggü. v3: (a) Namespace-Deklaration
+        <code>xmlns:hc</code> im Wurzelelement. (b) Alle Verweise
+        auf Begriffe im Fließtext: <gi>term ref="terms.xml#…"</gi>
+        → <gi>rs ref="terms.xml#…" ana="hc:SubjectReference"</gi>
+        (Indexeinträge in <gi>keywords</gi> bleiben <gi>term</gi>).
+        (c) Lateinische Anselmzitate: <gi>quote xml:lang="la"</gi>
+        zusätzlich <att>ana</att>=<val>hc:PrimarySourceQuotation</val>.
+        (d) Barths Anmerkungen 1–17: <att>type</att>=<val>authorial</val>
+        beibehalten, zusätzlich
+        <att>ana</att>=<val>hc:AuthorialNote</val>. (e) Apparat-
+        Anmerkungen a–l: <att>type</att>=<val>editorial</val>
+        beibehalten, zusätzlich
+        <att>ana</att>=<val>hc:VariantNote</val>. (f) Verweise auf
+        Personen und Werke im Fließtext: <gi>persName</gi> bzw.
+        <gi>title</gi> zusätzlich
+        <att>ana</att>=<val>hc:PersonReference</val> bzw.
+        <val>hc:WorkReference</val> (bewußte Abweichung von der
+        heiEDITIONS-Vorgabe <gi>rs</gi>, um die TEI-Sub-Spezifizierung
+        zu erhalten; im README dokumentiert).
+      </change>
+      <change when="2026-05-16" who="#bearbeiter" status="draft">
+        v3: Einführung der theologischen Terminologieebene.
+        (a) Neue externe Datei <ref target="terms.xml">terms.xml</ref>
+        mit 22 Begriffsdatensätzen in vier Kategorien
+        (scholastic-latin, motto, barthian, dogmatic-shared);
+        Lemmatisierung von Flexionsformen, bilinguale Glossen
+        de/en, GND-Verlinkung wo verfügbar, forward-references
+        für § 2 ff. (nachdenken, unum argumentum, ontologischer
+        Gottesbeweis). (b) Erweiterung der <gi>editorialDecl</gi>
+        um die Begründung der Markierungsregel (Geltungs- und
+        Ökonomieregel). (c) Zweite <gi>keywords</gi>-Gruppe im
+        <gi>profileDesc</gi> als Eintrittspforte in das
+        Begriffsregister. (d) <gi>term</gi>-Elemente im Fließtext:
+        Erst-Vorkommen jedes Konzepts ausgezeichnet, mehrfache
+        Wiederkehrungen nach Ökonomieregel ausgespart.
+      </change>
+      <change when="2026-05-15" who="#bearbeiter" status="draft">
+        v2: Vollständige Revision auf Basis des Vorworts der
+        Herausgeber (GA II.13, S. VII–XIV). Wesentliche Korrekturen:
+        (a) Sigel B umgedeutet von <q>2. Aufl. 1958</q> auf
+        <q>Vorabdruck 1931 (ZThK.NF 12, S. 350–358)</q>, gemäß
+        Editionsrichtlinie der Herausgeber. (b) 2. Aufl. 1958 als
+        eigener Zeuge <ptr target="#A2"/> ergänzt, im Apparat aber
+        nicht referenziert, da Basistext. (c) GA-Edition korrekt
+        datiert (1. Aufl. 1981, 3. Aufl. 2002). (d) Reihen-Hrsg.
+        Stoevesandt / Drewes, Karl Barth-Stiftung, ISBN, Druckerei
+        ergänzt. (e) <gi>editorialDecl</gi> um die acht
+        Editionsrichtlinien des Vorworts erweitert. (f) Parallel-
+        Kodierung: jeder inline-<gi>app</gi> hat nun auch eine
+        <gi>note type="editorial"</gi>-Entsprechung am Kapitelende.
+      </change>
+      <change when="2026-05-15" who="#bearbeiter" status="draft">
+        v1: Erste TEI-Kodierung von § 1 (S. 13–16) als
+        Portfolio-Demonstrator.
+      </change>
+    </revisionDesc>
+  </teiHeader>
+
+  <!-- =========================================================
+       Text-Body
+       ========================================================= -->
+  <text>
+    <front>
+      <!-- Hier später: Inhaltsverzeichnis-Auszug, Vorrede etc. -->
+    </front>
+
+    <body>
+      <div type="chapter" n="1" xml:id="kap-1">
+        <pb n="13" ed="#GA" xml:id="ga-13"/>
+        <head>
+          <num>1.</num>
+          <rs ref="terms.xml#notwendigkeit-der-theologie"
+              ana="hc:SubjectReference"
+              xml:lang="de"><hi rend="#letter-spaced">Die Notwendigkeit der Theologie</hi></rs>
+        </head>
+
+        <!-- ============================================
+             Absatz 1 (S. 13)
+             Ebene 5: drei Anker a, b, c — die ersten beiden
+             belegen Vorabdruck-Lesarten (B), die dritte eine
+             A-1931-Lesart.
+             ============================================ -->
+        <p xml:id="p-13-1">
+          <app xml:id="app-1-a" type="variant">
+            <lem wit="#GA #A2 #A">Wir fragen zunächst nach</lem>
+            <rdg wit="#B">Wir fragen nach</rdg>
+          </app>
+          der <rs ref="terms.xml#notwendigkeit-der-theologie"
+                  ana="hc:SubjectReference"
+                  xml:lang="de"><hi rend="#letter-spaced">Notwendigkeit</hi></rs>, kraft welcher
+          das <rs ref="terms.xml#intelligere" ana="hc:SubjectReference" xml:lang="la"><foreign xml:lang="la"><hi rend="#italic">intelligere</hi></foreign></rs>
+          bei <persName ref="persons.xml#anselm" ana="hc:PersonReference">Anselm</persName>
+          zur <hi rend="#letter-spaced">Aufgabe</hi> wird. Der
+          nächstliegende Verweis
+          <app xml:id="app-1-b" type="variant">
+            <lem wit="#GA #A2 #A">eben auf</lem>
+            <rdg wit="#B">auf</rdg>
+          </app>
+          die Absicht des polemisch-apologetischen
+          <rs ref="terms.xml#gottesbeweis" ana="hc:SubjectReference" xml:lang="de"><hi rend="#letter-spaced">Beweises</hi></rs> ist nicht unrichtig.
+          Aber er trifft
+          <app xml:id="app-1-c" type="variant">
+            <lem wit="#GA #A2 #B">nur</lem>
+            <rdg wit="#A">doch nur</rdg>
+          </app>
+          die Oberfläche.
+        </p>
+
+        <!-- ============================================
+             Absatz 2 (S. 13–14): Lateinzitate dicht verwoben;
+             Anselm-Werke; pb |15| markiert Seitenwechsel in A 1931.
+             ============================================ -->
+        <p xml:id="p-13-2">
+          Man bemerke vor allem, daß <persName ref="persons.xml#anselm" ana="hc:PersonReference">Anselm</persName>
+          durchaus nicht etwa nur diese Wirkung des
+          <rs ref="terms.xml#intelligere" ana="hc:SubjectReference" xml:lang="la"><foreign xml:lang="la"><hi rend="#italic">intelligere</hi></foreign></rs>
+          kennt und bezweckt. Indem das
+          <foreign xml:lang="la"><hi rend="#italic">intelligere</hi></foreign>
+          sich vollzieht, kommt es auch — zur
+          <hi rend="#letter-spaced">Freude</hi>.<ref type="note" target="#fn-1"/>
+
+          <persName ref="persons.xml#anselm" ana="hc:PersonReference">Anselm</persName> kann es
+          sich nicht anders denken, als daß schon die Kirchenväter
+          jedenfalls auch dazu geschrieben haben, die Gläubigen durch
+          den Aufweis der <rs ref="terms.xml#ratio" ana="hc:SubjectReference" xml:lang="la"><foreign xml:lang="la"><hi rend="#italic">ratio</hi></foreign></rs>
+          ihres Glaubens fröhlich zu machen.<ref type="note" target="#fn-2"/>
+
+          Der <foreign xml:lang="la"><hi rend="#italic">ratio</hi></foreign>,
+          die der <foreign xml:lang="la"><hi rend="#italic">intelligens</hi></foreign>
+          sucht und findet, eignet ja als solcher nicht nur
+          <rs ref="terms.xml#utilitas" ana="hc:SubjectReference" xml:lang="la"><foreign xml:lang="la"><hi rend="#italic">utilitas</hi></foreign></rs>
+          (dabei mag <persName ref="persons.xml#anselm" ana="hc:PersonReference">Anselm</persName>
+          an das polemische Beweisen gedacht haben), sondern auch
+          <rs ref="terms.xml#pulchritudo" ana="hc:SubjectReference" xml:lang="la"><foreign xml:lang="la"><hi rend="#italic letter-spaced">pulchritudo</hi></foreign></rs>.
+          Sie ist <foreign xml:lang="la"><hi rend="#italic">speciosa super
+          intellectus hominum</hi></foreign>.<ref type="note" target="#fn-3"/>
+
+          Ist es Zufall, wenn gerade als Zweck der so ausgesprochen
+          beweisen wollenden Schrift
+          <bibl><title ref="works.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">
+            <hi rend="#italic">Cur Deus homo</hi></title></bibl>
+          dieses <rs ref="terms.xml#delectatio" ana="hc:SubjectReference" xml:lang="la"><foreign xml:lang="la"><hi rend="#italic">delectari</hi></foreign></rs>
+          an erster, die polemische Verantwortung nach
+          <ref type="bibl" cRef="Bible:1Pet.3.15">1. Petr. 3,15</ref>
+          an zweiter Stelle genannt wird?<ref type="note" target="#fn-4"/>
+
+          Man wird bei dem Zusammensein von wehrhaftem Begründen und
+          heiterem Gefallenwollen, das hier sichtbar wird, doch wohl
+          an die Gleichzeitigkeit dieser Frühscholastik mit der Blüte
+          romanischer Dombaukunst denken dürfen. Und es dürfte eine
+          erste Probe auf das Verständnis des
+          <persName ref="persons.xml#anselm" ana="hc:PersonReference">Anselm</persName> sein, ob
+          man in der Lage ist, zu verstehen, daß die Verzweiflung, mit
+          der er im Proömium des
+          <bibl><title ref="works.xml#proslogion" ana="hc:WorkReference" xml:lang="la">
+            <hi rend="#italic">Pros<pb n="15" ed="#A" xml:id="a-15"/>logion</hi></title></bibl>
+          nach jenem <rs ref="terms.xml#unum-argumentum" ana="hc:SubjectReference" xml:lang="la"><foreign xml:lang="la"><hi rend="#italic">unum
+          argumentum</hi></foreign></rs> gesucht zu haben
+          erklärt<ref type="note" target="#fn-5"/>, darum nicht weniger
+          ernst gewesen zu sein braucht, weil er außer der freilich
+          unentbehrlichen Kampfhaltung des theologischen Arbeiters
+          auch noch die Freiheit zu anderen Haltungen und offenbar für
+          die Ästhetik der theologischen Erkenntnis Einiges übrig
+          hatte. Warum eigentlich nicht? Warum nicht gerade? Jedenfalls
+          hat man diesen zweiten <q>Zweck</q> des anselmischen
+          <foreign xml:lang="la"><hi rend="#italic">intelligere</hi></foreign>
+          <pb n="14" ed="#GA" xml:id="ga-14"/>
+          sehr ernst zu nehmen und darf der Vorfrage nicht ausweichen,
+          was wohl Beweisen heißen möchte, wenn es die Wirkung
+          desselben Tuns ist, das außerdem auch einfach zur
+          <foreign xml:lang="la"><hi rend="#italic">delectatio</hi></foreign>
+          führen kann?
+        </p>
+
+        <!-- ============================================
+             Absatz 3 (S. 14): Anker d, e, f
+             ============================================ -->
+        <p xml:id="p-14-1">
+          Die Notwendigkeit des anselmischen
+          <rs ref="terms.xml#intelligere" ana="hc:SubjectReference" xml:lang="la"><foreign xml:lang="la"><hi rend="#italic">intelligere</hi></foreign></rs>
+          liegt aber nicht in der Wünschbarkeit dieser seiner beiden
+          Wirkungen. Und nur kraft seiner höheren Notwendigkeit sind
+          auch diese seine Wirkungen möglich und wünschbar.
+          <persName ref="persons.xml#anselm" ana="hc:PersonReference">Anselm</persName> geht es
+          in allen seinen Schriften (mit einer Ausnahme<ref type="note"
+          target="#fn-6"/>) um
+          <app xml:id="app-1-d" type="variant">
+            <!-- Nur die GA/A2-Lesart trägt Sperrsatz und damit
+                 die theologisch-terminologische Pointe (Theologie
+                 als intellectus fidei). In A/B steht das Wort
+                 ungesperrt, also nicht als hervorgehobenes
+                 Fachwort, sondern als alltagssprachlicher Begriff.
+                 Diese Differenz ist semantisch tragend; deshalb
+                 markiert <rs> nur die hervorgehobene Lesart. -->
+            <lem wit="#GA #A2"><rs ref="terms.xml#theologie" ana="hc:SubjectReference" xml:lang="de"><hi rend="#letter-spaced">Theologie</hi></rs></lem>
+            <rdg wit="#B">Theologie</rdg>
+          </app>,
+          um den <rs ref="terms.xml#intellectus-fidei" ana="hc:SubjectReference" xml:lang="la"><foreign xml:lang="la"><hi rend="#italic">intellectus
+          fidei</hi></foreign></rs>.
+          <rs ref="terms.xml#fqi-motto" ana="hc:SubjectReference" xml:lang="la"><foreign xml:lang="la"><hi rend="#italic">Fides quaerens
+          intellectum</hi></foreign></rs> sollte der Titel des
+          <bibl><title ref="works.xml#proslogion" ana="hc:WorkReference" xml:lang="la">
+            <hi rend="#italic">Proslogion</hi></title></bibl>
+          nach der Angabe des Proömium ursprünglich lauten. Also das
+          und nur das <foreign xml:lang="la"><hi rend="#italic">intelligere</hi></foreign>
+          kommt bei <persName ref="persons.xml#anselm" ana="hc:PersonReference">Anselm</persName>
+          in Frage, nach dem der
+          <app xml:id="app-1-e" type="variant">
+            <lem wit="#GA #A2"><hi rend="#letter-spaced">Glaube</hi></lem>
+            <rdg wit="#B">Glaube</rdg>
+          </app>
+          <q>verlangt</q>. Und die Notwendigkeit, kraft
+          <app xml:id="app-1-f" type="variant">
+            <lem wit="#GA #A2 #A">derer</lem>
+            <rdg wit="#B">der</rdg>
+          </app>
+          es zu dem hier gemeinten
+          <foreign xml:lang="la"><hi rend="#italic">intelligere</hi></foreign>
+          und dann auch zu dessen Wirkungen, zum
+          <rs ref="terms.xml#probare" ana="hc:SubjectReference" xml:lang="la"><foreign xml:lang="la"><hi rend="#italic">probare</hi></foreign></rs>
+          und zum <foreign xml:lang="la"><hi rend="#italic">laetificare</hi></foreign>
+          kommt, ist einzig und allein dieses <q>Verlangen</q> des
+          Glaubens.
+        </p>
+
+        <!-- ============================================
+             Absatz 4 (S. 14–15): Anker g
+             ============================================ -->
+        <p xml:id="p-14-2">
+          Wir unterstreichen zunächst die damit ausgesprochene
+          <rs ref="terms.xml#negation" ana="hc:SubjectReference" xml:lang="de"><hi rend="#letter-spaced">Negation</hi></rs>. Es handelt sich um
+          ein
+          <app xml:id="app-1-g" type="variant">
+            <lem wit="#GA #A2">spontanes</lem>
+            <rdg wit="#B"><hi rend="#letter-spaced">spontanes</hi></rdg>
+          </app>
+          Verlangen des Glaubens. Das
+          <rs ref="terms.xml#quaerere-intellectum" ana="hc:SubjectReference" xml:lang="la"><foreign xml:lang="la"><hi rend="#italic">quaerere
+          intellectum</hi></foreign></rs> ist der
+          <rs ref="terms.xml#fides" ana="hc:SubjectReference" xml:lang="la"><foreign xml:lang="la"><hi rend="#italic">fides</hi></foreign></rs>
+          immanent, von Hause aus eigentümlich. Es handelt sich also
+          nicht um ein <q>Bedürfnis</q> des Glaubens nach dem
+          <q>Beweis</q> und nach der <q>Freude</q>. Es handelt sich
+          überhaupt um kein <q>Bedürfnis</q> des Glaubens.
+          <persName ref="persons.xml#anselm" ana="hc:PersonReference">Anselm</persName> will den
+          <q>Beweis</q> und die <q>Freude</q>, weil er
+          <foreign xml:lang="la"><hi rend="#italic">intelligere</hi></foreign>
+          will, und er will <foreign xml:lang="la"><hi rend="#italic">intelligere</hi></foreign>,
+          weil er glaubt.<ref type="note" target="#fn-7"/> Jede
+          Umkehrung dieser Ordnung der Nötigung ist durch den
+          anselmischen Be<pb n="15" ed="#GA" xml:id="ga-15"/>griff
+          des Glaubens ausgeschlossen. Glauben heißt nämlich bei
+          <persName ref="persons.xml#anselm" ana="hc:PersonReference">Anselm</persName> nicht
+          nur ein <hi rend="#letter-spaced">Hinstreben</hi> des
+          menschlichen Willens zu Gott hin, sondern ein
+          <hi rend="#letter-spaced">Hinein</hi><pb n="16" ed="#A" xml:id="a-16"/>streben
+          des menschlichen Willens in Gott und also auch ein wenn auch
+          geschöpflich begrenztes Teilnehmen an der Seinsweise
+          Gottes<ref type="note" target="#fn-8"/>, also auch ein
+          geschöpflich begrenztes Teilnehmen an der Aseität, der
+          Selbst- und Alleinherrlichkeit und also an der
+          Bedürfnislosigkeit Gottes.<ref type="note" target="#fn-9"/>
+          Also kann das Gegebensein oder Nichtgegebensein der
+          Wirkungen des <foreign xml:lang="la"><hi rend="#italic">intelligere</hi></foreign>
+          auf keinen Fall eine Existenzfrage für den Glauben bedeuten.
+          Der Zweck der Theologie kann also nicht der sein, die
+          Menschen zum Glauben zu führen<ref type="note" target="#fn-10"/>,
+          <app xml:id="app-1-h" type="variant">
+            <lem wit="#GA #A2 #A">aber auch nicht der,</lem>
+            <rdg wit="#B">führen. Aber auch nicht der,</rdg>
+          </app>
+          sie im Glauben zu bestärken<ref type="note" target="#fn-11"/>,
+          ja nicht einmal der, ihren Glauben vom Zweifel zu
+          befreien.<ref type="note" target="#fn-12"/> Weder fragt
+          <app xml:id="app-1-i" type="variant">
+            <lem wit="#GA #A2 #A">der</lem>
+            <rdg wit="#B">also der</rdg>
+          </app>
+          theologisch Fragende um der Existenz seines Glaubens willen,
+          noch kann die größere oder geringere Vollständigkeit seiner
+          theologischen Antworten eine Bedeutung für die Existenz
+          seines Glaubens haben.
+        </p>
+
+        <!-- ============================================
+             Absatz 5 (S. 16): Anker k. Anker l wird in der
+             zugehörigen Barth-Anmerkung fn-15 gezeigt.
+             ============================================ -->
+        <p xml:id="p-16-1">
+          Er ist seines Glaubens <foreign xml:lang="la"><hi rend="#italic">gratia
+          Dei praeveniente</hi></foreign> so sicher, daß er nichts
+          kennt, was ihn <foreign xml:lang="la"><hi rend="#italic">ab
+          eius firmitate evellere valeat</hi></foreign>, auch wenn er,
+          was er glaubt, <foreign xml:lang="la"><hi rend="#italic">nulla
+          ratione</hi></foreign> begreifen könnte. Die
+          <rs ref="terms.xml#rei-veritas" ana="hc:SubjectReference" xml:lang="la"><foreign xml:lang="la"><hi rend="#italic">rei veritas</hi></foreign></rs>
+          steht fest, wie es auch mit dem
+          <pb n="17" ed="#A" xml:id="a-17"/>
+          <foreign xml:lang="la"><hi rend="#italic">intellectus ad eam
+          capiendam</hi></foreign> sich verhalten möge.<ref type="note"
+          target="#fn-13"/> Es ist vielmehr Voraussetzung aller
+          theologischen Forschung, daß der Glaube als solcher von den
+          Peripetien des theologischen Ja und Nein unberührt
+          bleibt.<ref type="note" target="#fn-14"/> Kommt das
+          <rs ref="terms.xml#intelligere" ana="hc:SubjectReference" xml:lang="la"><foreign xml:lang="la"><hi rend="#italic">intelligere</hi></foreign></rs>
+          nicht zum Ziel (und es kommt wahrlich weithin nicht zum
+          Ziel), dann bleibt an Stelle der Freude an der Erkenntnis
+          die Ehrfurcht vor der Wahrheit selbst, die auch so um nichts
+          weniger die Wahrheit ist.<ref type="note" target="#fn-15"/>
+          Denn wie die Wahrheit, d. h. die Sachgemäßheit der Sätze
+          menschlichen Erkennens ganz und gar
+          <app xml:id="app-1-k" type="variant">
+            <lem wit="#GA #A2"><hi rend="#letter-spaced">gemessen</hi></lem>
+            <rdg wit="#B">gemessen</rdg>
+          </app>
+          ist an der geglaubten Sache, so ist diese Sache bzw. der
+          Glaube an diese Sache ganz und gar
+          <hi rend="#letter-spaced">nicht</hi> gemessen an der
+          Sachgemäßheit jener menschlichen Sätze.<ref type="note"
+          target="#fn-16"/>
+        </p>
+
+        <p xml:id="p-16-2">
+          <pb n="16" ed="#GA" xml:id="ga-16"/>
+          Es ist nicht die Existenz, es ist aber — wir wenden uns nun
+          der anselmischen <rs ref="terms.xml#position" ana="hc:SubjectReference" xml:lang="de"><hi rend="#letter-spaced">Position</hi></rs> zu —
+          das <rs ref="terms.xml#wesen-des-glaubens" ana="hc:SubjectReference" xml:lang="de"><hi rend="#letter-spaced">Wesen</hi> des Glaubens</rs>, das
+          nach Erkenntnis verlangt.
+          <rs ref="terms.xml#credo-ut-intelligam" ana="hc:SubjectReference" xml:lang="la"><foreign xml:lang="la"><hi rend="#italic">Credo ut
+          intelligam</hi></foreign></rs><ref type="note" target="#fn-17"/>
+          heißt: Mein Glaube selbst und als solcher ist mir Aufruf zum
+          Erkennen. — Es sind im einzelnen vier konvergierende Linien
+          im Denken Anselms, auf denen diese innere Nötigung sichtbar
+          wird.
+        </p>
+
+        <!-- =================================================
+             Barths Anmerkungen (arabisch numeriert):
+             jede trägt zusätzlich ana="hc:AuthorialNote".
+             ================================================= -->
+        <note place="foot" n="1" xml:id="fn-1" type="authorial" ana="hc:AuthorialNote">
+          <quote xml:lang="la" ana="hc:PrimarySourceQuotation"><hi rend="#italic">Ad magnum et
+          <hi rend="#letter-spaced">delectabile</hi> quiddam me subito
+          perduxit haec mea meditatio</hi></quote>
+          <bibl>
+            <title ref="works.xml#monologion" ana="hc:WorkReference" xml:lang="la">Monol.</title>
+            <citedRange unit="chapter">6</citedRange>,
+            <citedRange unit="schmitt">I 19,15f.</citedRange>
+          </bibl>.
+          <quote xml:lang="la" ana="hc:PrimarySourceQuotation"><hi rend="#italic">… cum ad intellectum
+          valet pertingere, <hi rend="#letter-spaced">delectatur</hi></hi></quote>
+          <bibl>
+            <title ref="works.xml#anselm-epistolae" ana="hc:WorkReference" xml:lang="la">Ep.</title>
+            <citedRange unit="letter">136</citedRange>,
+            <citedRange unit="schmitt">III 281,40</citedRange>
+          </bibl>.
+        </note>
+
+        <note place="foot" n="2" xml:id="fn-2" type="authorial" ana="hc:AuthorialNote">
+          <quote xml:lang="la" ana="hc:PrimarySourceQuotation"><hi rend="#italic">… ad pascendum eos,
+          qui iam corde fide mundato … fidei ratione … delectantur</hi></quote>
+          <bibl>
+            <title ref="works.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">Cur Deus
+            homo</title>, <citedRange unit="praefatio">comm. op.</citedRange>,
+            <citedRange unit="schmitt">II 39,4ff.</citedRange>
+          </bibl>.
+        </note>
+
+        <note place="foot" n="3" xml:id="fn-3" type="authorial" ana="hc:AuthorialNote">
+          <bibl rend="cf">
+            <title ref="works.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">Cur Deus
+            homo</title>
+            <citedRange unit="book-chapter">I 1</citedRange>,
+            <citedRange unit="schmitt">II 48,8f.; 49,19</citedRange>
+          </bibl>. — Wir erfahren hier nebenbei, daß
+          <persName ref="persons.xml#anselm" ana="hc:PersonReference">Anselm</persName> durchaus
+          in der Lage war, sich richtig zu ärgern — über schlechte
+          Christusbilder. Daß in
+          <bibl><title ref="works.xml#proslogion" ana="hc:WorkReference" xml:lang="la">Prosl.</title>
+          <citedRange unit="chapter">2</citedRange></bibl>
+          ausgerechnet ein <foreign xml:lang="la"><hi rend="#italic">pictor</hi></foreign>
+          auftritt als Kronzeuge für das Verhältnis zwischen dem
+          <rs ref="terms.xml#esse-rei-in-intellectu" ana="hc:SubjectReference" xml:lang="la"><foreign xml:lang="la"><hi rend="#italic">esse rei in
+          intellectu</hi></foreign></rs> und dem
+          <rs ref="terms.xml#esse-rei-in-intellectu" ana="hc:SubjectReference" xml:lang="la"><foreign xml:lang="la"><hi rend="#italic">intelligere rem
+          esse</hi></foreign></rs>, darf hier auch notiert werden.
+        </note>
+
+        <note place="foot" n="4" xml:id="fn-4" type="authorial" ana="hc:AuthorialNote">
+          <bibl><title ref="works.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">C. D. h.</title>
+          <citedRange unit="book-chapter">I 1</citedRange>,
+          <citedRange unit="schmitt">II 47,9</citedRange></bibl>;
+          vgl. auch <bibl><title ref="works.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">II 15</title>,
+          <citedRange unit="schmitt">II 116,11f.</citedRange></bibl>:
+          <quote xml:lang="la" ana="hc:PrimarySourceQuotation"><hi rend="#italic">… ut me … intellectu
+          laetifices</hi></quote>.
+        </note>
+
+        <note place="foot" n="5" xml:id="fn-5" type="authorial" ana="hc:AuthorialNote">
+          Vgl. auch <bibl><title ref="works.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">C. D. h.</title>
+          <citedRange unit="praefatio">Praef.</citedRange>,
+          <citedRange unit="schmitt">II 42,6</citedRange></bibl>:
+          <quote xml:lang="la" ana="hc:PrimarySourceQuotation"><hi rend="#italic">In magna … cordis
+          tribulatione …</hi></quote>.
+        </note>
+
+        <note place="foot" n="6" xml:id="fn-6" type="authorial" ana="hc:AuthorialNote">
+          <persName ref="persons.xml#anselm" ana="hc:PersonReference">Anselm</persName> selbst
+          hat die Schrift <bibl><title ref="works.xml#de-grammatico" ana="hc:WorkReference"
+          xml:lang="la"><hi rend="#italic">De grammatico</hi></title></bibl>
+          ausdrücklich als nicht theologische gekennzeichnet
+          (<bibl><title ref="works.xml#de-veritate" ana="hc:WorkReference" xml:lang="la">De
+          verit.</title> <citedRange unit="praefatio">Praef.</citedRange>,
+          <citedRange unit="schmitt">I 173,5ff.</citedRange></bibl>).
+          Man bemerke, daß er an derselben Stelle die nach unsern
+          Begriffen rein logische bzw. metaphysische Schrift
+          <bibl><title ref="works.xml#de-veritate" ana="hc:WorkReference" xml:lang="la"><hi
+          rend="#italic">De veritate</hi></title></bibl> selbst als
+          theologische aufführt.
+        </note>
+
+        <note place="foot" n="7" xml:id="fn-7" type="authorial" ana="hc:AuthorialNote">
+          <quote xml:lang="la" ana="hc:PrimarySourceQuotation"><hi rend="#italic">… nos vero, quia
+          credimus</hi></quote> (<foreign xml:lang="la"><hi rend="#italic">rationem
+          quaerimus</hi></foreign>)
+          (<bibl><title ref="works.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">C. D. h.</title>
+          <citedRange unit="book-chapter">I 3</citedRange>,
+          <citedRange unit="schmitt">II 50,19</citedRange></bibl>).
+        </note>
+
+        <note place="foot" n="8" xml:id="fn-8" type="authorial" ana="hc:AuthorialNote">
+          <quote xml:lang="la" ana="hc:PrimarySourceQuotation"><hi rend="#italic">… quisquis tendendo
+          ad illam (sc. summam essentiam) pervenerit, non extra illam
+          remanebit, sed intra illam permanebit; quod expressius et
+          familiarius significatur, si dicitur tendendum esse
+          <hi rend="#letter-spaced">in</hi> illam, quam si dicitur
+          <hi rend="#letter-spaced">ad</hi> illam. Hac itaque ratione
+          puto congruentius posse dici credendum esse
+          <hi rend="#letter-spaced">in</hi> illam quam
+          <hi rend="#letter-spaced">ad</hi> illam</hi></quote>
+          (<bibl><title ref="works.xml#monologion" ana="hc:WorkReference" xml:lang="la">Monol.</title>
+          <citedRange unit="chapter">76</citedRange>,
+          <citedRange unit="schmitt">I 83,27–84,2</citedRange></bibl>).
+        </note>
+
+        <note place="foot" n="9" xml:id="fn-9" type="authorial" ana="hc:AuthorialNote">
+          <quote xml:lang="la" ana="hc:PrimarySourceQuotation"><hi rend="#italic">Deus nihil facit
+          necessitate, quia nullo modo cogitur aut prohibetur facere
+          aliquid</hi></quote>
+          (<bibl><title ref="works.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">C. D. h.</title>
+          <citedRange unit="book-chapter">II 5</citedRange>,
+          <citedRange unit="schmitt">II 100,20f.</citedRange></bibl>).
+          <quote xml:lang="la" ana="hc:PrimarySourceQuotation"><hi rend="#italic">Deus nulli quicquam
+          debet, sed omnis creatura illi debet; et ideo non expedit
+          homini ut agat cum Deo, quemadmodum par cum pari</hi></quote>
+          (<bibl><title ref="works.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">ib.</title>
+          <citedRange unit="book-chapter">I 19</citedRange>,
+          <citedRange unit="schmitt">II 86,7ff.</citedRange></bibl>).
+          <quote xml:lang="la" ana="hc:PrimarySourceQuotation"><hi rend="#italic">… summa veritas …
+          nulli quicquam debet; nec ulla ratione est quod est, nisi
+          quia est</hi></quote>
+          (<bibl><title ref="works.xml#de-veritate" ana="hc:WorkReference" xml:lang="la">De
+          verit.</title> <citedRange unit="chapter">10</citedRange>,
+          <citedRange unit="schmitt">I 190,2ff.</citedRange></bibl>).
+        </note>
+
+        <note place="foot" n="10" xml:id="fn-10" type="authorial" ana="hc:AuthorialNote">
+          <quote xml:lang="la" ana="hc:PrimarySourceQuotation"><hi rend="#italic">Neque enim quaero
+          intelligere, ut credam …</hi></quote>
+          (<bibl><title ref="works.xml#proslogion" ana="hc:WorkReference" xml:lang="la">Prosl.</title>
+          <citedRange unit="chapter">1</citedRange>,
+          <citedRange unit="schmitt">I 100,18</citedRange></bibl>).
+          <quote xml:lang="la" ana="hc:PrimarySourceQuotation"><hi rend="#italic">… non ut per
+          rationem ad fidem accedant</hi></quote>
+          (<bibl><title ref="works.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">C. D. h.</title>
+          <citedRange unit="book-chapter">I 1</citedRange>,
+          <citedRange unit="schmitt">II 47,8f.</citedRange></bibl>;
+          vgl. <bibl><title ref="works.xml#anselm-epistolae" ana="hc:WorkReference" xml:lang="la">Ep.</title>
+          <citedRange unit="letter">136</citedRange>,
+          <citedRange unit="schmitt">III 281,38f.</citedRange></bibl>).
+        </note>
+
+        <note place="foot" n="11" xml:id="fn-11" type="authorial" ana="hc:AuthorialNote">
+          <quote xml:lang="la" ana="hc:PrimarySourceQuotation"><hi rend="#italic">… non ut me in fide
+          confirmes</hi></quote>
+          (<bibl><title ref="works.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">C. D. h.</title>
+          <citedRange unit="book-chapter">II 15</citedRange>,
+          <citedRange unit="schmitt">II 116,11</citedRange></bibl>).
+          <persName ref="persons.xml#anselm" ana="hc:PersonReference">Anselm</persName> bittet
+          dringend, ihm nicht die verwerfliche
+          <foreign xml:lang="la"><hi rend="#italic">praesumptio</hi></foreign>
+          zuzuschreiben, er rede
+          <foreign xml:lang="la"><hi rend="#italic">ad confirmandum
+          fidei Christianae firmamentum, quasi mea indigeat
+          defensione</hi></foreign>. Das wäre wie wenn einer den Olymp
+          mit Pflöcken und Seilen gegen den Einsturz sichern wollte.
+          Wer müßte über den nicht lachen! Und hier handelt es sich ja
+          um den vom Berge sich losreißenden und schließlich die ganze
+          Welt erfüllenden Felsen aus dem Traumgesicht Nebukadnezars
+          [<ref type="bibl" cRef="Bible:Dan.2.34">Dan. 2,34f.</ref>].
+          Alle <foreign xml:lang="la"><hi rend="#italic">sancti et
+          sapientes, qui super eius aeternam firmitatem se stabilitos
+          esse gaudent</hi></foreign>, müßten sich über mich entrüsten,
+          <foreign xml:lang="la"><hi rend="#italic">si eum meis
+          rationibus fulcire et quasi nutantem stabilire nitar</hi></foreign>!
+          (<bibl><title ref="works.xml#ep-de-incarnatione" ana="hc:WorkReference" xml:lang="la">Ep. de
+          incarn.</title> <citedRange unit="chapter">1</citedRange>,
+          <citedRange unit="schmitt">II 5,7ff.</citedRange></bibl>).
+        </note>
+
+        <note place="foot" n="12" xml:id="fn-12" type="authorial" ana="hc:AuthorialNote">
+          <quote xml:lang="la" ana="hc:PrimarySourceQuotation"><hi rend="#italic">Non ad hoc veni, ut
+          auferas mihi fidei dubitationem</hi></quote>
+          (<bibl><title ref="works.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">C. D. h.</title>
+          <citedRange unit="book-chapter">I 25</citedRange>,
+          <citedRange unit="schmitt">II 96,6</citedRange></bibl>). Er
+          entschließt sich, den unter gewissen dogmatischen
+          Schwierigkeiten Leidenden zu Hilfe zu kommen
+          <foreign xml:lang="la"><hi rend="#italic">etiam si fides in
+          illis superet rationem quae illis fidei videtur
+          repugnare</hi></foreign>
+          (<bibl><title ref="works.xml#ep-de-incarnatione" ana="hc:WorkReference" xml:lang="la">Ep. de
+          incarn.</title> <citedRange unit="chapter">1</citedRange>,
+          <citedRange unit="schmitt">II 6,2f.</citedRange></bibl>).
+        </note>
+
+        <note place="foot" n="13" xml:id="fn-13" type="authorial" ana="hc:AuthorialNote">
+          <bibl rend="cf"><title ref="works.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">C. D. h.</title>
+          <citedRange unit="book-chapter">I 1</citedRange>,
+          <citedRange unit="schmitt">II 48,16–49,2</citedRange></bibl>.
+          <quote xml:lang="la" ana="hc:PrimarySourceQuotation"><hi rend="#italic">Saepe namque aliquid
+          esse certi sumus et tamen hoc ratione probare nescimus</hi></quote>
+          (<bibl><title ref="works.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">ib.</title>
+          <citedRange unit="book-chapter">II 13</citedRange>,
+          <citedRange unit="schmitt">II 113,17f.</citedRange></bibl>).
+          <quote xml:lang="la" ana="hc:PrimarySourceQuotation"><hi rend="#italic">… cuncta, quae ipse
+          (sc. Deus) dicit, certa esse … dubitandum non est, quamvis
+          non eorum ratio intelligatur a nobis</hi></quote>
+          (<bibl><title ref="works.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">ib.</title>
+          <citedRange unit="book-chapter">II 15</citedRange>,
+          <citedRange unit="schmitt">II 116,5ff.</citedRange></bibl>).
+          <quote xml:lang="la" ana="hc:PrimarySourceQuotation"><hi rend="#italic">Credentem me fecisti
+          scire, quod nesciens credebam</hi></quote>
+          (<bibl><title ref="works.xml#de-casu-diaboli" ana="hc:WorkReference" xml:lang="la">De
+          casu diab.</title> <citedRange unit="chapter">16</citedRange>,
+          <citedRange unit="schmitt">I 261,25</citedRange></bibl>).
+        </note>
+
+        <note place="foot" n="14" xml:id="fn-14" type="authorial" ana="hc:AuthorialNote">
+          <quote xml:lang="la" ana="hc:PrimarySourceQuotation"><hi rend="#italic">… nulla difficultas
+          aut impossibilitas intelligendi valeat illum a veritate, cui
+          per fidem adhaesit, excutere</hi></quote>
+          (<bibl><title ref="works.xml#ep-de-incarnatione" ana="hc:WorkReference" xml:lang="la">Ep. de
+          incarn.</title> <citedRange unit="chapter">1</citedRange>,
+          <citedRange unit="schmitt">II 10,15f.</citedRange></bibl>).
+        </note>
+
+        <note place="foot" n="15" xml:id="fn-15" type="authorial" ana="hc:AuthorialNote">
+          <quote xml:lang="la" ana="hc:PrimarySourceQuotation"><hi rend="#italic">… cum ad intellectum
+          valet pertingere, delectatur; cum vero nequit, quod capere
+          non potest, veneratur</hi></quote>
+          (<bibl><title ref="works.xml#anselm-epistolae" ana="hc:WorkReference" xml:lang="la">Ep.</title>
+          <citedRange unit="letter">136</citedRange>,
+          <citedRange unit="schmitt">III 281,40f.</citedRange></bibl>).
+          Ausdrücklich vom
+          <bibl><title ref="works.xml#monologion" ana="hc:WorkReference" xml:lang="la">Monologion</title></bibl>
+          und <bibl><title ref="works.xml#proslogion" ana="hc:WorkReference" xml:lang="la">Proslogion</title></bibl>
+          sagt <persName ref="persons.xml#anselm" ana="hc:PersonReference">Anselm</persName>, er
+          habe diese Schriften auch
+          <!-- Inline app-Eintrag innerhalb der Barth-Anmerkung:
+               Hier zeigt die Doppelkodierung ihre Notwendigkeit, denn
+               die Lesart steht im Druck als Buchstabenanker am Wort
+               selbst. -->
+          <app xml:id="app-1-l" type="variant">
+            <lem wit="#GA #A2">geschrieben</lem>
+            <rdg wit="#A #B">dazu geschrieben</rdg>
+          </app>
+          <foreign xml:lang="la"><hi rend="#italic">ad adiuvandum
+          religiosum studium eorum, qui humiliter quaerunt
+          intelligere, quod firmissime credunt</hi></foreign>
+          (<bibl><title ref="works.xml#ep-de-incarnatione" ana="hc:WorkReference" xml:lang="la">Ep. de
+          incarn.</title> <citedRange unit="chapter">6</citedRange>,
+          <citedRange unit="schmitt">II 21,2f.</citedRange></bibl>).
+        </note>
+
+        <note place="foot" n="16" xml:id="fn-16" type="authorial" ana="hc:AuthorialNote">
+          <quote xml:lang="la" ana="hc:PrimarySourceQuotation"><hi rend="#italic">Rectitudo … qua
+          significatio recta dicitur, non habet esse aut aliquem motum
+          per significationem, quomodocumque ipsa moveatur
+          significatio</hi></quote>
+          (<bibl><title ref="works.xml#de-veritate" ana="hc:WorkReference" xml:lang="la">De
+          verit.</title> <citedRange unit="chapter">13</citedRange>,
+          <citedRange unit="schmitt">I 198,18ff.</citedRange></bibl>).
+        </note>
+
+        <note place="foot" n="17" xml:id="fn-17" type="authorial" ana="hc:AuthorialNote">
+          <bibl><title ref="works.xml#proslogion" ana="hc:WorkReference" xml:lang="la">Prosl.</title>
+          <citedRange unit="chapter">1</citedRange>,
+          <citedRange unit="schmitt">I 100,18</citedRange></bibl>.
+        </note>
+
+        <!-- =================================================
+             Herausgeber-Anmerkungen (a, b, c …, kapitelweise
+             numeriert) als druckbildtreue Parallel-Kodierung
+             zu den inline-<app>-Elementen. Jede ed-note trägt
+             ein target-Attribut, das auf den zugehörigen
+             Apparateintrag im Fließtext zeigt, und nennt das
+             Witness-Sigel (A oder B) sowie die abweichende
+             Lesart explizit, wie sie in der gedruckten Ausgabe
+             erscheint. — Jede trägt zusätzlich
+             ana="hc:VariantNote" und ist damit Instanz der
+             heiEDITIONS-Klasse VariantNote (Unterklasse von
+             TextCriticalNote ← EditorialNote).
+             ================================================= -->
+        <note place="foot" n="a" xml:id="ed-a" type="editorial" ana="hc:VariantNote"
+              target="#app-1-a">
+          <ref target="#app-1-a">B:</ref>
+          <quote>Wir fragen nach</quote>
+        </note>
+        <note place="foot" n="b" xml:id="ed-b" type="editorial" ana="hc:VariantNote"
+              target="#app-1-b">
+          <ref target="#app-1-b">B:</ref>
+          <quote>auf</quote> [statt <q>eben auf</q>]
+        </note>
+        <note place="foot" n="c" xml:id="ed-c" type="editorial" ana="hc:VariantNote"
+              target="#app-1-c">
+          <ref target="#app-1-c">A:</ref>
+          <quote>doch nur</quote>
+        </note>
+        <note place="foot" n="d" xml:id="ed-d" type="editorial" ana="hc:VariantNote"
+              target="#app-1-d">
+          <ref target="#app-1-d">A und B:</ref> <q>Theologie</q>
+          [nicht gesperrt].
+        </note>
+        <note place="foot" n="e" xml:id="ed-e" type="editorial" ana="hc:VariantNote"
+              target="#app-1-e">
+          <ref target="#app-1-e">A und B:</ref> <q>Glaube</q>
+          [nicht gesperrt].
+        </note>
+        <note place="foot" n="f" xml:id="ed-f" type="editorial" ana="hc:VariantNote"
+              target="#app-1-f">
+          <ref target="#app-1-f">B:</ref> <quote>der</quote>
+          [statt <q>derer</q>]
+        </note>
+        <note place="foot" n="g" xml:id="ed-g" type="editorial" ana="hc:VariantNote"
+              target="#app-1-g">
+          <ref target="#app-1-g">A und B:</ref>
+          <q>spontanes</q> [gesperrt].
+        </note>
+        <note place="foot" n="h" xml:id="ed-h" type="editorial" ana="hc:VariantNote"
+              target="#app-1-h">
+          <ref target="#app-1-h">B:</ref>
+          <quote>führen. Aber auch nicht der,</quote>
+          [neuer Satz].
+        </note>
+        <note place="foot" n="i" xml:id="ed-i" type="editorial" ana="hc:VariantNote"
+              target="#app-1-i">
+          <ref target="#app-1-i">B:</ref> <quote>also der</quote>
+          [statt <q>der</q>]
+        </note>
+        <note place="foot" n="k" xml:id="ed-k" type="editorial" ana="hc:VariantNote"
+              target="#app-1-k">
+          <ref target="#app-1-k">A und B:</ref>
+          <q>gemessen</q> [nicht gesperrt].
+        </note>
+        <note place="foot" n="l" xml:id="ed-l" type="editorial" ana="hc:VariantNote"
+              target="#app-1-l">
+          <ref target="#app-1-l">A und B:</ref>
+          <quote>dazu geschrieben</quote> [statt <q>geschrieben</q>].
+        </note>
+
+      </div>
+    </body>
+  </text>
+</TEI>

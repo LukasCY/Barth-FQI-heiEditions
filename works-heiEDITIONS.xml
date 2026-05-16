@@ -1,0 +1,360 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-model href="https://tei-c.org/release/xml/tei/custom/schema/relaxng/tei_all.rng"
+            type="application/xml"
+            schematypens="http://relaxng.org/ns/structure/1.0"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0"
+     xmlns:hc="https://lod.ub.uni-heidelberg.de/ontologies/heieditions/hc/current/"
+     xml:id="fqi-works" xml:lang="de">
+
+  <!-- =========================================================
+       Werkregister zur digitalen Edition von Karl Barth,
+       Fides quaerens intellectum (GA II.13).
+
+       UMFANG
+       ======
+       Drei Bereiche:
+         (1) Anselm-Werke: Schriften, die Barth in § 1.1 (und im
+             Buch insgesamt) zitiert, jeweils mit den Kurzformen,
+             die als <title>-Inhalt in section1.xml erscheinen.
+         (2) Anselm-Editionen: Schmitts Opera Omnia (Basisausgabe
+             aller Barth-Zitate) und die Patrologia Latina (für
+             Pseudo-Anselm-Schriften).
+         (3) Sekundärliteratur und Hilfsmittel: spätere
+             Anselm-Editionen, einschlägige Lexika.
+
+       ID-KONVENTION
+       =============
+       @xml:id-Werke verwenden die geläufigen lateinischen
+       Kurztitel in Kleinbuchstaben und mit Bindestrich
+       (cur-deus-homo, de-veritate, ep-de-incarnatione). Anselms
+       Briefcorpus erhält die Sammel-ID anselm-epistolae.
+
+       VERWEISSTRUKTUR
+       ===============
+       In section1.xml verweisen die <title>-Elemente in den
+       <bibl>-Apparaten via @ref auf die @xml:id eines hier
+       definierten <bibl>-Elements. Damit auch Kurzformen wie
+       "C. D. h.", "ib." oder "Prosl." identisch aufgelöst
+       werden, ist in section1.xml an jeder Stelle dasselbe
+       @ref gesetzt; die typographische Variation ist allein
+       Druckbild.
+
+       ZITIERSYSTEM SCHMITT
+       ====================
+       Stellenangaben "II 47,9" o. ä. in Anmerkungen sind zu
+       lesen als: Band II / Seite 47 / Zeile 9 der Schmitt-
+       Ausgabe. Dies wird in section1.xml durch
+       <citedRange unit="schmitt"> ausgezeichnet.
+
+       FORWARD-REFERENCES
+       ==================
+       Aufgenommen sind auch Anselm-Werke, die in § 1.1 noch
+       nicht zitiert werden, im weiteren Verlauf des Buches
+       aber zentral sind (insb. Cur Deus homo II, De casu
+       diaboli, Epistolae). Sie sind nicht eigens als
+       forward-references markiert, weil <bibl>-Einträge
+       prinzipiell aus dem Belegnetz heraus aktiviert werden:
+       erst wenn section1.xml oder spätere Kapitel auf sie
+       verweisen, "existieren" sie als Belegankerpunkte.
+
+       heiEDITIONS-Bindung
+       ===================
+       Die Datei wird als editorische Registerdatei behandelt
+       und bindet zentrale Elemente an heiEDITIONS Concepts:
+         <text>                     → ana="hc:IndexOfWorks"
+         <title type="full">        → ana="hc:PreferredAppellation"
+         <title type="alternative"
+                / "abbr" / "...">   → ana="hc:AlternativeTitle"
+         <idno type="GND">          → zusätzlich ana="hc:GNDURI"
+       PreferredAppellation auf <title> ist laut heiEDITIONS nur
+       in Registerdateien erlaubt — diese Datei ist genau das.
+       AlternativeTitle (Unterklasse von Title) hat diese
+       Beschränkung nicht und wird hier konsistent für die
+       typographisch-bibliographischen Nebenformen verwendet.
+       ========================================================= -->
+
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>Werkregister zur digitalen Edition von Karl
+          Barth, Fides quaerens intellectum (GA II.13)</title>
+        <respStmt>
+          <resp>Konzeption, bibliographische Recherche, GND-/
+            VIAF-Verknüpfung</resp>
+          <persName>[Bearbeiter:in der Promotion]</persName>
+        </respStmt>
+      </titleStmt>
+      <publicationStmt>
+        <publisher>Prototyp einer digitalen Edition
+          (Portfolio, nicht offiziell publiziert)</publisher>
+        <availability status="restricted">
+          <licence target="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+            CC BY-NC-SA 4.0 für die Modellierung und Anreicherung.
+          </licence>
+        </availability>
+        <date when="2026">2026</date>
+      </publicationStmt>
+      <sourceDesc>
+        <p>Datenbasis: Schmitt, S. Anselmi Cantuariensis
+          archiepiscopi Opera Omnia (1938–1961); GND;
+          F. S. Schmitt, "Anselm-Studien", AHDLMA 1932–1936;
+          Vorwort der Herausgeber GA II.13.</p>
+      </sourceDesc>
+    </fileDesc>
+  </teiHeader>
+
+  <text ana="hc:IndexOfWorks">
+    <body>
+
+      <!-- =========================================================
+           (1) ANSELM-WERKE
+               (Reihenfolge: nach interner Anselm-Chronologie)
+           ========================================================= -->
+      <listBibl type="anselm-werke">
+
+        <!-- Monologion (1076) -->
+        <bibl xml:id="monologion" type="work">
+          <author ref="persons.xml#anselm">Anselm von Canterbury</author>
+          <title type="full" xml:lang="la" ana="hc:PreferredAppellation">Monologion</title>
+          <title type="alternative" xml:lang="la" ana="hc:AlternativeTitle">Monologium</title>
+          <title type="alternative" xml:lang="la" ana="hc:AlternativeTitle">Monoloquium de
+            ratione fidei</title>
+          <title type="abbr" xml:lang="la" ana="hc:AlternativeTitle">Monol.</title>
+          <date notBefore="1076" notAfter="1076">1076</date>
+          <note>Frühe systematische Schrift; "ratio fidei" als
+            programmatischer Untertitel. Barth zitiert in § 1.1
+            fn-1 (I 19,15f.) und fn-8 (I 83,27–84,2). Im
+            Schmitt: Bd. I.</note>
+          <idno type="GND" ana="hc:GNDURI">4191596-7</idno>
+        </bibl>
+
+        <!-- Proslogion (1077/78) -->
+        <bibl xml:id="proslogion" type="work">
+          <author ref="persons.xml#anselm">Anselm von Canterbury</author>
+          <title type="full" xml:lang="la" ana="hc:PreferredAppellation">Proslogion</title>
+          <title type="alternative" xml:lang="la" ana="hc:AlternativeTitle">Proslogium</title>
+          <title type="abbr" xml:lang="la" ana="hc:AlternativeTitle">Prosl.</title>
+          <title type="original-intended" xml:lang="la" ana="hc:AlternativeTitle">Fides
+            quaerens intellectum</title>
+          <date notBefore="1077" notAfter="1078">1077/78</date>
+          <note>Schrift, in der Anselm das "unum argumentum"
+            entfaltet (c. 2–4); für Barths Buch zentral. Im
+            Proömium nennt Anselm "Fides quaerens intellectum"
+            als ursprünglich beabsichtigten Titel
+            (vgl. <ref target="terms.xml#fqi-motto"/> und
+            <ref target="section1.xml#p-14-1">p-14-1</ref>).
+            Im Schmitt: Bd. I, S. 89–139.</note>
+          <idno type="GND" ana="hc:GNDURI">4174333-2</idno>
+        </bibl>
+
+        <!-- Cur Deus homo (1094–1098) -->
+        <bibl xml:id="cur-deus-homo" type="work">
+          <author ref="persons.xml#anselm">Anselm von Canterbury</author>
+          <title type="full" xml:lang="la" ana="hc:PreferredAppellation">Cur Deus homo</title>
+          <title type="abbr" xml:lang="la" ana="hc:AlternativeTitle">C. D. h.</title>
+          <title type="abbr-alt" xml:lang="la" ana="hc:AlternativeTitle">CDH</title>
+          <date notBefore="1094" notAfter="1098">1094–1098</date>
+          <note>Hauptwerk der Soteriologie; in § 1.1 mehrfach
+            zitiert (Praefatio: II 39,4ff.; I 1: II 47,9
+            u. ö.; II 5; II 13; II 15; I 19; I 25). Methodisch
+            programmatisch wegen der Praefatio, in der Anselm
+            "delectatio" und "polemische Verantwortung" als
+            zwei Zwecke des theologischen Schreibens nennt
+            (vgl. <ref target="section1.xml#p-13-2">p-13-2</ref>
+            mit <ref target="section1.xml#fn-2">fn-2</ref>).
+            Im Schmitt: Bd. II.</note>
+          <idno type="GND" ana="hc:GNDURI">4188603-2</idno>
+        </bibl>
+
+        <!-- De veritate -->
+        <bibl xml:id="de-veritate" type="work">
+          <author ref="persons.xml#anselm">Anselm von Canterbury</author>
+          <title type="full" xml:lang="la" ana="hc:PreferredAppellation">De veritate</title>
+          <title type="abbr" xml:lang="la" ana="hc:AlternativeTitle">De verit.</title>
+          <date notBefore="1080" notAfter="1086">ca. 1080–1086</date>
+          <note>Dialog über die Wahrheit. In § 1.1 zitiert in
+            fn-6 (Praef.: I 173,5ff.), fn-9 (c. 10: I 190,2ff.)
+            und fn-16 (c. 13: I 198,18ff.). Wichtig für den
+            Begriff der rectitudo (vgl. fn-16); Anselm zählt
+            in der Praef. selbst De grammatico,
+            De veritate und De libertate arbitrii zu seinen
+            theologischen Schriften (relevant für die in p-14-1
+            erwähnte "Ausnahme" De grammatico). Im
+            Schmitt: Bd. I, S. 173–199.</note>
+          <idno type="GND" ana="hc:GNDURI">4326091-8</idno>
+        </bibl>
+
+        <!-- De grammatico -->
+        <bibl xml:id="de-grammatico" type="work">
+          <author ref="persons.xml#anselm">Anselm von Canterbury</author>
+          <title type="full" xml:lang="la" ana="hc:PreferredAppellation">De grammatico</title>
+          <date notBefore="1080" notAfter="1085">ca. 1080–1085</date>
+          <note>Logisch-grammatische Übungsschrift; von Anselm
+            selbst in De verit. Praef. ausdrücklich als nicht
+            theologisch gekennzeichnet. In § 1.1 in fn-6 als
+            "die eine Ausnahme" zitiert
+            (vgl. <ref target="section1.xml#p-14-1">p-14-1</ref>
+            mit Verweis auf fn-6). Im Schmitt: Bd. I,
+            S. 141–168.</note>
+        </bibl>
+
+        <!-- De casu diaboli -->
+        <bibl xml:id="de-casu-diaboli" type="work">
+          <author ref="persons.xml#anselm">Anselm von Canterbury</author>
+          <title type="full" xml:lang="la" ana="hc:PreferredAppellation">De casu diaboli</title>
+          <title type="abbr" xml:lang="la" ana="hc:AlternativeTitle">De casu diab.</title>
+          <date notBefore="1085" notAfter="1090">ca. 1085–1090</date>
+          <note>Dialog über den Fall des Teufels. In § 1.1
+            zitiert in fn-13 (c. 16: I 261,25):
+            <q xml:lang="la">Credentem me fecisti scire, quod
+            nesciens credebam</q>. Im Schmitt: Bd. I,
+            S. 227–276.</note>
+        </bibl>
+
+        <!-- Epistola de incarnatione Verbi -->
+        <bibl xml:id="ep-de-incarnatione" type="work">
+          <author ref="persons.xml#anselm">Anselm von Canterbury</author>
+          <title type="full" xml:lang="la" ana="hc:PreferredAppellation">Epistola de
+            incarnatione Verbi</title>
+          <title type="abbr" xml:lang="la" ana="hc:AlternativeTitle">Ep. de incarn.</title>
+          <date notBefore="1092" notAfter="1094">1092/1094
+            (zwei Fassungen)</date>
+          <note>Sendschreiben gegen Roscelin. In § 1.1
+            zitiert in fn-11 (c. 1: II 5,7ff.), fn-12 (c. 1:
+            II 6,2f.), fn-14 (c. 1: II 10,15f.) und fn-15
+            (c. 6: II 21,2f.). Quelle für den Schlüsselsatz
+            <q xml:lang="la">ad adiuvandum religiosum studium
+            eorum, qui humiliter quaerunt intelligere, quod
+            firmissime credunt</q>. Im Schmitt: Bd. II,
+            S. 1–35.</note>
+        </bibl>
+
+        <!-- Briefcorpus -->
+        <bibl xml:id="anselm-epistolae" type="work">
+          <author ref="persons.xml#anselm">Anselm von Canterbury</author>
+          <title type="full" xml:lang="la" ana="hc:PreferredAppellation">Epistolae</title>
+          <title type="abbr" xml:lang="la" ana="hc:AlternativeTitle">Ep.</title>
+          <note>Briefcorpus Anselms (über 470 Briefe),
+            chronologisch und thematisch heterogen. In § 1.1
+            zitiert: Ep. 136 (III 281,40 in fn-1 und fn-15;
+            III 281,38f. in fn-10). Diese Stelle ist Quelle
+            der Sentenz <q xml:lang="la">cum ad intellectum
+            valet pertingere, delectatur</q>. Im Schmitt:
+            Bde. III–V.</note>
+        </bibl>
+
+      </listBibl>
+
+      <!-- =========================================================
+           (2) ANSELM-EDITIONEN
+           ========================================================= -->
+      <listBibl type="editions">
+
+        <!-- Schmitt: Opera Omnia (Basisausgabe für Barth) -->
+        <bibl xml:id="schmitt-opera" type="edition">
+          <editor ref="persons.xml#schmitt">F. S. Schmitt</editor>
+          <title type="full" xml:lang="la" ana="hc:PreferredAppellation">S. Anselmi
+            Cantuariensis archiepiscopi Opera Omnia</title>
+          <extent>6 Bde.</extent>
+          <pubPlace>Seckau</pubPlace>
+          <pubPlace>Rom</pubPlace>
+          <pubPlace>Edinburgh</pubPlace>
+          <publisher>Nelson</publisher>
+          <date from="1938" to="1961">1938–1961</date>
+          <note>Kritische Gesamtausgabe der echten Werke
+            Anselms. Erscheinen begann 1938 mit Bd. 1
+            (Seckau), wurde nach 1945 fortgesetzt
+            (Edinburgh / Rom). Barth zitiert konsequent nach
+            dieser Ausgabe (Band/Seite/Zeile), in section1.xml
+            durch <gi>citedRange unit="schmitt"</gi>
+            ausgezeichnet.</note>
+          <idno type="GND" ana="hc:GNDURI">2027186-7</idno>
+        </bibl>
+
+        <!-- Patrologia Latina (für unechte Schriften) -->
+        <bibl xml:id="patrologia-latina" type="edition">
+          <editor ref="persons.xml#migne">J.-P. Migne</editor>
+          <title type="full" xml:lang="la" ana="hc:PreferredAppellation">Patrologiae cursus
+            completus. Series Latina</title>
+          <title type="abbr" xml:lang="la" ana="hc:AlternativeTitle">PL</title>
+          <extent>217 Textbände + 4 Indexbände (1844–1865)</extent>
+          <pubPlace>Paris</pubPlace>
+          <date from="1844" to="1865">1844–1865</date>
+          <note>Anselms Schriften finden sich in PL 158–159.
+            Barth zitiert nach PL nur diejenigen Schriften,
+            die Schmitt als unecht ausgesondert hat
+            (vgl. die Editionsrichtlinie in section1.xml:
+            <ref target="section1.xml">editorialDecl</ref>).</note>
+          <idno type="GND" ana="hc:GNDURI">4173933-7</idno>
+        </bibl>
+
+      </listBibl>
+
+      <!-- =========================================================
+           (3) WEITERE BIBLIOGRAPHIE
+               (Hilfsmittel und Sekundärliteratur, soweit für
+               die Edition selbst relevant)
+           ========================================================= -->
+      <listBibl type="secondary">
+
+        <!-- Vorwort der Herausgeber GA II.13 -->
+        <bibl xml:id="vorwort-ga-2-13" type="paratext">
+          <author ref="persons.xml#juengel">Eberhard Jüngel</author>
+          <author ref="persons.xml#dalferth">Ingolf U. Dalferth</author>
+          <title type="full" ana="hc:PreferredAppellation">Vorwort der Herausgeber</title>
+          <title type="hostBook" ana="hc:AlternativeTitle">Karl Barth, Fides quaerens
+            intellectum. Anselms Beweis der Existenz Gottes im
+            Zusammenhang seines theologischen Programms</title>
+          <biblScope unit="ga-series">II</biblScope>
+          <biblScope unit="ga-band">13</biblScope>
+          <biblScope unit="page" from="VII" to="XIV">VII–XIV</biblScope>
+          <pubPlace>Zürich</pubPlace>
+          <publisher ref="persons.xml#tvz">TVZ</publisher>
+          <date when="1981">1981 (Dat. d. Vorworts: Tübingen,
+            Juli 1979)</date>
+          <note>Editionsphilologische Grundlage dieser
+            digitalen Edition. Legt die Sigel-Konvention
+            (A, B, A2, GA), die Umgang mit Druckfehlern und
+            die Markierungskonventionen fest. Siehe
+            <ref target="section1.xml">editorialDecl</ref>.</note>
+        </bibl>
+
+        <!-- Šimek 2022 (Methodologie der Edition) -->
+        <bibl xml:id="simek-2022" type="article">
+          <author>Jakub Šimek</author>
+          <title type="full" ana="hc:PreferredAppellation">heiEDITIONS — eine Heidelberger
+            Infrastruktur für Editionen (nicht nur)
+            mittelalterlicher Texte</title>
+          <title type="hostJournal" ana="hc:AlternativeTitle">Beiträge zur mediävistischen
+            Erzählforschung. Themenheft</title>
+          <biblScope unit="vol">12</biblScope>
+          <biblScope unit="page" from="27" to="46">27–46</biblScope>
+          <date when="2022">2022</date>
+          <note>Methodologische Grundlage der digitalen Edition:
+            das Fünf-Ebenen-Modell der Textdimensionen
+            (semantisch-logisch, visuell-materiell,
+            linguistisch, extensional, Überlieferungsvarianz).
+            Siehe <ref target="README.md">README</ref>.</note>
+        </bibl>
+
+        <!-- Holmes 2017 (Interoperability vs. Interchange) -->
+        <bibl xml:id="holmes-2017" type="article">
+          <author>Martin Holmes</author>
+          <title type="full" ana="hc:PreferredAppellation">Whatever happened to
+            interchange?</title>
+          <title type="hostJournal" ana="hc:AlternativeTitle">Digital Scholarship in the
+            Humanities</title>
+          <biblScope unit="vol">32</biblScope>
+          <biblScope unit="issue">suppl. 1</biblScope>
+          <biblScope unit="page" from="i63" to="i68">i63–i68</biblScope>
+          <date when="2017">2017</date>
+          <idno type="DOI">10.1093/llc/fqx034</idno>
+          <note>Methodologische Referenz für den FAIR-/
+            Interchange-Abschnitt der README.</note>
+        </bibl>
+
+      </listBibl>
+
+    </body>
+  </text>
+</TEI>

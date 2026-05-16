@@ -1,0 +1,499 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-model href="https://tei-c.org/release/xml/tei/custom/schema/relaxng/tei_all.rng"
+            type="application/xml"
+            schematypens="http://relaxng.org/ns/structure/1.0"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0"
+     xmlns:hc="https://lod.ub.uni-heidelberg.de/ontologies/heieditions/hc/current/"
+     xml:id="fqi-persons" xml:lang="de">
+
+  <!-- =========================================================
+       Personen- und Körperschaftsregister zur digitalen Edition
+       von Karl Barth, Fides quaerens intellectum (GA II.13).
+
+       STRUKTUR
+       ========
+       Diese Datei enthält drei <listPerson>-Blöcke und einen
+       <listOrg>-Block:
+         (1) Primäre Akteure: Autor, im Text genannte historische
+             Personen (Anselm, Gaunilo).
+         (2) Herausgeber: Bandherausgeber (Jüngel, Dalferth) und
+             Reihen-Herausgeber (Stoevesandt, Drewes).
+         (3) Erwähnte Sekundärfiguren: Kattenbusch (Festschrift-
+             Adressat), Schmitt (Editor der Anselm-Werke), Althaus,
+             Heim (Reihen-Hrsg. der Erstausgabe), Migne.
+         (4) Körperschaften: Karl-Barth-Stiftung, Verlage,
+             Universität Glasgow (Widmungsadressat der 1. Aufl.).
+
+       ID-KONVENTION
+       =============
+       Die @xml:id-Werte verwenden Kleinbuchstaben-Nachnamen ohne
+       Umlaute (oe statt ö, ue statt ü, ae statt ä, ss statt ß).
+       Sie sind die Anker, auf die in section1.xml via
+       <persName ref="persons.xml#xyz"> verwiesen wird.
+
+       GND-INTEGRATION
+       ===============
+       Wo verfügbar, ist <idno type="GND"> angegeben, ergänzt um
+       VIAF (international) und ggf. Wikidata. Diese Verlinkung
+       erfüllt das I (interoperability) und R (reusability) des
+       FAIR-Prinzips; die persons.xml fungiert als Authority File
+       der Edition.
+
+       heiEDITIONS-Bindung
+       ===================
+       Die Datei wird als editorische Registerdatei behandelt und
+       bindet zentrale Elemente an heiEDITIONS Concepts:
+         <text>           → ana="hc:IndexOfPersons"
+         <div> um listOrg → ana="hc:IndexOfOrganizations"
+         erste persName   → ana="hc:PreferredAppellation"
+         weitere persName → ana="hc:AlternativeAppellation"
+         erste orgName    → ana="hc:PreferredAppellation"
+         <idno type="GND">→ zusätzlich ana="hc:GNDURI"
+       Wo heiEDITIONS strikt nur eine TEI-Verwendung erlaubt
+       (z. B. PreferredAppellation auf <persName>/<orgName>/<title>
+       und nicht auf <forename>, <surname>, <orth> u. ä.), wird
+       diese Grenze strikt eingehalten.
+       ========================================================= -->
+
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>Personen- und Körperschaftsregister zur digitalen
+          Edition von Karl Barth, Fides quaerens intellectum
+          (GA II.13)</title>
+        <respStmt>
+          <resp>Konzeption, Recherche, GND-Verknüpfung</resp>
+          <persName>[Bearbeiter:in der Promotion]</persName>
+        </respStmt>
+      </titleStmt>
+      <publicationStmt>
+        <publisher>Prototyp einer digitalen Edition
+          (Portfolio, nicht offiziell publiziert)</publisher>
+        <availability status="restricted">
+          <licence target="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+            CC BY-NC-SA 4.0 für die Modellierung und Anreicherung.
+            Die GND-Daten selbst sind unter CC0 verfügbar.
+          </licence>
+        </availability>
+        <date when="2026">2026</date>
+      </publicationStmt>
+      <sourceDesc>
+        <p>Datenbasis: Deutsche Nationalbibliothek (GND), VIAF,
+          Vorwort der Herausgeber GA II.13 sowie CIP- und
+          Impressumsangaben des Bandes.</p>
+      </sourceDesc>
+    </fileDesc>
+  </teiHeader>
+
+  <!-- ana="hc:IndexOfPersons" auf <text>:
+       heiEDITIONS-Konvention für editorische Registerdateien.
+       Da die Datei zusätzlich Organisationen enthält, ist der
+       <listOrg>-Block separat als <div ana="hc:IndexOfOrganizations">
+       gekapselt. -->
+  <text ana="hc:IndexOfPersons">
+    <body>
+
+      <!-- =========================================================
+           (1) PRIMÄRE AKTEURE
+           ========================================================= -->
+      <listPerson type="primary">
+
+        <!-- Karl Barth -->
+        <person xml:id="barth" role="author">
+          <persName xml:lang="de" ana="hc:PreferredAppellation">
+            <forename>Karl</forename>
+            <surname>Barth</surname>
+          </persName>
+          <birth when="1886-05-10">
+            <placeName>Basel</placeName>
+          </birth>
+          <death when="1968-12-10">
+            <placeName>Basel</placeName>
+          </death>
+          <occupation>Reformierter Theologe</occupation>
+          <affiliation from="1921" to="1930">Professor in
+            Göttingen / Münster / Bonn</affiliation>
+          <affiliation from="1935" to="1962">Professor in Basel</affiliation>
+          <note>Autor von Fides quaerens intellectum (1931).
+            Die Anselm-Monographie markiert den Übergang von
+            der dialektischen zur kirchlich-dogmatischen Phase
+            seines Denkens; sie ist die methodologische
+            Selbstverständigung im Vorfeld der Kirchlichen
+            Dogmatik (KD I/1, 1932).</note>
+          <idno type="GND" ana="hc:GNDURI">118506838</idno>
+          <idno type="VIAF">71390726</idno>
+          <idno type="Wikidata">Q57317</idno>
+        </person>
+
+        <!-- Anselm von Canterbury -->
+        <person xml:id="anselm" role="subject">
+          <persName xml:lang="la" ana="hc:AlternativeAppellation">
+            <forename>Anselmus</forename>
+            <addName type="epithet">Cantuariensis</addName>
+          </persName>
+          <persName xml:lang="de" ana="hc:PreferredAppellation">
+            <forename>Anselm</forename>
+            <addName type="origin">von Canterbury</addName>
+          </persName>
+          <persName xml:lang="de" type="alt" ana="hc:AlternativeAppellation">
+            <forename>Anselm</forename>
+            <addName type="origin">von Aosta</addName>
+            <note>Älterer Beiname nach dem Geburtsort.</note>
+          </persName>
+          <birth notBefore="1033" notAfter="1034">
+            <placeName>Aosta</placeName>
+          </birth>
+          <death when="1109-04-21">
+            <placeName>Canterbury</placeName>
+          </death>
+          <occupation>Benediktinermönch, Abt von Bec
+            (1078–1093), Erzbischof von Canterbury
+            (1093–1109)</occupation>
+          <note>Hauptgegenstand des edierten Werks. Verfasser
+            u. a. von Monologion (1076), Proslogion (1077/78,
+            in dem das von Barth analysierte "Argument" steht),
+            Cur Deus homo (1098), De veritate, De casu diaboli,
+            Epistola de incarnatione Verbi, Briefen.
+            Heiliggesprochen 1494; Kirchenlehrer seit 1720.</note>
+          <idno type="GND" ana="hc:GNDURI">118503065</idno>
+          <idno type="VIAF">100184350</idno>
+          <idno type="Wikidata">Q43689</idno>
+        </person>
+
+        <!-- Gaunilo von Marmoutiers -->
+        <person xml:id="gaunilo" role="subject">
+          <persName xml:lang="la" ana="hc:AlternativeAppellation">
+            <forename>Gaunilo</forename>
+            <addName type="origin">Maioris Monasterii</addName>
+          </persName>
+          <persName xml:lang="de" ana="hc:PreferredAppellation">
+            <forename>Gaunilo</forename>
+            <addName type="origin">von Marmoutiers</addName>
+          </persName>
+          <birth notBefore="0994"/>
+          <death notAfter="1083"/>
+          <occupation>Benediktinermönch im Kloster
+            Marmoutiers</occupation>
+          <note>Verfaßte den "Liber pro insipiente" gegen den
+            Beweisgang des Proslogion 2–4; Anselms Antwort
+            ("Responsio editoris" / "Quid ad haec respondeat …")
+            ist seither textgeschichtlich mit dem Proslogion
+            verbunden. Wird bei Barth in den späteren Kapiteln
+            (§ 5–7) behandelt; in § 1.1 nicht erwähnt.</note>
+          <idno type="GND" ana="hc:GNDURI">118689886</idno>
+          <idno type="VIAF">26931321</idno>
+          <idno type="Wikidata">Q1411925</idno>
+        </person>
+
+      </listPerson>
+
+      <!-- =========================================================
+           (2) HERAUSGEBER
+           ========================================================= -->
+      <listPerson type="editors">
+
+        <!-- Eberhard Jüngel -->
+        <person xml:id="juengel" role="editor-volume">
+          <persName xml:lang="de" ana="hc:PreferredAppellation">
+            <forename>Eberhard</forename>
+            <surname>Jüngel</surname>
+          </persName>
+          <birth when="1934-12-05">
+            <placeName>Magdeburg</placeName>
+          </birth>
+          <death when="2021-09-28">
+            <placeName>Tübingen</placeName>
+          </death>
+          <occupation>Evangelischer Theologe, Professor in
+            Tübingen (1969–2003)</occupation>
+          <note>Bandherausgeber von GA II.13 (zusammen mit
+            I. U. Dalferth). Habilitiert bei Ernst Fuchs;
+            zentraler Repräsentant der Barth-Rezeption in der
+            zweiten Hälfte des 20. Jahrhunderts. Hauptwerk:
+            Gott als Geheimnis der Welt (1977).</note>
+          <idno type="GND" ana="hc:GNDURI">118776258</idno>
+          <idno type="VIAF">66515921</idno>
+          <idno type="Wikidata">Q86766</idno>
+        </person>
+
+        <!-- Ingolf U. Dalferth -->
+        <person xml:id="dalferth" role="editor-volume">
+          <persName xml:lang="de" ana="hc:PreferredAppellation">
+            <forename>Ingolf</forename>
+            <forename type="middle">Ulrich</forename>
+            <surname>Dalferth</surname>
+          </persName>
+          <birth when="1948-01-19">
+            <placeName>Stuttgart</placeName>
+          </birth>
+          <occupation>Evangelischer Theologe und
+            Religionsphilosoph; Professor in Frankfurt
+            (1988–1995) und Zürich (1995–2013); danach
+            Claremont (USA)</occupation>
+          <note>Bandherausgeber von GA II.13 (zusammen mit
+            E. Jüngel). Spezialist für die analytisch
+            informierte Religionsphilosophie und für die
+            Anselm-Rezeption; eigene Anselm-Studie:
+            "Die Wirklichkeit des Möglichen" (Tübingen 2003,
+            Hermeneutische Untersuchungen zur Theologie 49).</note>
+          <idno type="GND" ana="hc:GNDURI">11551269X</idno>
+          <idno type="VIAF">71387817</idno>
+          <idno type="Wikidata">Q60851</idno>
+        </person>
+
+        <!-- Hinrich Stoevesandt -->
+        <person xml:id="stoevesandt" role="editor-series"
+                subtype="historical">
+          <persName xml:lang="de" ana="hc:PreferredAppellation">
+            <forename>Hinrich</forename>
+            <surname>Stoevesandt</surname>
+          </persName>
+          <birth when="1931-10-25">
+            <placeName>Bremen</placeName>
+          </birth>
+          <death when="2019-09-29">
+            <placeName>Basel</placeName>
+          </death>
+          <occupation>Evangelischer Theologe; langjähriger
+            Leiter des Karl-Barth-Archivs in Basel</occupation>
+          <note>Reihen-Herausgeber der Karl Barth Gesamtausgabe
+            in der Anfangsphase. Auf dem Schmutztitel von
+            GA II.13 (3. Aufl. 2002) als Reihen-Hrsg. genannt.</note>
+          <idno type="GND" ana="hc:GNDURI">123413788</idno>
+          <idno type="VIAF">15625336</idno>
+        </person>
+
+        <!-- Hans-Anton Drewes -->
+        <person xml:id="drewes" role="editor-series"
+                subtype="current">
+          <persName xml:lang="de" ana="hc:PreferredAppellation">
+            <forename>Hans-Anton</forename>
+            <surname>Drewes</surname>
+          </persName>
+          <birth when="1939"/>
+          <occupation>Evangelischer Theologe; Nachfolger
+            Stoevesandts als Leiter des Karl-Barth-Archivs
+            (1997–2010) und als Reihen-Herausgeber der
+            Gesamtausgabe</occupation>
+          <note>Im CIP-Eintrag der 3. Aufl. 2002 als
+            Reihen-Hrsg. genannt.</note>
+          <idno type="GND" ana="hc:GNDURI">115476520</idno>
+          <idno type="VIAF">62362537</idno>
+        </person>
+
+      </listPerson>
+
+      <!-- =========================================================
+           (3) WEITERE ERWÄHNTE PERSONEN
+           ========================================================= -->
+      <listPerson type="mentioned">
+
+        <!-- Ferdinand Kattenbusch -->
+        <person xml:id="kattenbusch" role="mentioned">
+          <persName xml:lang="de" ana="hc:PreferredAppellation">
+            <forename>Ferdinand</forename>
+            <surname>Kattenbusch</surname>
+          </persName>
+          <birth when="1851-10-02">
+            <placeName>Kettwig</placeName>
+          </birth>
+          <death when="1935-12-29">
+            <placeName>Halle (Saale)</placeName>
+          </death>
+          <occupation>Evangelischer Theologe; Professor in
+            Gießen, Göttingen, Halle</occupation>
+          <note>Festschrift-Adressat zum 80. Geburtstag (1931).
+            In dieser Festschrift erschien der Vorabdruck
+            von FQI § 1.1 als ZThK NF 12 (1931), 350–358 —
+            in dieser Edition das Witness-Sigel
+            <ref target="section1.xml#B">B</ref>.</note>
+          <idno type="GND" ana="hc:GNDURI">118720392</idno>
+          <idno type="VIAF">59875432</idno>
+          <idno type="Wikidata">Q1408739</idno>
+        </person>
+
+        <!-- Franciscus Salesius Schmitt -->
+        <person xml:id="schmitt" role="mentioned">
+          <persName xml:lang="la" ana="hc:AlternativeAppellation">
+            <forename>Franciscus</forename>
+            <forename type="middle">Salesius</forename>
+            <surname>Schmitt</surname>
+          </persName>
+          <persName xml:lang="de" ana="hc:PreferredAppellation">
+            <forename>Franz</forename>
+            <forename type="middle">Sales</forename>
+            <surname>Schmitt</surname>
+          </persName>
+          <birth when="1894-08-19">
+            <placeName>Hamburg</placeName>
+          </birth>
+          <death when="1972-09-17">
+            <placeName>Bonn</placeName>
+          </death>
+          <occupation>Benediktiner der Abtei Maria Laach;
+            Editor der Werke Anselms</occupation>
+          <note>Editor von S. Anselmi Cantuariensis archiepiscopi
+            Opera Omnia, 6 Bde., Edinburgh (Nelson) bzw.
+            Seckau / Rom / Edinburgh 1938–1961. Die
+            Stellenangaben in Barths Anmerkungen
+            (z. B. "II 47,9") referieren stets auf diese
+            Ausgabe (Band/Seite/Zeile). Vgl.
+            <ref target="works.xml#schmitt-opera">works.xml</ref>.</note>
+          <idno type="GND" ana="hc:GNDURI">118609467</idno>
+          <idno type="VIAF">37714076</idno>
+        </person>
+
+        <!-- Paul Althaus -->
+        <person xml:id="althaus" role="mentioned">
+          <persName xml:lang="de" ana="hc:PreferredAppellation">
+            <forename>Paul</forename>
+            <surname>Althaus</surname>
+          </persName>
+          <birth when="1888-02-04">
+            <placeName>Obershagen</placeName>
+          </birth>
+          <death when="1966-05-18">
+            <placeName>Erlangen</placeName>
+          </death>
+          <occupation>Evangelischer Theologe; Professor in
+            Erlangen</occupation>
+          <note>Reihen-Mitherausgeber der "Forschungen zur
+            Geschichte und Lehre des Protestantismus", in
+            denen FQI 1931 als IV. Reihe, Bd. 3 erschien.</note>
+          <idno type="GND" ana="hc:GNDURI">118502344</idno>
+          <idno type="VIAF">66471571</idno>
+        </person>
+
+        <!-- Karl Heim -->
+        <person xml:id="heim" role="mentioned">
+          <persName xml:lang="de" ana="hc:PreferredAppellation">
+            <forename>Karl</forename>
+            <surname>Heim</surname>
+          </persName>
+          <birth when="1874-01-20">
+            <placeName>Frauenzimmern</placeName>
+          </birth>
+          <death when="1958-08-30">
+            <placeName>Tübingen</placeName>
+          </death>
+          <occupation>Evangelischer Theologe; Professor in
+            Tübingen</occupation>
+          <note>Reihen-Mitherausgeber der "Forschungen zur
+            Geschichte und Lehre des Protestantismus"
+            (zusammen mit P. Althaus und K. Barth).</note>
+          <idno type="GND" ana="hc:GNDURI">118548530</idno>
+          <idno type="VIAF">59182547</idno>
+          <idno type="Wikidata">Q105814</idno>
+        </person>
+
+        <!-- Jacques-Paul Migne -->
+        <person xml:id="migne" role="mentioned">
+          <persName xml:lang="fr" ana="hc:PreferredAppellation">
+            <forename>Jacques-Paul</forename>
+            <surname>Migne</surname>
+          </persName>
+          <birth when="1800-10-25">
+            <placeName>Saint-Flour</placeName>
+          </birth>
+          <death when="1875-10-24">
+            <placeName>Paris</placeName>
+          </death>
+          <occupation>Französischer katholischer Priester
+            und Verleger</occupation>
+          <note>Herausgeber der Patrologia Latina (217 Bde.,
+            Paris 1844–1855 mit Indices bis 1865). Anselms
+            unechte Schriften zitiert Barth nach
+            PL 158 (Migne); vgl.
+            <ref target="works.xml#patrologia-latina">works.xml</ref>.</note>
+          <idno type="GND" ana="hc:GNDURI">118582968</idno>
+          <idno type="VIAF">17225058</idno>
+          <idno type="Wikidata">Q368471</idno>
+        </person>
+
+      </listPerson>
+
+      <!-- =========================================================
+           (4) KÖRPERSCHAFTEN
+           Eigener <div>-Wrapper mit ana="hc:IndexOfOrganizations",
+           da das Outer-<text> auf IndexOfPersons festgelegt ist.
+           ========================================================= -->
+      <div ana="hc:IndexOfOrganizations">
+        <listOrg>
+
+          <!-- Karl-Barth-Stiftung -->
+          <org xml:id="kb-stiftung" type="foundation">
+            <orgName xml:lang="de" ana="hc:PreferredAppellation">Karl Barth-Stiftung</orgName>
+            <orgName xml:lang="en" ana="hc:AlternativeAppellation">Karl Barth Foundation</orgName>
+            <location>
+              <placeName>Basel, Schweiz</placeName>
+            </location>
+            <note>Förderträgerin der Karl Barth Gesamtausgabe;
+              in der <gi>funder</gi>-Angabe des
+              <ref target="section1.xml">teiHeader</ref>
+              referenziert. Verwaltet das Karl-Barth-Archiv
+              in Basel.</note>
+            <idno type="GND" ana="hc:GNDURI">5511229-X</idno>
+          </org>
+
+          <!-- Theologischer Verlag Zürich (TVZ) -->
+          <org xml:id="tvz" type="publisher">
+            <orgName xml:lang="de" ana="hc:PreferredAppellation">Theologischer Verlag Zürich</orgName>
+            <orgName type="abbreviated" ana="hc:AlternativeAppellation">TVZ</orgName>
+            <location>
+              <placeName>Zürich, Schweiz</placeName>
+            </location>
+            <note>Verlag der Karl Barth Gesamtausgabe seit 1971.
+              ISBN 3-290-17247-3 für GA II.13 (3. Aufl. 2002).</note>
+            <idno type="GND" ana="hc:GNDURI">1004733-3</idno>
+          </org>
+
+          <!-- Chr. Kaiser Verlag -->
+          <org xml:id="kaiser" type="publisher">
+            <orgName xml:lang="de" ana="hc:PreferredAppellation">Chr. Kaiser Verlag</orgName>
+            <location>
+              <placeName>München</placeName>
+            </location>
+            <note>Verlag der Erstausgabe FQI 1931 (Witness-Sigel
+              <ref target="section1.xml#A">A</ref>) sowie der
+              meisten frühen Barth-Werke. 1989 von Gütersloher
+              Verlagshaus übernommen.</note>
+            <idno type="GND" ana="hc:GNDURI">2017697-4</idno>
+          </org>
+
+          <!-- Evangelischer Verlag Zollikon -->
+          <org xml:id="evz" type="publisher">
+            <orgName xml:lang="de" ana="hc:PreferredAppellation">Evangelischer Verlag</orgName>
+            <location>
+              <placeName>Zollikon-Zürich</placeName>
+            </location>
+            <note>Verlag der 2. Aufl. FQI 1958 (Witness-Sigel
+              <ref target="section1.xml#A2">A2</ref>) und der
+              3. Aufl. 1966. Vorläufer des TVZ.</note>
+          </org>
+
+          <!-- Universität Glasgow -->
+          <org xml:id="uni-glasgow" type="university">
+            <orgName xml:lang="de" ana="hc:PreferredAppellation">Universität Glasgow,
+              Theologische Fakultät</orgName>
+            <orgName xml:lang="en" ana="hc:AlternativeAppellation">University of Glasgow,
+              Faculty of Theology</orgName>
+            <location>
+              <placeName>Glasgow, Schottland</placeName>
+            </location>
+            <note>Adressat der Widmung von FQI 1931 (Erstausgabe):
+              <q xml:lang="de">Der hochwürdigen theologischen
+              Fakultät der Universität Glasgow als Zeichen des
+              Dankes für die dem Verfasser am 18. Juni 1930
+              verliehene Würde eines D. D. ehrerbietigst
+              gewidmet</q>. Die Widmung entfällt ab der
+              2. Aufl. 1958.</note>
+            <idno type="GND" ana="hc:GNDURI">36158-2</idno>
+            <idno type="Wikidata">Q192775</idno>
+          </org>
+
+        </listOrg>
+      </div>
+
+    </body>
+  </text>
+</TEI>

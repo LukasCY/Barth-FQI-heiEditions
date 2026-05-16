@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8"/>
+  <title>FQI § 1 — Digitale Edition (Prototyp)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+  <style>
+    /* ============================================================
+       Layout
+       ============================================================ */
+    :root {
+      --maxw: 760px;
+      --c-text: #1a1a1a;
+      --c-muted: #6b6b6b;
+      --c-rule: #d0d0d0;
+      --c-apparatus: #8b3a3a;        /* Bordeaux für Apparat-Anker */
+      --c-apparatus-soft: #f6efef;
+      --c-term: #1d4e89;             /* Blau für Theol. Termini */
+      --c-quote: #2d5016;            /* Dunkelgrün für Anselm-Zitate */
+      --c-link: #1d4e89;
+      --c-bg-hover: #fff8e1;
+    }
+    html { font-size: 17px; }
+    body {
+      font-family: "Source Serif Pro", "EB Garamond", Georgia,
+                   "Times New Roman", serif;
+      color: var(--c-text);
+      max-width: var(--maxw);
+      margin: 2em auto;
+      padding: 0 1em 4em;
+      line-height: 1.55;
+    }
+    h1, h2, h3 { font-family: "Source Sans Pro", -apple-system, sans-serif;
+                 font-weight: 600; }
+    h1 { font-size: 1.3rem; color: var(--c-muted);
+         border-bottom: 1px solid var(--c-rule);
+         padding-bottom: 0.4em; margin-bottom: 1.5em; }
+    /* ============================================================
+       Header bar
+       ============================================================ */
+    header.bar {
+      max-width: var(--maxw);
+      margin: 0 auto 2em;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 1em;
+    }
+    .controls button {
+      font: inherit;
+      font-size: 0.85rem;
+      padding: 0.3em 0.9em;
+      border: 1px solid var(--c-rule);
+      background: white;
+      cursor: pointer;
+      border-radius: 3px;
+    }
+    .controls button.active {
+      background: var(--c-text);
+      color: white;
+      border-color: var(--c-text);
+    }
+    .controls button:hover:not(.active) { background: var(--c-bg-hover); }
+
+    /* ============================================================
+       teiHeader  — komplett verbergen in der Leseansicht
+       ============================================================ */
+    tei-teiheader { display: none; }
+    body.source-view tei-teiheader {
+      display: block;
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 0.78rem;
+      background: #fafafa;
+      border: 1px solid var(--c-rule);
+      padding: 1em;
+      margin-bottom: 2em;
+      white-space: pre-wrap;
+      color: var(--c-muted);
+    }
+    body.source-view tei-teiheader * { display: inline; }
+
+    /* ============================================================
+       Grundstruktur
+       ============================================================ */
+    tei-tei, tei-text, tei-body, tei-front { display: block; }
+    tei-div[type="chapter"] { display: block; }
+    tei-head {
+      display: block;
+      font-family: "Source Sans Pro", sans-serif;
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin: 1.5em 0 1em;
+    }
+    tei-head tei-num::after { content: " "; }
+    tei-p {
+      display: block;
+      margin: 1em 0;
+      text-align: justify;
+      hyphens: auto;
+    }
+
+    /* ============================================================
+       Visuelle Ebene (Šimek 2)
+       ============================================================ */
+    /* rendition=#letter-spaced  ->  Sperrsatz */
+    tei-hi[rend~="#letter-spaced"] { letter-spacing: 0.18em; }
+    /* rendition=#italic  ->  Kursiv */
+    tei-hi[rend~="#italic"] { font-style: italic; }
+
+    /* foreign  ->  Latein in deutschem Fließtext */
+    tei-foreign[xml\:lang="la"] { /* nicht doppelt kursivieren */ }
+
+    /* Seitenumbruch-Marker. Druckbild der GA-Edition setzt diese
+       als gefettete Marginalien |n|; hier inline als kleine
+       Hochgestellung in Grau wiedergegeben. */
+    tei-pb {
+      display: inline;
+      color: var(--c-muted);
+      font-size: 0.75em;
+      vertical-align: super;
+      margin: 0 0.15em;
+    }
+    tei-pb::before { content: "|"; }
+    tei-pb::after  { content: attr(n) "|"; }
+    /* Unterscheidung GA-Seiten vs. A-1931-Seiten */
+    tei-pb[ed="#GA"] { color: #444; font-weight: 600; }
+    tei-pb[ed="#A"]  { color: #888; font-style: italic; }
+
+    /* ============================================================
+       Extensionale Ebene (Šimek 4) — die heiEDITIONS-Klassen
+       sichtbar machen
+       ============================================================ */
+    /* SubjectReference: theologische Termini, blau unterstrichelt */
+    tei-rs[ana~="hc:SubjectReference"] {
+      color: var(--c-term);
+      border-bottom: 1px dotted var(--c-term);
+      cursor: help;
+    }
+    tei-rs[ana~="hc:SubjectReference"]:hover {
+      background: var(--c-bg-hover);
+    }
+    /* @ref-Wert als Tooltip per JS unten ergänzt */
+
+    /* PersonReference */
+    tei-persname[ana~="hc:PersonReference"] {
+      font-variant: small-caps;
+      font-size: 0.95em;
+    }
+
+    /* WorkReference: kursiv beibehalten, dazu leichter Anker-Look */
+    tei-title[ana~="hc:WorkReference"] {
+      color: var(--c-text);
+    }
+
+    /* PrimarySourceQuotation: Anselm-Latein, dunkelgrün, indented */
+    tei-quote[ana~="hc:PrimarySourceQuotation"] {
+      display: inline;
+      color: var(--c-quote);
+      font-style: italic;
+    }
+    /* Wenn das Zitat länger als ein Satz ist: optional als Blockzitat
+       ausspielen — hier inline gelassen, weil Barth die Zitate
+       eingewoben drucken läßt. */
+
+    /* ============================================================
+       Varianzebene (Šimek 5) — apparatus criticus
+       ============================================================ */
+    /* Inline-app: Lemma anzeigen, rdg-Geschwister verbergen */
+    tei-app { display: inline; }
+    tei-app tei-lem { display: inline; }
+    tei-app tei-rdg { display: none; }
+    /* In der Quellenansicht alle Lesarten zeigen */
+    body.source-view tei-app tei-rdg {
+      display: inline;
+      color: var(--c-apparatus);
+      background: var(--c-apparatus-soft);
+      padding: 0 0.2em;
+      margin: 0 0.1em;
+      font-size: 0.85em;
+    }
+    body.source-view tei-app tei-rdg::before {
+      content: " ⫶ " attr(wit) ": ";
+      color: var(--c-muted);
+    }
+
+    /* Fußnoten-Anker (<ref type="note" target="#fn-1">) */
+    tei-ref[type="note"] {
+      display: inline;
+      vertical-align: super;
+      font-size: 0.7em;
+      color: var(--c-link);
+      cursor: pointer;
+    }
+    tei-ref[type="note"]::before { content: "["; }
+    tei-ref[type="note"]::after  { content: "]"; }
+
+    /* Bibel-Stellen-Verweis */
+    tei-ref[type="bibl"] {
+      display: inline;
+      color: var(--c-muted);
+      font-size: 0.92em;
+    }
+
+    /* ============================================================
+       Fußnoten-Block: Barths Anmerkungen + Apparat
+       ============================================================ */
+    /* Vor dem ersten <note place="foot"> eine Trennlinie und Überschrift. */
+    tei-note[place="foot"] {
+      display: block;
+      font-size: 0.84rem;
+      line-height: 1.45;
+      margin: 0.6em 0;
+      padding-left: 2.2em;
+      text-indent: -2.2em;
+    }
+    /* Marker (Ziffer/Buchstabe) vor jeder Fußnote */
+    tei-note[place="foot"][type="authorial"]::before {
+      content: attr(n) "  ";
+      font-weight: 600;
+      color: var(--c-text);
+    }
+    tei-note[place="foot"][type="editorial"]::before {
+      content: attr(n) "  ";
+      font-weight: 600;
+      color: var(--c-apparatus);
+    }
+
+    /* Eine optische Trennlinie vor dem ersten Note-Block.
+       CSS hat kein "vor erstem Sibling vom Typ X" Selektor, aber
+       der erste <note place="foot"> folgt immer einem <p>, also
+       genügt: */
+    tei-note[place="foot"][n="1"] {
+      margin-top: 2em;
+      padding-top: 1em;
+      border-top: 1px solid var(--c-rule);
+    }
+    tei-note[place="foot"][n="a"] {
+      margin-top: 1.5em;
+      padding-top: 1em;
+      border-top: 1px dashed var(--c-apparatus);
+      color: #444;
+    }
+
+    /* bibl + citedRange in Fußnoten */
+    tei-bibl { display: inline; }
+    tei-bibl tei-title { /* kursiv kommt schon von <hi rend=italic> */ }
+    tei-bibl tei-citedrange { display: inline; }
+
+    /* q-Element für Halbzitate */
+    tei-q { display: inline; }
+    tei-q::before { content: "„"; }
+    tei-q::after  { content: "“"; }
+    tei-q[xml\:lang="la"]::before { content: "«"; }
+    tei-q[xml\:lang="la"]::after  { content: "»"; }
+
+    /* ============================================================
+       Quellenansicht: zusätzlich alle ana-Werte als kleine Marker
+       ============================================================ */
+    body.source-view tei-rs::after,
+    body.source-view tei-persname::after,
+    body.source-view tei-title[ana]::after,
+    body.source-view tei-quote[ana]::after,
+    body.source-view tei-note[ana]::after {
+      content: " {" attr(ana) "}";
+      font-family: ui-monospace, monospace;
+      font-size: 0.65em;
+      color: var(--c-muted);
+      vertical-align: super;
+    }
+
+    /* ============================================================
+       Tooltip: zeigt @ref-Ziel bei Hover über rs/persName/title
+       ============================================================ */
+    [data-tooltip] { position: relative; }
+    [data-tooltip]:hover::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: 1.6em;
+      left: 0;
+      background: var(--c-text);
+      color: white;
+      font-size: 0.75rem;
+      padding: 0.3em 0.6em;
+      border-radius: 3px;
+      white-space: nowrap;
+      z-index: 100;
+      font-family: ui-monospace, monospace;
+    }
+
+    /* ============================================================
+       Status / Loading
+       ============================================================ */
+    #status {
+      font-size: 0.85rem;
+      color: var(--c-muted);
+      text-align: center;
+      padding: 3em 0;
+    }
+    #status.error {
+      color: #a33;
+      background: #fdf2f2;
+      padding: 1em;
+      border-radius: 4px;
+      text-align: left;
+      font-family: ui-monospace, monospace;
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+  <header class="bar">
+    <h1>Karl Barth, <em>Fides quaerens intellectum</em>, § 1.1 — Prototyp einer digitalen Edition (heiEDITIONS-Variante)</h1>
+    <div class="controls">
+      <button id="btn-reading" class="active">Leseansicht</button>
+      <button id="btn-source">Quellenansicht</button>
+    </div>
+  </header>
+
+  <div id="status">Lade TEI-Daten…</div>
+  <div id="TEI"></div>
+
+  <!-- CETEIcean von jsDelivr (gepinnte Version, ZDR-frei) -->
+  <script src="https://cdn.jsdelivr.net/npm/[email protected]/dist/CETEI.js"></script>
+
+  <script>
+    const TEI_FILE = "fqi-barth-1931-section1-heiEDITIONS.xml";
+    const statusEl = document.getElementById("status");
+    const teiContainer = document.getElementById("TEI");
+
+    const ceteicean = new CETEI();
+
+    ceteicean.getHTML5(TEI_FILE, (data) => {
+      statusEl.remove();
+      teiContainer.appendChild(data);
+      enhanceTooltips();
+      wireFootnoteJumps();
+    });
+
+    // Nach dem Anhängen: jedes <tei-rs>, <tei-persname>, <tei-title>
+    // mit @ref erhält data-tooltip mit dem Zielwert. Daraus baut CSS
+    // einen Hover-Tooltip.
+    function enhanceTooltips() {
+      document.querySelectorAll("tei-rs[ref], tei-persname[ref], tei-title[ref]")
+        .forEach((el) => {
+          const ref = el.getAttribute("ref");
+          if (ref) el.setAttribute("data-tooltip", "→ " + ref);
+        });
+    }
+
+    // Fußnoten-Anker scrollen zum Ziel
+    function wireFootnoteJumps() {
+      document.querySelectorAll("tei-ref[type='note']").forEach((el) => {
+        const tgt = el.getAttribute("target");
+        if (!tgt || !tgt.startsWith("#")) return;
+        el.addEventListener("click", () => {
+          const id = tgt.slice(1);
+          // <note xml:id="fn-1"> wird zu <tei-note id="fn-1"> umgesetzt
+          const noteEl = document.getElementById(id);
+          if (noteEl) noteEl.scrollIntoView({ behavior: "smooth", block: "center" });
+        });
+      });
+    }
+
+    // Reading- vs. Source-View Toggle
+    const btnR = document.getElementById("btn-reading");
+    const btnS = document.getElementById("btn-source");
+    btnR.addEventListener("click", () => {
+      document.body.classList.remove("source-view");
+      btnR.classList.add("active"); btnS.classList.remove("active");
+    });
+    btnS.addEventListener("click", () => {
+      document.body.classList.add("source-view");
+      btnS.classList.add("active"); btnR.classList.remove("active");
+    });
+
+    // Fehlerfall: getHTML5 fängt CORS / 404 nicht selbst. Daher
+    // setzen wir nach 4 s einen Hinweis, falls weder Inhalt noch
+    // Status verschwunden sind.
+    setTimeout(() => {
+      if (document.getElementById("status")) {
+        statusEl.classList.add("error");
+        statusEl.innerHTML =
+          "<strong>TEI-Datei konnte nicht geladen werden.</strong><br><br>" +
+          "Wahrscheinlichste Ursache: Sie haben diese Datei mit Doppelklick " +
+          "geöffnet (Protokoll <code>file://</code>). Browser blockieren in " +
+          "diesem Fall den XML-Ladevorgang aus Sicherheitsgründen.<br><br>" +
+          "Lösung: Starten Sie im selben Ordner einen kleinen HTTP-Server.<br><br>" +
+          "<u>macOS / Linux</u>:<br>" +
+          "<code>python3 -m http.server 8000</code><br><br>" +
+          "<u>Windows (PowerShell, mit Python installiert)</u>:<br>" +
+          "<code>python -m http.server 8000</code><br><br>" +
+          "Anschließend im Browser öffnen:<br>" +
+          "<code>http://localhost:8000/viewer.html</code>";
+      }
+    }, 4000);
+  </script>
+</body>
+</html>

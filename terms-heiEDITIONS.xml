@@ -1,0 +1,987 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-model href="https://tei-c.org/release/xml/tei/custom/schema/relaxng/tei_all.rng"
+            type="application/xml"
+            schematypens="http://relaxng.org/ns/structure/1.0"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0"
+     xmlns:hc="https://lod.ub.uni-heidelberg.de/ontologies/heieditions/hc/current/"
+     xml:id="fqi-terms" xml:lang="de">
+
+  <!-- =========================================================
+       Theologische Terminologie zur digitalen Edition von Karl
+       Barth, Fides quaerens intellectum (GA II.13).
+
+       STRUKTURPRINZIP
+       ===============
+       Diese Datei ist die Trägerstruktur der theologischen
+       Semantikebene (Erweiterung der Šimekschen vierten Ebene:
+       Extensionalität / Extrareferenzialität). Sie ergänzt die
+       Personen- und Werkregister (persons.xml, works.xml) um
+       ein Begriffsregister.
+
+       METHODOLOGISCHE GRUNDENTSCHEIDUNGEN
+       ===================================
+       (1) Geltungskriterium "theologischer Terminus": Ein Wort
+           oder eine Wendung wird als theologischer Terminus
+           geführt, wenn sie im FQI-Kontext eine definitorische
+           Funktion innerhalb eines theologischen Sinnfeldes
+           erfüllt, nicht schon weil sie lateinisch oder im
+           Sperrsatz steht. So ist Aufgabe für sich genommen
+           kein Terminus, wohl aber die "Notwendigkeit der
+           Theologie" als Titelthema des Kapitels.
+       (2) Granularitätsmodell (Hybrid):
+           - Einwortbegriffe: Lemma-Konzept-Modell. Alle
+             Flexionsformen (intelligens, intelligendi,
+             intelligatur …) gehören zum lemma intelligere und
+             werden in <form type="inflected"> nachgewiesen.
+           - Mehrwortbegriffe: Konzept-pro-Phrase. Sentenzen
+             wie "intellectus fidei", "esse rei in intellectu"
+             oder "Credo ut intelligam" stehen als eigene
+             Konzepteinträge, weil ihre semantische Last über
+             die der Einzelwörter hinausgeht.
+       (3) Zuschreibungsebenen:
+           - @type="scholastic-latin": Termini der lat.
+             scholastischen Tradition (Anselm und vorher),
+             die Barth aus den Quellen übernimmt.
+           - @type="motto": Sentenzen mit programmatisch-
+             titelmäßiger Funktion (FQI, Credo ut intelligam).
+           - @type="barthian": Termini, die Barth selbst durch
+             Sperrsatz oder begriffliche Pointierung als
+             Auslegungstermini markiert.
+           - @type="dogmatic-shared": Begriffe, die nicht
+             eindeutig Anselm oder Barth zuzurechnen sind,
+             sondern als geteiltes dogmatisches Vokabular
+             funktionieren (Gottesbeweis, Theologie als Fach).
+       (4) Glossen (<gloss>) werden bilingual angeboten:
+           Deutsch (Hauptsprache der Edition) und Englisch
+           (Internationalisierung, DH-Stellenmarkt-Konvention).
+           Lateinische und griechische Belegformen erscheinen
+           als <form xml:lang="la"|"grc">.
+       (5) Vorausschau: Termini, deren erste Belegstelle erst
+           jenseits von § 1.1 zu erwarten ist (nachdenken,
+           ontologischer Gottesbeweis, unum argumentum), sind
+           als Platzhalter mit @resp="forward-reference"
+           bereits aufgenommen, um die Tragfähigkeit des
+           Registers über das Demonstrator-Kapitel hinaus zu
+           dokumentieren. Diese Einträge enthalten noch keine
+           Belegstellenliste (<note type="occurrences">).
+
+       FAIR-Bezug: Die Datei dient der Interoperabilität (nicht
+       nur des Interchange im Sinne Holmes 2017): Begriffe sind
+       per @xml:id intern referenzierbar und – wo vorhanden –
+       per GND-URI extern verlinkbar.
+       ========================================================= -->
+
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>Begriffsregister zur digitalen Edition von Karl
+          Barth, Fides quaerens intellectum (GA II.13)</title>
+        <respStmt>
+          <resp>Konzeption, Lemmatisierung, Glossierung</resp>
+          <persName>[Bearbeiter:in der Promotion]</persName>
+        </respStmt>
+      </titleStmt>
+      <publicationStmt>
+        <publisher>Prototyp einer digitalen Edition
+          (Portfolio, nicht offiziell publiziert)</publisher>
+        <availability status="restricted">
+          <licence target="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+            CC BY-NC-SA 4.0 für Lemmatisierung, Glossierung
+            und Konzeptmodellierung. Glossen in deutscher und
+            englischer Sprache sind originär für diese Edition
+            verfaßt.
+          </licence>
+        </availability>
+        <date when="2026">2026</date>
+      </publicationStmt>
+      <sourceDesc>
+        <p>Begriffsregister, erarbeitet aus dem edierten Text
+          und sekundärlexikalischen Hilfsmitteln (LThK³, RGG⁴,
+          TRE; für Anselm: F. S. Schmitt, Opera Omnia, sowie
+          Sekundärliteratur zu Barths Anselm-Buch).</p>
+      </sourceDesc>
+    </fileDesc>
+  </teiHeader>
+
+  <!-- ana="hc:IndexOfSubjects" auf <text>:
+       heiEDITIONS-Konvention für editorische Registerdateien, in denen
+       Sachbegriffe gesammelt sind. Die <entry>-Elemente selbst werden
+       NICHT an heiEDITIONS Concepts gebunden, da die Klasse
+       SubjectReference einen "Verweis auf eine Sache" bezeichnet
+       (in der Edition: <rs> in section1.xml), nicht die definitorische
+       Beschreibung eines Begriffs (in dieser Datei: <entry>).
+       Diese Grenze entspricht dem heiEDITIONS-Prinzip strikter
+       Verwendung-Bindung pro Klasse. -->
+  <text ana="hc:IndexOfSubjects">
+    <body>
+
+      <!-- =========================================================
+           A. ANSELMS LATEINISCHE TERMINOLOGIE (scholastic-latin)
+           ========================================================= -->
+
+      <!-- A.1 intelligere — der zentrale erkenntnistheoretisch-
+           theologische Verbalbegriff. Lemma-Konzept; alle
+           Flexionen werden hier eingeholt. -->
+      <entry xml:id="intelligere" type="scholastic-latin">
+        <form type="lemma" xml:lang="la">
+          <orth>intelligere</orth>
+          <pron notation="ipa">in.tɛlˈli.ɡe.re</pron>
+          <gramGrp>
+            <pos>verb, infinitive, used as noun</pos>
+          </gramGrp>
+        </form>
+        <form type="inflected" xml:lang="la">
+          <orth>intelligens</orth>
+          <note>Partizip Präsens, in § 1.1 substantiviert:
+            <q xml:lang="la">der intelligens sucht und findet</q>.</note>
+        </form>
+        <form type="inflected" xml:lang="la">
+          <orth>intelligendi</orth>
+          <note>Gerundium, vgl. fn-14: <q xml:lang="la">nulla
+            difficultas aut impossibilitas intelligendi</q>.</note>
+        </form>
+        <form type="inflected" xml:lang="la">
+          <orth>intelligatur</orth>
+          <note>Konjunktiv Präsens Passiv, vgl. fn-13:
+            <q xml:lang="la">non eorum ratio intelligatur a nobis</q>.</note>
+        </form>
+        <gloss xml:lang="de">Verstehen, Erkennen; im scholastischen
+          Sinn das durchdringende Begreifen des bereits Geglaubten.
+          Bei Anselm und entsprechend bei Barth nicht psychologisch
+          als Akt des Subjekts, sondern als die dem Glauben selbst
+          eigene Bewegung gefaßt: das intelligere ist Wirkung der
+          fides quaerens intellectum, nicht deren Voraussetzung.</gloss>
+        <gloss xml:lang="en">Understanding, intellectual grasp;
+          in scholastic usage the penetrating comprehension of
+          what is already believed. Anselm, and Barth following
+          him, conceives intelligere not psychologically as an
+          act of the subject but as the movement intrinsic to
+          faith itself: it is the effect of fides quaerens
+          intellectum, not its precondition.</gloss>
+        <ref target="https://d-nb.info/gnd/4131477-1"
+             type="gnd" ana="hc:GNDURI">Erkenntnis (GND)</ref>
+        <note type="usage">Schlüsselbegriff des gesamten FQI:
+          in § 1.1 neunmal im Haupttext belegt, mehrfach in
+          den Anmerkungen. Steht im Druck stets in Antiqua
+          kursiv (Anselms Wortlaut, nicht Barths Paraphrase).</note>
+        <note type="occurrences">
+          <ref target="section1.xml#p-13-1">p-13-1</ref>;
+          <ref target="section1.xml#p-13-2">p-13-2 (mehrfach)</ref>;
+          <ref target="section1.xml#p-14-1">p-14-1</ref>;
+          <ref target="section1.xml#p-14-2">p-14-2 (mehrfach)</ref>;
+          <ref target="section1.xml#p-16-1">p-16-1</ref>.
+        </note>
+      </entry>
+
+      <!-- A.2 intellectus — Nomen actionis/rei zu intelligere -->
+      <entry xml:id="intellectus" type="scholastic-latin">
+        <form type="lemma" xml:lang="la">
+          <orth>intellectus</orth>
+          <gramGrp>
+            <pos>noun, masc., u-decl.</pos>
+          </gramGrp>
+        </form>
+        <gloss xml:lang="de">Verstand, Erkenntnis (als Vermögen
+          oder als Resultat). In FQI § 1.1 in mehreren Wendungen:
+          <q xml:lang="la">super intellectus hominum</q> (über
+          den menschlichen Verstand hinaus), <q xml:lang="la">ad
+          intellectum pertingere</q> (zum Verstehen gelangen),
+          <q xml:lang="la">esse rei in intellectu</q> (Sein der
+          Sache im Verstand — das ist die Stelle, an der das
+          Proslogion-Argument c. 2 ansetzt).</gloss>
+        <gloss xml:lang="en">Intellect, understanding (faculty
+          or result). In § 1.1 in several phrases including
+          <q xml:lang="la">esse rei in intellectu</q>, the
+          locus of the Proslogion-2 argument.</gloss>
+        <ref target="https://d-nb.info/gnd/4187541-1"
+             type="gnd" ana="hc:GNDURI">Verstand (GND)</ref>
+        <note type="usage">Wird im Begriffsregister nur als
+          Lemma geführt; die zentrale Phrase
+          <ref target="#intellectus-fidei"/> ist eigener
+          Eintrag. — Vgl. das phrasalen Eintrag
+          <ref target="#esse-rei-in-intellectu"/>.</note>
+      </entry>
+
+      <!-- A.3 intellectus fidei — Mehrwortbegriff, eigener Eintrag -->
+      <entry xml:id="intellectus-fidei" type="scholastic-latin">
+        <form type="phrase" xml:lang="la">
+          <orth>intellectus fidei</orth>
+        </form>
+        <gloss xml:lang="de">Glaubenseinsicht, Glaubensverstehen;
+          die theologische Erkenntnis als Reflexion auf den
+          Inhalt des Glaubens. Bei Barth wird dieser Terminus
+          zur Definition der Theologie selbst: Theologie ist
+          nicht etwas, was den Glauben hervorbringt oder schützt,
+          sondern intellectus fidei, das Selbstverstehen des
+          Glaubens.</gloss>
+        <gloss xml:lang="en">Understanding of faith; theological
+          knowledge as reflection on the content of faith. Barth
+          uses this term as the very definition of theology:
+          theology is not what produces or defends faith but
+          rather faith's understanding of itself.</gloss>
+        <note type="usage">Programmatisch in p-14-1 als Apposition
+          zu <q xml:lang="de">Theologie</q>: <q xml:lang="de">um
+          Theologie, um den intellectus fidei</q>. Die Gleichsetzung
+          ist ein Schlüsselsatz für das gesamte Buch.</note>
+        <note type="occurrences">
+          <ref target="section1.xml#p-14-1">p-14-1</ref>.
+        </note>
+      </entry>
+
+      <!-- A.4 ratio -->
+      <entry xml:id="ratio" type="scholastic-latin">
+        <form type="lemma" xml:lang="la">
+          <orth>ratio</orth>
+          <gramGrp>
+            <pos>noun, fem.</pos>
+          </gramGrp>
+        </form>
+        <gloss xml:lang="de">Vernunft, Vernunftgrund, sachlicher
+          Grund. Bei Anselm kein Vermögen des autonomen Subjekts,
+          sondern die der Sache des Glaubens innewohnende
+          Vernünftigkeit, die der Theologe aufzuweisen sucht
+          (Aufweis der ratio fidei). In § 1.1 ausdrücklich auch
+          dann gewahrt, wenn sie unerkannt bleibt: <q xml:lang="la">
+          non eorum ratio intelligatur a nobis</q>.</gloss>
+        <gloss xml:lang="en">Reason, rational ground, the
+          intelligible structure inhering in the matter itself.
+          For Anselm not a faculty of the autonomous subject
+          but the rationality immanent to the content of faith,
+          which the theologian sets out to display.</gloss>
+        <ref target="https://d-nb.info/gnd/4135889-0"
+             type="gnd" ana="hc:GNDURI">Vernunft (GND)</ref>
+        <note type="usage">Mehrfach in § 1.1; korreliert eng
+          mit <ref target="#intelligere"/>. — Gegen die landläufige
+          Lesart, ratio bei Anselm sei ein neutrales
+          Argumentationsinstrument, ist Barths These (§ 4): ratio
+          ist immer ratio fidei.</note>
+        <note type="occurrences">
+          <ref target="section1.xml#p-13-2">p-13-2 (mehrfach)</ref>;
+          <ref target="section1.xml#p-16-1">p-16-1</ref>.
+        </note>
+      </entry>
+
+      <!-- A.5 fides — der korrelative Grundbegriff -->
+      <entry xml:id="fides" type="scholastic-latin">
+        <form type="lemma" xml:lang="la">
+          <orth>fides</orth>
+          <gramGrp>
+            <pos>noun, fem.</pos>
+          </gramGrp>
+        </form>
+        <form type="vernacular" xml:lang="de">
+          <orth>Glaube</orth>
+          <note>Deutsche Wiedergabe; in Barths Text korreliert
+            "Glaube" als Sperrsatz-Begriff (App.-Anker
+            <ptr target="section1.xml#app-1-e"/>) mit dem
+            lateinischen fides. Die Variantencodierung
+            betrifft den typographischen Status (Sperrsatz vs.
+            nicht-Sperrsatz), nicht die Wortwahl.</note>
+        </form>
+        <gloss xml:lang="de">Glaube; bei Anselm und bei Barth
+          nicht als psychologischer Akt, sondern als
+          Wirklichkeitsteilhabe verstanden (vgl. p-14-2:
+          <q xml:lang="de">Teilnehmen an der Seinsweise Gottes</q>).
+          Die fides ist Subjekt des quaerere intellectum, nicht
+          dessen passives Objekt.</gloss>
+        <gloss xml:lang="en">Faith; for both Anselm and Barth
+          not a psychological act but participation in reality
+          (cf. p-14-2: "participating in God's mode of being").
+          Faith is the subject of quaerere intellectum, not its
+          passive object.</gloss>
+        <ref target="https://d-nb.info/gnd/4021358-3"
+             type="gnd" ana="hc:GNDURI">Glaube (GND)</ref>
+        <note type="usage">Lateinisch belegt in p-14-2
+          (<q xml:lang="la">quaerere intellectum ist der fides
+          immanent</q>); deutsch als Sperrsatzwort bei
+          <ptr target="section1.xml#app-1-e"/>.</note>
+        <note type="occurrences">
+          <ref target="section1.xml#p-14-2">p-14-2</ref>.
+        </note>
+      </entry>
+
+      <!-- A.6 veritas — incl. summa veritas -->
+      <entry xml:id="veritas" type="scholastic-latin">
+        <form type="lemma" xml:lang="la">
+          <orth>veritas</orth>
+          <gramGrp>
+            <pos>noun, fem.</pos>
+          </gramGrp>
+        </form>
+        <form type="phrase" xml:lang="la">
+          <orth>summa veritas</orth>
+          <note>Höchste Wahrheit, in fn-9 belegt:
+            <q xml:lang="la">summa veritas … nulli quicquam debet</q>.
+            In Anselms Trinitätsmetaphysik Bezeichnung Gottes
+            als der Wahrheit selbst.</note>
+        </form>
+        <gloss xml:lang="de">Wahrheit; bei Anselm sowohl
+          Eigenschaft des Erkennens (rectitudo) als auch und
+          vor allem Bezeichnung Gottes (summa veritas). Im
+          edierten Text (p-16-1) durch Barth pointiert: die
+          rei veritas steht fest, unabhängig vom intellectus
+          ad eam capiendam, dem auf sie zugreifenden Verstand.</gloss>
+        <gloss xml:lang="en">Truth; for Anselm both a property
+          of cognition (rectitudo) and, eminently, the name of
+          God himself (summa veritas). In p-16-1 Barth presses:
+          the rei veritas stands firm regardless of how the
+          intellectus ad eam capiendam fares.</gloss>
+        <ref target="https://d-nb.info/gnd/4079337-1"
+             type="gnd" ana="hc:GNDURI">Wahrheit (GND)</ref>
+        <note type="usage">Korreliert mit
+          <ref target="#rei-veritas"/>; vgl. das Anselm-Zitat
+          aus De veritate c. 13 in fn-16
+          (<q xml:lang="la">Rectitudo … qua significatio
+          recta dicitur …</q>).</note>
+        <note type="occurrences">
+          <ref target="section1.xml#p-16-1">p-16-1</ref>;
+          <ref target="section1.xml#fn-9">fn-9</ref>;
+          <ref target="section1.xml#fn-14">fn-14</ref>;
+          <ref target="section1.xml#fn-16">fn-16</ref>.
+        </note>
+      </entry>
+
+      <!-- A.7 rei veritas (phrasal) -->
+      <entry xml:id="rei-veritas" type="scholastic-latin">
+        <form type="phrase" xml:lang="la">
+          <orth>rei veritas</orth>
+        </form>
+        <gloss xml:lang="de">Wahrheit der Sache, sachliche
+          Wahrheit; die in Gott selbst gegründete Wirklichkeit,
+          auf die das menschliche Erkennen sich richtet, ohne
+          sie konstituieren zu können. Zentraler Ankerbegriff
+          für Barths Auslegung von Anselms Erkenntnistheorie:
+          die rei veritas steht — die Frage ist allein, ob
+          und wie der intellectus zu ihr "gelangt".</gloss>
+        <gloss xml:lang="en">Truth of the matter, objective
+          truth; the reality grounded in God to which human
+          cognition is directed without being able to constitute
+          it. A key anchor for Barth's reading of Anselm's
+          epistemology: the rei veritas stands — the only
+          question is whether and how the intellectus reaches it.</gloss>
+        <note type="usage">In p-16-1 in unmittelbarer
+          Korrelation mit <q xml:lang="la">intellectus ad eam
+          capiendam</q>. Belegstelle bei Anselm: De verit. c. 13
+          (vgl. fn-16).</note>
+        <note type="occurrences">
+          <ref target="section1.xml#p-16-1">p-16-1</ref>.
+        </note>
+      </entry>
+
+      <!-- A.8 probare -->
+      <entry xml:id="probare" type="scholastic-latin">
+        <form type="lemma" xml:lang="la">
+          <orth>probare</orth>
+          <gramGrp>
+            <pos>verb, infinitive</pos>
+          </gramGrp>
+        </form>
+        <gloss xml:lang="de">Erweisen, beweisen; eine der beiden
+          Wirkungen des intelligere nach Anselm. Wird in p-14-1
+          neben laetificare als Folge, nicht als Zweck der
+          theologischen Bewegung genannt. Wichtig für die
+          Distanzierung gegenüber moderner Beweis-Apologetik.</gloss>
+        <gloss xml:lang="en">To prove, to demonstrate; one of
+          the two effects of intelligere according to Anselm.
+          In p-14-1 named alongside laetificare as consequence,
+          not goal of theological activity. Crucial for
+          distinguishing Anselm's project from modern
+          apologetic proof.</gloss>
+        <note type="usage">Vgl. fn-13:
+          <q xml:lang="la">Saepe namque aliquid esse certi
+          sumus et tamen hoc ratione probare nescimus</q>.</note>
+        <note type="occurrences">
+          <ref target="section1.xml#p-14-1">p-14-1</ref>;
+          <ref target="section1.xml#fn-13">fn-13</ref>.
+        </note>
+      </entry>
+
+      <!-- A.9 delectatio + delectari -->
+      <entry xml:id="delectatio" type="scholastic-latin">
+        <form type="lemma" xml:lang="la">
+          <orth>delectatio</orth>
+          <gramGrp>
+            <pos>noun, fem.</pos>
+          </gramGrp>
+        </form>
+        <form type="inflected" xml:lang="la">
+          <orth>delectari</orth>
+          <note>Verbalform, vgl. p-13-2:
+            <q xml:lang="la">dieses delectari an erster, die
+            polemische Verantwortung an zweiter Stelle</q>.</note>
+        </form>
+        <form type="inflected" xml:lang="la">
+          <orth>delectatur</orth>
+          <note>3. Sg. Ind. Präs. Pass., vgl. fn-15.</note>
+        </form>
+        <form type="inflected" xml:lang="la">
+          <orth>delectabile</orth>
+          <note>Adjektiv n., vgl. fn-1:
+            <q xml:lang="la">ad magnum et delectabile quiddam
+            me … perduxit haec mea meditatio</q>.</note>
+        </form>
+        <gloss xml:lang="de">Freude (an der Erkenntnis); bei
+          Anselm und für Barth zweite, ästhetisch-affektive
+          Wirkung des intelligere, neben probare. Barth liest
+          dies nicht als Sentimentalität, sondern als
+          notwendige Korrektur eines rein kämpferisch-
+          apologetischen Theologieverständnisses.</gloss>
+        <gloss xml:lang="en">Delight (in cognition); for Anselm
+          and for Barth the second, aesthetic-affective effect
+          of intelligere alongside probare. Barth treats this
+          not as sentimentality but as a needed corrective to
+          purely apologetic conceptions of theology.</gloss>
+        <note type="usage">Korreliert mit
+          <ref target="#pulchritudo"/>. Programmatisch in
+          p-13-2: <q xml:lang="de">an erster Stelle</q>.</note>
+        <note type="occurrences">
+          <ref target="section1.xml#p-13-2">p-13-2</ref>;
+          <ref target="section1.xml#fn-1">fn-1</ref>;
+          <ref target="section1.xml#fn-15">fn-15</ref>.
+        </note>
+      </entry>
+
+      <!-- A.10 pulchritudo -->
+      <entry xml:id="pulchritudo" type="scholastic-latin">
+        <form type="lemma" xml:lang="la">
+          <orth>pulchritudo</orth>
+          <gramGrp>
+            <pos>noun, fem.</pos>
+          </gramGrp>
+        </form>
+        <gloss xml:lang="de">Schönheit; in p-13-2 als Eigenschaft
+          der ratio gefaßt, korrelativ zu utilitas. Die ästhetische
+          Dimension der theologischen Erkenntnis ist für Barths
+          Anselm-Lektüre charakteristisch: Theologie hat nicht
+          nur Nützliches zu leisten, sondern ist auch Schauen
+          des Schönen der Sache.</gloss>
+        <gloss xml:lang="en">Beauty; in p-13-2 a property of the
+          ratio, correlative to utilitas. The aesthetic dimension
+          of theological cognition is characteristic of Barth's
+          reading of Anselm.</gloss>
+        <note type="usage">Im Druck einmal Antiqua kursiv
+          und gesperrt — typographische Hervorhebung
+          (siehe section1.xml: <q rend="italic letter-spaced"
+          xml:lang="la">pulchritudo</q>).</note>
+        <note type="occurrences">
+          <ref target="section1.xml#p-13-2">p-13-2</ref>.
+        </note>
+      </entry>
+
+      <!-- A.11 utilitas -->
+      <entry xml:id="utilitas" type="scholastic-latin">
+        <form type="lemma" xml:lang="la">
+          <orth>utilitas</orth>
+          <gramGrp>
+            <pos>noun, fem.</pos>
+          </gramGrp>
+        </form>
+        <gloss xml:lang="de">Nützlichkeit; in p-13-2 die erste
+          der beiden Eigenschaften der ratio, korrelativ zu
+          pulchritudo. Barth ordnet sie dem polemischen
+          Beweisen zu, distanziert sie aber gerade so vom
+          Zweck der Theologie überhaupt.</gloss>
+        <gloss xml:lang="en">Usefulness; in p-13-2 the first
+          of the two attributes of ratio, correlative to
+          pulchritudo. Barth assigns it to polemical
+          proof-giving but distances it precisely thereby
+          from the purpose of theology as such.</gloss>
+        <note type="occurrences">
+          <ref target="section1.xml#p-13-2">p-13-2</ref>.
+        </note>
+      </entry>
+
+      <!-- A.12 Deus — kein bloßer Eigenname, sondern Konzept -->
+      <entry xml:id="deus" type="scholastic-latin">
+        <form type="lemma" xml:lang="la">
+          <orth>Deus</orth>
+          <gramGrp>
+            <pos>noun, proper / concept-term</pos>
+          </gramGrp>
+        </form>
+        <form type="vernacular" xml:lang="de">
+          <orth>Gott</orth>
+        </form>
+        <gloss xml:lang="de">Gott; in FQI nicht als bloßer
+          Eigenname, sondern als theologischer Grundbegriff:
+          Subjekt der Selbstmitteilung, an deren menschliches
+          Nachvollziehen Anselms intelligere sich bindet. Im
+          Buchtitel Cur Deus homo ist Deus zugleich
+          systematische Frageposition. Für die ontologische
+          Argumentation in Prosl. 2–4 (Thema von § 2 ff.)
+          fundamental.</gloss>
+        <gloss xml:lang="en">God; in FQI not merely a proper
+          name but a fundamental theological term: subject of
+          the self-communication to whose human reception
+          Anselm's intelligere is bound. In the title Cur Deus
+          homo, Deus is at once a systematic position of
+          questioning. Foundational for the ontological
+          argumentation in Prosl. 2–4 (theme of § 2 ff.).</gloss>
+        <ref target="https://d-nb.info/gnd/4021469-1"
+             type="gnd" ana="hc:GNDURI">Gott (GND)</ref>
+        <note type="usage">Im Werktitel
+          <ref target="works.xml#cur-deus-homo">Cur Deus homo</ref>;
+          in fn-9 in der Wendung Deus nihil facit necessitate,
+          dort als Markierung der theologischen Grenze gegen
+          jede Notwendigkeitslogik außerhalb Gottes selbst.</note>
+        <note type="occurrences">
+          <ref target="section1.xml#p-13-2">p-13-2 (im Titel
+          Cur Deus homo)</ref>;
+          <ref target="section1.xml#fn-9">fn-9 (mehrfach)</ref>;
+          <ref target="section1.xml#fn-13">fn-13 (im Zitat)</ref>.
+        </note>
+      </entry>
+
+      <!-- =========================================================
+           B. PROGRAMMATISCHE WENDUNGEN (motto)
+           ========================================================= -->
+
+      <!-- B.1 Fides quaerens intellectum — Titel und Methode -->
+      <entry xml:id="fqi-motto" type="motto">
+        <form type="phrase" xml:lang="la">
+          <orth>Fides quaerens intellectum</orth>
+        </form>
+        <form type="variant" xml:lang="la">
+          <orth>fides quaerit intellectum</orth>
+          <note>Verbale Auflösung; gelegentlich in der
+            Sekundärliteratur, nicht aber bei Anselm selbst
+            so belegt.</note>
+        </form>
+        <gloss xml:lang="de">"Der Glaube, der nach dem Verstehen
+          sucht" — laut Proömium des Proslogion der ursprünglich
+          beabsichtigte Titel ebenjener Schrift. Bei Barth zum
+          Titel und Programm des gesamten Buches gemacht. Die
+          Wendung ist Subjekt-Prädikat-Objekt-Struktur, nicht
+          bloße Beschreibung: der Glaube selbst ist das
+          suchende Subjekt; der intellectus ist nicht extern
+          beigebrachte Bedingung, sondern Ziel einer dem
+          Glauben immanenten Bewegung.</gloss>
+        <gloss xml:lang="en">"Faith seeking understanding" —
+          according to the proem of the Proslogion the originally
+          intended title of that work. Barth elevates the phrase
+          into title and program of his entire book. The phrase
+          has subject-predicate-object structure, not merely
+          descriptive force: faith itself is the seeking subject;
+          intellectus is not an externally introduced precondition
+          but the goal of a movement intrinsic to faith.</gloss>
+        <ref target="https://d-nb.info/gnd/4154273-3"
+             type="gnd" ana="hc:GNDURI">Fides quaerens intellectum (GND)</ref>
+        <note type="usage">In § 1.1 einmalig in p-14-1 als
+          Programmformel zitiert; zugleich Titel des
+          Gesamtwerks. — Vgl. den Konzeptpartner
+          <ref target="#quaerere-intellectum"/> als
+          finite Verbalform.</note>
+        <note type="occurrences">
+          <ref target="section1.xml#p-14-1">p-14-1</ref>.
+        </note>
+      </entry>
+
+      <!-- B.2 Credo ut intelligam — Augustinisch-Anselmisches Motto -->
+      <entry xml:id="credo-ut-intelligam" type="motto">
+        <form type="phrase" xml:lang="la">
+          <orth>Credo ut intelligam</orth>
+        </form>
+        <gloss xml:lang="de">"Ich glaube, damit ich verstehe."
+          Sentenz aus Prosl. 1 (vgl. fn-17), auf die Augustins
+          <q xml:lang="la">crede, ut intelligas</q>
+          (In Ioh. Tract. 29,6) zurückgreift. In Barths
+          Auslegung programmatisch: das ut ist nicht
+          instrumentell (Glaube als Mittel zur Erkenntnis),
+          sondern bezeichnet eine Ordnung der Wirklichkeit
+          (vgl. p-16-2: <q xml:lang="de">Mein Glaube selbst
+          und als solcher ist mir Aufruf zum Erkennen</q>).</gloss>
+        <gloss xml:lang="en">"I believe in order that I may
+          understand." Sentence from Prosl. 1 (cf. fn-17),
+          taking up Augustine's <q xml:lang="la">crede, ut
+          intelligas</q> (In Ioh. Tract. 29,6). Programmatic
+          in Barth's reading: the ut is not instrumental
+          (faith as means to knowledge) but designates an
+          order of reality (cf. p-16-2).</gloss>
+        <note type="usage">Belegstelle im Haupttext p-16-2;
+          Quellennachweis in fn-17.</note>
+        <note type="occurrences">
+          <ref target="section1.xml#p-16-2">p-16-2</ref>;
+          <ref target="section1.xml#fn-17">fn-17</ref>.
+        </note>
+      </entry>
+
+      <!-- B.3 quaerere intellectum — finite Wendung -->
+      <entry xml:id="quaerere-intellectum" type="motto">
+        <form type="phrase" xml:lang="la">
+          <orth>quaerere intellectum</orth>
+        </form>
+        <gloss xml:lang="de">"Den Verstand suchen" — als
+          aktivische Wendung das Verbalpendant zur
+          partizipialen Form fides quaerens intellectum. In
+          p-14-2 dem Glauben als ihm "immanent, von Hause aus
+          eigentümlich" zugeschrieben. Die Doppelbelegung
+          (partizipial / finit) erlaubt Barth, die Bewegung
+          einmal als Wesensbestimmung des Glaubens (Partizip),
+          einmal als dessen vollzogene Tätigkeit (Verb) zu
+          fassen.</gloss>
+        <gloss xml:lang="en">"To seek understanding" — the
+          finite verbal counterpart to the participial form
+          fides quaerens intellectum. In p-14-2 ascribed to
+          faith as "immanent to it, intrinsically its own".</gloss>
+        <note type="occurrences">
+          <ref target="section1.xml#p-14-2">p-14-2</ref>.
+        </note>
+      </entry>
+
+      <!-- B.4 unum argumentum — Vorausverweis-Eintrag (§ 2 ff.),
+           in § 1.1 zunächst als Zitatangabe belegt, terminologisch
+           ausgeführt erst später. -->
+      <entry xml:id="unum-argumentum" type="motto">
+        <form type="phrase" xml:lang="la">
+          <orth>unum argumentum</orth>
+        </form>
+        <gloss xml:lang="de">"Das eine Argument" — im Proömium
+          des Proslogion Anselms eigene Bezeichnung der dort
+          gesuchten und gefundenen Beweisform. In § 1.1 in
+          p-13-2 als zitathaft eingeführte Erinnerungsangabe;
+          terminologisch entfaltet wird der Begriff erst in
+          § 5–7 (Beweis Prosl. 2–4). Der Singular "unum" ist
+          programmatisch: Anselm sucht nicht eine Reihe von
+          Argumenten, sondern das eine, das die ganze Sache
+          trägt.</gloss>
+        <gloss xml:lang="en">"The one argument" — Anselm's own
+          term in the proem of the Proslogion for the form of
+          proof there sought and found. In § 1.1 (p-13-2)
+          cited as a foreshadowing reference; the term is
+          terminologically unfolded only in § 5–7 (analysis of
+          Prosl. 2–4). The singular "unum" is programmatic:
+          not a series of arguments, but the one carrying the
+          whole.</gloss>
+        <note type="usage">In § 1.1 nur als Zitatreferenz
+          (p-13-2); volle terminologische Entfaltung erst in
+          späteren Kapiteln. Der Eintrag steht damit
+          "halbproleptisch": der Erstbeleg dient noch nicht
+          der begrifflichen Arbeit, sondern der späteren
+          Wiederaufnahme.</note>
+        <note type="occurrences">
+          <ref target="section1.xml#p-13-2">p-13-2
+          (Vorausverweis-Beleg)</ref>.
+        </note>
+      </entry>
+
+      <!-- =========================================================
+           C. BARTHIAN TERMS (barthian)
+           ========================================================= -->
+
+      <!-- C.1 Notwendigkeit der Theologie — Kapiteltitel als Begriff -->
+      <entry xml:id="notwendigkeit-der-theologie" type="barthian">
+        <form type="phrase" xml:lang="de">
+          <orth>Notwendigkeit der Theologie</orth>
+        </form>
+        <gloss xml:lang="de">Theologische Notwendigkeit — nicht
+          eine logische, anthropologische oder kulturelle, sondern
+          eine im Glauben selbst gegründete: kraft welcher das
+          intelligere bei Anselm zur Aufgabe wird. Themenbegriff
+          des gesamten § 1, ausdrücklich abgegrenzt gegen die
+          Notwendigkeit als Bedürfnis, als Sicherung des
+          Glaubens, als Existenzbedingung. Vgl. die
+          Bedeutungsverschiebung "Notwendigkeit" → "spontanes
+          Verlangen des Glaubens" in p-14-2.</gloss>
+        <gloss xml:lang="en">Theological necessity — not a
+          logical, anthropological or cultural necessity but
+          one grounded in faith itself: that by virtue of which
+          intelligere becomes an Aufgabe (task) for Anselm.
+          The theme-term of all of § 1, explicitly distinguished
+          from necessity as need, as safeguard of faith, as
+          condition of existence. Cf. the shift "Notwendigkeit"
+          → "spontaneous demand of faith" in p-14-2.</gloss>
+        <note type="usage">Markierung im Druck durch Sperrsatz:
+          <q rend="letter-spaced">Notwendigkeit</q> in der
+          Kapitelüberschrift, gleichbleibend in allen Auflagen.
+          — Der Phrasen-Eintrag ersetzt die irreführende
+          Einzelmarkierung "Aufgabe" / "Notwendigkeit" /
+          "Theologie", die je für sich genommen keine Termini
+          wären.</note>
+        <note type="occurrences">
+          <ref target="section1.xml#kap-1">kap-1
+          (Kapitelüberschrift)</ref>;
+          <ref target="section1.xml#p-13-1">p-13-1</ref>;
+          <ref target="section1.xml#p-14-1">p-14-1</ref>.
+        </note>
+      </entry>
+
+      <!-- C.2 Wesen des Glaubens (vs. Existenz des Glaubens) -->
+      <entry xml:id="wesen-des-glaubens" type="barthian">
+        <form type="phrase" xml:lang="de">
+          <orth>Wesen des Glaubens</orth>
+        </form>
+        <gloss xml:lang="de">Wesen (im Unterschied zur Existenz)
+          des Glaubens. In p-16-2 als Drehpunkt von § 1.1
+          gesetzt: nicht die Existenz, sondern das Wesen des
+          Glaubens verlangt nach Erkenntnis. Damit ist die
+          ontologische Differenz zwischen Sein und Sosein des
+          Glaubens für die Theologie ausgespielt: Theologie
+          gefährdet nicht den Glauben (Existenzfrage), sondern
+          entspricht dessen Sosein (Wesensfrage).</gloss>
+        <gloss xml:lang="en">Essence (as distinguished from
+          existence) of faith. In p-16-2 set as the pivot of
+          § 1.1: not the existence but the essence of faith
+          demands understanding. Theology does not endanger
+          faith (a question of existence) but corresponds to
+          its way of being (a question of essence).</gloss>
+        <note type="usage">Druckbild: Sperrsatz auf
+          <q rend="letter-spaced">Wesen</q> und parallel
+          <q rend="letter-spaced">Existenz</q> in p-16-2;
+          die typographische Opposition ist tragender Teil
+          der Argumentation und in der TEI durch
+          <gi>hi rend="#letter-spaced"</gi> abgebildet.</note>
+        <note type="occurrences">
+          <ref target="section1.xml#p-16-2">p-16-2</ref>.
+        </note>
+      </entry>
+
+      <!-- C.3 Position — als methodischer Gegenbegriff -->
+      <entry xml:id="position" type="barthian">
+        <form type="phrase" xml:lang="de">
+          <orth>anselmische Position</orth>
+        </form>
+        <gloss xml:lang="de">Anselms positionale (statt
+          existenzielle) Bestimmung der theologischen Aufgabe.
+          In p-16-2 als methodische Wende eingeführt:
+          <q xml:lang="de">wir wenden uns nun der anselmischen
+          Position zu</q>. Position bezeichnet die strukturelle
+          Lage, von der aus überhaupt theologisch gefragt
+          werden kann — nicht eine Lehrmeinung unter anderen.</gloss>
+        <gloss xml:lang="en">Anselm's positional (rather than
+          existential) determination of the theological task.
+          In p-16-2 introduced as the methodological turn:
+          "we now turn to Anselm's position". "Position"
+          designates the structural standpoint from which
+          theological inquiry is possible at all, not one
+          doctrinal opinion among others.</gloss>
+        <note type="usage">Sperrsatz auf
+          <q rend="letter-spaced">Position</q> in p-16-2.</note>
+        <note type="occurrences">
+          <ref target="section1.xml#p-16-2">p-16-2</ref>.
+        </note>
+      </entry>
+
+      <!-- C.4 Negation (theologische) -->
+      <entry xml:id="negation" type="barthian">
+        <form type="phrase" xml:lang="de">
+          <orth>theologische Negation</orth>
+        </form>
+        <gloss xml:lang="de">Die programmatische Verneinung,
+          die § 1.1 nach der Bestimmung von intelligere als
+          Aufgabe einleitet (p-14-2). Sie betrifft nicht eine
+          beliebige Aussage, sondern die Reihe der "Zwecke",
+          die Theologie nicht haben kann: nicht Hinführung
+          zum Glauben, nicht Bestärkung im Glauben, nicht
+          Befreiung vom Zweifel. Die Negation ist konstitutiv,
+          weil sie die theologische Aufgabe gerade durch
+          Abgrenzung gegen ihre apologetischen Verwandten
+          definiert.</gloss>
+        <gloss xml:lang="en">The programmatic negation
+          introduced in § 1.1 (p-14-2) after the definition
+          of intelligere as task. It concerns not any arbitrary
+          claim but the series of "purposes" theology cannot
+          have: not leading toward faith, not strengthening in
+          faith, not freeing from doubt. The negation is
+          constitutive, defining the theological task precisely
+          by demarcation from its apologetic relatives.</gloss>
+        <note type="usage">Sperrsatz auf
+          <q rend="letter-spaced">Negation</q> in p-14-2.</note>
+        <note type="occurrences">
+          <ref target="section1.xml#p-14-2">p-14-2</ref>.
+        </note>
+      </entry>
+
+      <!-- C.5 nachdenken — Forward-reference, § 2 ff. -->
+      <entry xml:id="nachdenken" type="barthian"
+             resp="forward-reference">
+        <form type="lemma" xml:lang="de">
+          <orth>Nachdenken</orth>
+          <gramGrp>
+            <pos>verb / verbal noun</pos>
+          </gramGrp>
+        </form>
+        <gloss xml:lang="de">Nachdenken — der prominente Barthsche
+          Terminus für die der Sache nachfolgende, von ihr her
+          bestimmte Reflexion. In § 1.1 noch nicht belegt;
+          tragend erst ab § 2 ("Die Möglichkeit der Theologie")
+          und im methodischen Schlußteil. Forward-reference-
+          Eintrag, der die spätere terminologische Verzahnung
+          mit dem hier entfalteten intelligere-Begriff
+          vorbereitet: das Nachdenken ist die deutsche
+          Reformulierung dessen, was Anselm intelligere nennt.</gloss>
+        <gloss xml:lang="en">"Thinking-after" (a calque rendering
+          of nach-denken) — Barth's signature term for thought
+          that follows its matter and is determined by it. Not
+          yet occurring in § 1.1; thematic from § 2 onward
+          ("The possibility of theology") and in the
+          methodological closing sections. Forward-reference
+          entry preparing the later terminological link with
+          the intelligere-concept developed here: Nachdenken
+          is the German reformulation of what Anselm calls
+          intelligere.</gloss>
+        <note type="usage">Forward-reference; keine
+          Belegstellen in § 1.1.</note>
+      </entry>
+
+      <!-- =========================================================
+           D. KONFESSIONSÜBERGREIFENDE DOGMATISCHE TERMINI
+              (dogmatic-shared)
+           ========================================================= -->
+
+      <!-- D.1 Gottesbeweis — das Buchthema -->
+      <entry xml:id="gottesbeweis" type="dogmatic-shared">
+        <form type="phrase" xml:lang="de">
+          <orth>Gottesbeweis</orth>
+        </form>
+        <form type="vernacular" xml:lang="en">
+          <orth>proof of God's existence</orth>
+        </form>
+        <gloss xml:lang="de">Beweis der Existenz Gottes; der im
+          Untertitel des Buches genannte engere Gegenstand, in
+          § 1.1 jedoch konsequent unter den allgemeineren
+          Begriff der theologischen Aufgabe subsumiert. Wenn
+          Barth in p-13-1 vom <q xml:lang="de">polemisch-
+          apologetischen Beweises</q> spricht, ist genau die
+          modernzeitliche Engführung des Begriffs gemeint, die
+          Barth zurückweist: der "Beweis" bei Anselm ist nicht
+          apologetisches Instrument, sondern Vollzug des
+          intelligere.</gloss>
+        <gloss xml:lang="en">Proof of the existence of God; the
+          narrower object named in the book's subtitle, in
+          § 1.1 consistently subsumed under the more general
+          concept of the theological task. When Barth speaks
+          in p-13-1 of the "polemical-apologetical proof",
+          precisely the modern narrowing of the term is meant,
+          which Barth rejects: the "proof" in Anselm is not an
+          apologetic instrument but the carrying-out of the
+          intelligere.</gloss>
+        <ref target="https://d-nb.info/gnd/4021929-9"
+             type="gnd" ana="hc:GNDURI">Gottesbeweis (GND)</ref>
+        <note type="usage">Im Buchtitel und in p-13-1
+          (<q rend="letter-spaced">Beweises</q>). Der Eintrag
+          erlaubt, einzelne Vorkommen von "Beweis"
+          kontextsensitiv (theologisch / nicht-theologisch)
+          zu markieren.</note>
+        <note type="occurrences">
+          <ref target="section1.xml#p-13-1">p-13-1</ref>;
+          <ref target="section1.xml#p-14-2">p-14-2</ref>.
+        </note>
+      </entry>
+
+      <!-- D.2 ontologischer Gottesbeweis — Forward-reference -->
+      <entry xml:id="ontologischer-gottesbeweis"
+             type="dogmatic-shared" resp="forward-reference">
+        <form type="phrase" xml:lang="de">
+          <orth>ontologischer Gottesbeweis</orth>
+        </form>
+        <form type="vernacular" xml:lang="en">
+          <orth>ontological argument</orth>
+        </form>
+        <gloss xml:lang="de">Bezeichnung — von Kant geprägt —
+          für die Argumentation in Prosl. 2 (–4). Begegnet in
+          § 1.1 nicht direkt; Barths Auslegung zielt gerade
+          darauf, die kantische Etikettierung zu unterlaufen:
+          das Anselmsche Argument ist nicht ontologisch im
+          Sinn einer Schluß­folgerung vom Begriff auf das
+          Sein, sondern Vollzug des intellectus fidei.
+          Forward-reference-Eintrag für § 2 ff.; programmatisch
+          für die Buchthese.</gloss>
+        <gloss xml:lang="en">Designation — coined by Kant —
+          for the argumentation in Prosl. 2(–4). Does not
+          appear directly in § 1.1; Barth's reading is
+          designed precisely to undercut the Kantian label:
+          Anselm's argument is not ontological in the sense
+          of inferring being from concept, but the
+          carrying-out of intellectus fidei. Forward-reference
+          entry for § 2 ff.; programmatic for the book's
+          thesis.</gloss>
+        <ref target="https://d-nb.info/gnd/4172711-9"
+             type="gnd" ana="hc:GNDURI">Gottesbeweis, ontologischer (GND)</ref>
+        <note type="usage">Forward-reference; in § 1.1 nicht
+          belegt.</note>
+      </entry>
+
+      <!-- D.3 Theologie als Disziplinbegriff -->
+      <entry xml:id="theologie" type="dogmatic-shared">
+        <form type="lemma" xml:lang="de">
+          <orth>Theologie</orth>
+        </form>
+        <form type="vernacular" xml:lang="la">
+          <orth>theologia</orth>
+        </form>
+        <gloss xml:lang="de">Theologie als Disziplinbegriff;
+          in § 1.1 als das definiert, was sie nicht ist (s.
+          <ref target="#negation"/>) und durch
+          Gleichsetzung mit intellectus fidei
+          (vgl. <ref target="#intellectus-fidei"/>) zugleich
+          positiv bestimmt. Der Disziplinbegriff selbst ist
+          weder spezifisch barthianisch noch anselmisch,
+          sondern wird hier in einer bestimmten Lesart
+          neu profiliert.</gloss>
+        <gloss xml:lang="en">Theology as a disciplinary
+          concept; in § 1.1 defined as what it is not (see
+          <ref target="#negation"/>) and positively
+          determined through identification with intellectus
+          fidei (see <ref target="#intellectus-fidei"/>).
+          The disciplinary concept is neither specifically
+          Barthian nor specifically Anselmian but is profiled
+          here in a particular reading.</gloss>
+        <ref target="https://d-nb.info/gnd/4135796-4"
+             type="gnd" ana="hc:GNDURI">Theologie (GND)</ref>
+        <note type="usage">In p-14-1 als
+          <q rend="letter-spaced">Theologie</q> (Sperrsatz;
+          App.-Anker <ptr target="section1.xml#app-1-d"/>);
+          mehrfach im Haupttext nicht hervorgehoben. Auch
+          hier gilt: nur die durch Sperrsatz oder
+          definitorische Position ausgezeichneten Vorkommen
+          werden mit <gi>term</gi> markiert.</note>
+        <note type="occurrences">
+          <ref target="section1.xml#p-13-1">p-13-1</ref>;
+          <ref target="section1.xml#p-14-1">p-14-1</ref>;
+          <ref target="section1.xml#p-14-2">p-14-2</ref>;
+          <ref target="section1.xml#kap-1">kap-1
+          (Kapitelüberschrift)</ref>.
+        </note>
+      </entry>
+
+      <!-- D.4 esse rei in intellectu / intelligere rem esse -
+           Konzept-pro-Phrase, da in fn-3 als Begriffspaar
+           prominent. -->
+      <entry xml:id="esse-rei-in-intellectu"
+             type="dogmatic-shared">
+        <form type="phrase" xml:lang="la">
+          <orth>esse rei in intellectu</orth>
+        </form>
+        <form type="phrase" xml:lang="la">
+          <orth>intelligere rem esse</orth>
+          <note>Korrelative Wendung in fn-3; semantisch eng
+            verbunden, deshalb in derselben Konzepteinheit
+            geführt.</note>
+        </form>
+        <gloss xml:lang="de">"Sein der Sache im Verstand" /
+          "verstehen, daß die Sache ist". Begriffspaar aus
+          Prosl. 2, das Anselms Argument für die Existenz
+          Gottes trägt. In § 1.1 nur in der Fußnote fn-3
+          erwähnt; der Eintrag ist Vorbereitung der späteren
+          Analyse (§ 5–7). Forward-orientierte Erschließung:
+          das Paar bezeichnet zwei Modi des Seins (im
+          Verstand vs. in der Sache selbst), deren Differenz
+          das ganze Argument trägt.</gloss>
+        <gloss xml:lang="en">"Being of the matter in the
+          intellect" / "to understand that the matter is".
+          Conceptual pair from Prosl. 2 that carries Anselm's
+          argument for God's existence. In § 1.1 mentioned
+          only in note fn-3; the entry prepares the later
+          analysis (§ 5–7). Forward-oriented coverage: the
+          pair designates two modes of being (in the
+          intellect vs. in the matter itself) whose difference
+          carries the entire argument.</gloss>
+        <note type="usage">In § 1.1 belegt: fn-3.</note>
+        <note type="occurrences">
+          <ref target="section1.xml#fn-3">fn-3</ref>.
+        </note>
+      </entry>
+
+    </body>
+  </text>
+</TEI>
