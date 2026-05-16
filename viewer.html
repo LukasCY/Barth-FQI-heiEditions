@@ -17,6 +17,8 @@
       --c-apparatus: #8b3a3a;
       --c-apparatus-soft: #f6efef;
       --c-term: #1d4e89;
+      --c-pers: #5b2a86;       /* personenfarbe — dunkelviolett */
+      --c-pers-soft: #f3eef8;
       --c-quote: #2d5016;
       --c-link: #1d4e89;
       --c-bg-hover: #fff8e1;
@@ -31,31 +33,42 @@
       padding: 0 1em 4em;
       line-height: 1.55;
     }
-    h1, h2, h3 { font-family: "Source Sans Pro", -apple-system, sans-serif;
-                 font-weight: 600; }
-    h1 { font-size: 1.3rem; color: var(--c-muted);
-         border-bottom: 1px solid var(--c-rule);
-         padding-bottom: 0.4em; margin-bottom: 1.5em; }
+    h1, h2, h3 {
+      font-family: "Source Sans Pro", -apple-system, sans-serif;
+      font-weight: 600;
+    }
+    h1 {
+      font-size: 1.3rem; color: var(--c-muted);
+      border-bottom: 1px solid var(--c-rule);
+      padding-bottom: 0.4em; margin-bottom: 1.5em;
+    }
 
     /* ============================================================
-       Header bar
+       Header / Controls
        ============================================================ */
     header.bar {
       max-width: var(--maxw);
       margin: 0 auto 2em;
       display: flex;
       justify-content: space-between;
-      align-items: baseline;
+      align-items: flex-start;
+      flex-wrap: wrap;
       gap: 1em;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.3em;
     }
     .controls button {
       font: inherit;
-      font-size: 0.85rem;
-      padding: 0.3em 0.9em;
+      font-size: 0.78rem;
+      padding: 0.3em 0.8em;
       border: 1px solid var(--c-rule);
       background: white;
       cursor: pointer;
       border-radius: 3px;
+      white-space: nowrap;
     }
     .controls button.active {
       background: var(--c-text);
@@ -63,12 +76,19 @@
       border-color: var(--c-text);
     }
     .controls button:hover:not(.active) { background: var(--c-bg-hover); }
+    .controls .group-label {
+      font-size: 0.7rem;
+      color: var(--c-muted);
+      align-self: center;
+      margin-right: 0.3em;
+      font-family: "Source Sans Pro", sans-serif;
+    }
 
     /* ============================================================
-       teiHeader — verbergen in Leseansicht
+       teiHeader — verbergen außer in Apparat-Ansicht
        ============================================================ */
     .tei-teiHeader { display: none; }
-    body.source-view .tei-teiHeader {
+    body.view-apparat .tei-teiHeader {
       display: block;
       font-family: ui-monospace, "SF Mono", Menlo, monospace;
       font-size: 0.78rem;
@@ -109,10 +129,8 @@
       display: inline;
       color: var(--c-muted);
       font-size: 0.75em;
-      vertical-align: super;
       margin: 0 0.15em;
     }
-    .tei-pb::before { content: "|"; }
     .tei-pb-GA { color: #444; font-weight: 600; }
     .tei-pb-A  { color: #888; font-style: italic; }
 
@@ -127,9 +145,17 @@
     .tei-rs-SubjectReference:hover { background: var(--c-bg-hover); }
 
     .tei-persName-PersonReference {
-      font-variant: small-caps;
-      font-size: 0.95em;
+      color: var(--c-pers);
+      border-bottom: 1px dotted var(--c-pers);
+      cursor: help;
     }
+    .tei-persName-PersonReference:hover { background: var(--c-pers-soft); }
+
+    .tei-title-WorkReference {
+      color: var(--c-quote);
+      cursor: help;
+    }
+    .tei-title-WorkReference:hover { background: var(--c-bg-hover); }
 
     .tei-quote-PrimarySourceQuotation {
       color: var(--c-quote);
@@ -137,31 +163,60 @@
     }
 
     /* ============================================================
-       Varianzebene (Šimek 5)
+       Varianzebene (Šimek 5) — Witness-spezifische Sichtbarkeit
        ============================================================ */
     .tei-app { display: inline; }
     .tei-lem { display: inline; }
     .tei-rdg { display: none; }
 
-    body.source-view .tei-rdg {
-      display: inline;
+    /* GA-Ansicht (Default): lem zeigen, alle rdg verbergen */
+    body.view-ga  .tei-lem { display: inline; }
+    body.view-ga  .tei-rdg { display: none; }
+
+    /* A / A2 / B: das passende Element (lem oder rdg, das #X im
+       wit-Attribut enthält) sichtbar machen, alle anderen verbergen.
+       Hinweis: CSS-Attribut-Selektoren mit ~= prüfen leerzeichen-
+       getrennte Token. "#GA #A2 #A" enthält das Token "#A". */
+    body.view-a  .tei-lem,
+    body.view-a  .tei-rdg { display: none; }
+    body.view-a  .tei-lem[data-wit~="#A"],
+    body.view-a  .tei-rdg[data-wit~="#A"] { display: inline; }
+
+    body.view-a2 .tei-lem,
+    body.view-a2 .tei-rdg { display: none; }
+    body.view-a2 .tei-lem[data-wit~="#A2"],
+    body.view-a2 .tei-rdg[data-wit~="#A2"] { display: inline; }
+
+    body.view-b  .tei-lem,
+    body.view-b  .tei-rdg { display: none; }
+    body.view-b  .tei-lem[data-wit~="#B"],
+    body.view-b  .tei-rdg[data-wit~="#B"] { display: inline; }
+
+    /* Apparat-Ansicht: alles parallel zeigen, mit Sigel-Präfix */
+    body.view-apparat .tei-lem,
+    body.view-apparat .tei-rdg { display: inline; }
+    body.view-apparat .tei-rdg {
       color: var(--c-apparatus);
       background: var(--c-apparatus-soft);
       padding: 0 0.2em;
       margin: 0 0.1em;
       font-size: 0.85em;
     }
-    body.source-view .tei-rdg::before {
+    body.view-apparat .tei-rdg::before {
       content: " ⫶ " attr(data-wit) ": ";
       color: var(--c-muted);
     }
+    body.view-apparat .tei-lem::before {
+      content: attr(data-wit) ": ";
+      color: var(--c-muted);
+      font-size: 0.85em;
+    }
 
-    /* Fußnoten-Anker (Šimek 1: semantisch-logisch, hier:
-       Verknüpfung Sinneinheit ↔ Anmerkung). Marker-Text wird
-       per JS aus @n der Ziel-<note> übernommen; daher kein
-       statisches ::before/::after mehr. — Färbung trennt
-       Barth-Anmerkungen (authorial, dunkel) von Herausgeber-
-       Apparat (editorial, dunkelrot wie Apparat-CSS). */
+    /* ============================================================
+       Buchstaben-Anker im Fließtext (a, b, c …)
+       — Per JS hinter jedem app-Element eingefügt, sofern eine
+         passende editorial note existiert.
+       ============================================================ */
     .tei-ref-note {
       display: inline;
       vertical-align: super;
@@ -174,6 +229,16 @@
     .tei-ref-note-authorial:hover { background: var(--c-bg-hover); }
     .tei-ref-note-editorial { color: var(--c-apparatus); }
     .tei-ref-note-editorial:hover { background: var(--c-apparatus-soft); }
+
+    /* In A/B/A2-Ansicht: editorial-Anker und editorial-Notes ausblenden,
+       weil sie nur in der GA-Synopse Sinn ergeben. In Apparat: alles
+       zeigen. */
+    body.view-a  .tei-ref-note-editorial,
+    body.view-a2 .tei-ref-note-editorial,
+    body.view-b  .tei-ref-note-editorial { display: none; }
+    body.view-a  .tei-note-foot-editorial,
+    body.view-a2 .tei-note-foot-editorial,
+    body.view-b  .tei-note-foot-editorial { display: none; }
 
     .tei-ref-bibl {
       display: inline;
@@ -215,23 +280,13 @@
     .tei-bibl { display: inline; }
     .tei-q { display: inline; }
     .tei-q::before { content: "„"; }
-    .tei-q::after  { content: """; }
+    .tei-q::after  { content: "“"; }
     .tei-q-la::before { content: "«"; }
     .tei-q-la::after  { content: "»"; }
 
     /* ============================================================
-       Quellenansicht: ana-Marker
-       ============================================================ */
-    body.source-view .has-ana::after {
-      content: " {" attr(data-ana) "}";
-      font-family: ui-monospace, monospace;
-      font-size: 0.65em;
-      color: var(--c-muted);
-      vertical-align: super;
-    }
-
-    /* ============================================================
-       Tooltip
+       Tooltip — wird per JS mit echtem Inhalt aus persons/works/
+       terms-XML gefüllt
        ============================================================ */
     [data-tooltip] { position: relative; }
     [data-tooltip]:hover::after {
@@ -241,12 +296,18 @@
       left: 0;
       background: var(--c-text);
       color: white;
-      font-size: 0.75rem;
-      padding: 0.3em 0.6em;
-      border-radius: 3px;
-      white-space: nowrap;
+      font-size: 0.78rem;
+      padding: 0.5em 0.8em;
+      border-radius: 4px;
+      white-space: normal;
+      width: max-content;
+      max-width: 22em;
       z-index: 100;
-      font-family: ui-monospace, monospace;
+      font-family: "Source Sans Pro", -apple-system, sans-serif;
+      font-style: normal;
+      line-height: 1.4;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      pointer-events: none;
     }
 
     /* ============================================================
@@ -267,113 +328,254 @@
       font-family: ui-monospace, monospace;
       font-size: 0.8rem;
     }
+    #aux-warning {
+      max-width: var(--maxw);
+      margin: 0 auto 1em;
+      font-size: 0.78rem;
+      color: var(--c-muted);
+      background: #fdfbf2;
+      border: 1px solid #e8dfb8;
+      padding: 0.5em 1em;
+      border-radius: 3px;
+      display: none;
+    }
+    #aux-warning.visible { display: block; }
   </style>
 </head>
-<body>
+<body class="view-ga">
   <header class="bar">
     <h1>Karl Barth, <em>Fides quaerens intellectum</em>, § 1.1 — Prototyp einer digitalen Edition (heiEDITIONS-Variante)</h1>
     <div class="controls">
-      <button id="btn-reading" class="active">Leseansicht</button>
-      <button id="btn-source">Quellenansicht</button>
+      <span class="group-label">Ansicht:</span>
+      <button data-view="ga"      class="active">Lesetext (GA)</button>
+      <button data-view="a">1. Aufl. 1931 (A)</button>
+      <button data-view="a2">2. Aufl. 1958 (A2)</button>
+      <button data-view="b">Vorabdruck (B)</button>
+      <button data-view="apparat">Apparat (alle)</button>
     </div>
   </header>
 
+  <div id="aux-warning"></div>
   <div id="status">Lade TEI-Daten…</div>
   <div id="TEI"></div>
 
-  <!-- Kein externes Skript — rein nativer fetch + DOMParser -->
   <script>
     "use strict";
 
-    const TEI_FILE    = "fqi-barth-1931-section1-heiEDITIONS.xml";
+    /* ============================================================
+       Konfiguration
+       ============================================================ */
+    const TEI_FILE     = "fqi-barth-1931-section1-heiEDITIONS.xml";
+    const AUX_FILES    = {
+      persons: "persons-heiEDITIONS.xml",
+      works:   "works-heiEDITIONS.xml",
+      terms:   "terms-heiEDITIONS.xml",
+    };
+
     const statusEl    = document.getElementById("status");
+    const auxWarnEl   = document.getElementById("aux-warning");
     const teiContainer = document.getElementById("TEI");
 
-    /* ------------------------------------------------------------------ */
-    /* TEI-Namespace                                                        */
-    /* ------------------------------------------------------------------ */
     const TEI_NS = "http://www.tei-c.org/ns/1.0";
 
-    /* ------------------------------------------------------------------ */
-    /* Hilfsfunktionen                                                      */
-    /* ------------------------------------------------------------------ */
-
-    /** Gibt den lokalen Tag-Namen ohne Namespace zurück. */
+    /* ============================================================
+       Hilfsfunktionen
+       ============================================================ */
     function localName(node) {
       return node.localName || node.nodeName.replace(/^.*:/, "");
     }
 
-    /** Liest ein Attribut über alle Namespace-Varianten. */
     function attr(node, name) {
       return node.getAttribute(name)
           || node.getAttributeNS(null, name)
           || node.getAttributeNS("http://www.w3.org/XML/1998/namespace",
-                                  name.replace(/^xml:/, ""))
+                                 name.replace(/^xml:/, ""))
           || null;
     }
 
-    /* ------------------------------------------------------------------ */
-    /* Konvertierung: XML-Node → HTML-Element                               */
-    /* ------------------------------------------------------------------ */
+    /** Erstellt ein HTML-Element mit Klasse. */
+    function el(tag, cls) {
+      const e = document.createElement(tag);
+      if (cls) e.className = cls;
+      return e;
+    }
+
+    /** Sammelt Textinhalt aller direkten Text-Kindknoten. */
+    function directText(node) {
+      let s = "";
+      for (const c of node.childNodes) {
+        if (c.nodeType === Node.TEXT_NODE) s += c.nodeValue;
+      }
+      return s.trim();
+    }
+
+    /** Sucht eine ID innerhalb eines XML-Doc via xml:id-Attribut. */
+    function findById(xmlDoc, id) {
+      return xmlDoc.querySelector('[*|id="' + id + '"]');
+    }
+
+    /* ============================================================
+       Aux-Dateien: Tooltips aus persons/works/terms ableiten
+       ============================================================ */
+    const auxDocs = { persons: null, works: null, terms: null };
+    const auxLoadErrors = [];
+
+    /** Baut einen Tooltip-String aus einem persons.xml <person>. */
+    function tooltipFromPerson(personEl) {
+      // Bevorzugter Name
+      const preferred = personEl.querySelector(
+        'persName[ana~="hc:PreferredAppellation"]'
+      );
+      const persNames = personEl.getElementsByTagName("persName");
+      let name = "";
+      if (preferred) {
+        name = preferred.textContent.replace(/\s+/g, " ").trim();
+      } else if (persNames.length) {
+        name = persNames[0].textContent.replace(/\s+/g, " ").trim();
+      }
+
+      // Geburts-/Todesdatum
+      const birth = personEl.getElementsByTagName("birth")[0];
+      const death = personEl.getElementsByTagName("death")[0];
+      let dates = "";
+      if (birth || death) {
+        const bY = birth ? (birth.getAttribute("when") || birth.getAttribute("notBefore") || "") : "";
+        const dY = death ? (death.getAttribute("when") || death.getAttribute("notAfter") || "") : "";
+        const bs = bY ? bY.slice(0, 4) : "?";
+        const ds = dY ? dY.slice(0, 4) : "?";
+        if (bY || dY) dates = " (" + bs + "–" + ds + ")";
+      }
+
+      // Beruf
+      const occ = personEl.getElementsByTagName("occupation")[0];
+      const occText = occ ? occ.textContent.replace(/\s+/g, " ").trim() : "";
+
+      let s = name + dates;
+      if (occText) s += " — " + occText;
+      return s;
+    }
+
+    /** Baut Tooltip aus terms.xml <entry>. */
+    function tooltipFromEntry(entryEl) {
+      /* Konzepteinträge tragen entweder <form type="lemma">
+         (Einwortbegriffe) oder <form type="phrase">
+         (Mehrwortbegriffe wie "Notwendigkeit der Theologie",
+         "intellectus fidei"). Beide werden gleichberechtigt
+         als primäre Form akzeptiert. */
+      const lemma = entryEl.querySelector(
+        'form[type="lemma"] > orth, form[type="phrase"] > orth'
+      );
+      const lemmaText = lemma ? lemma.textContent.trim() : "";
+
+      const gloss = entryEl.getElementsByTagName("gloss")[0];
+      let glossText = "";
+      if (gloss) {
+        glossText = gloss.textContent.replace(/\s+/g, " ").trim();
+        // Erster Satz oder die ersten ~120 Zeichen
+        const dot = glossText.indexOf(". ");
+        if (dot > 20 && dot < 200) glossText = glossText.slice(0, dot + 1);
+        else if (glossText.length > 200) glossText = glossText.slice(0, 200) + "…";
+      }
+      return lemmaText + (glossText ? " — " + glossText : "");
+    }
+
+    /** Baut Tooltip aus works.xml <bibl>. */
+    function tooltipFromBibl(biblEl) {
+      const auth = biblEl.getElementsByTagName("author")[0];
+      const fullTitle = biblEl.querySelector('title[type="full"]');
+      const firstTitle = biblEl.getElementsByTagName("title")[0];
+      const title = (fullTitle || firstTitle);
+      const titleText = title ? title.textContent.trim() : "";
+      const authText  = auth  ? auth.textContent.trim()  : "";
+      return (authText ? authText + ": " : "") + titleText;
+    }
+
+    /** Löst @ref="persons.xml#X" zu einem Tooltip-Text. */
+    function resolveRef(refValue) {
+      if (!refValue) return "";
+      const m = refValue.match(/^([^#]+)#(.+)$/);
+      if (!m) return "";
+      const file = m[1].trim();
+      const id   = m[2].trim();
+
+      let entry = null, builder = null;
+      if (/persons/.test(file) && auxDocs.persons) {
+        entry = findById(auxDocs.persons, id);
+        builder = tooltipFromPerson;
+      } else if (/works/.test(file) && auxDocs.works) {
+        entry = findById(auxDocs.works, id);
+        builder = tooltipFromBibl;
+      } else if (/terms/.test(file) && auxDocs.terms) {
+        entry = findById(auxDocs.terms, id);
+        builder = tooltipFromEntry;
+      }
+      if (entry && builder) return builder(entry);
+      // Fallback: ungelöster Verweis
+      return "→ " + refValue;
+    }
+
+    function applyRef(xmlNode, htmlEl) {
+      const ref = attr(xmlNode, "ref") || "";
+      if (ref) htmlEl.dataset.tooltip = resolveRef(ref);
+    }
+
+    function applyAna(xmlNode, htmlEl, concept, cssClass) {
+      const ana = attr(xmlNode, "ana") || "";
+      if (ana.includes(concept)) {
+        htmlEl.classList.add(cssClass);
+        htmlEl.classList.add("has-ana");
+        htmlEl.dataset.ana = ana;
+      }
+    }
+
+    /* ============================================================
+       Konvertierung: XML-Node → HTML-Element
+       ============================================================ */
     function convertNode(xmlNode, htmlParent) {
-      /* Text-Knoten direkt anhängen */
       if (xmlNode.nodeType === Node.TEXT_NODE) {
         htmlParent.appendChild(document.createTextNode(xmlNode.nodeValue));
         return;
       }
       if (xmlNode.nodeType !== Node.ELEMENT_NODE) return;
 
-      const tag  = localName(xmlNode);
-      let   el   = null;
+      const tag = localName(xmlNode);
+      let node = null;
 
       switch (tag) {
-
         /* ── Strukturebene (Šimek 1) ── */
         case "TEI":
-          el = span("div", "tei-TEI"); break;
+          node = el("div", "tei-TEI"); break;
         case "teiHeader":
-          el = span("div", "tei-teiHeader");
-          el.textContent = xmlNode.textContent;
-          htmlParent.appendChild(el);
-          return;                       /* keine Rekursion in teiHeader */
+          node = el("div", "tei-teiHeader");
+          node.textContent = xmlNode.textContent;
+          htmlParent.appendChild(node);
+          return;
         case "text":
-          el = span("div", "tei-text"); break;
+          node = el("div", "tei-text"); break;
         case "front":
-          el = span("div", "tei-front"); break;
+          node = el("div", "tei-front"); break;
         case "body":
-          el = span("div", "tei-body"); break;
+          node = el("div", "tei-body"); break;
         case "div":
-          el = span("div", "tei-div");
+          node = el("div", "tei-div");
           if (attr(xmlNode, "type"))
-            el.dataset.type = attr(xmlNode, "type");
+            node.dataset.type = attr(xmlNode, "type");
           break;
         case "head":
-          el = span("div", "tei-head"); break;
+          node = el("div", "tei-head"); break;
         case "p":
-          el = span("p", "tei-p"); break;
+          node = el("p", "tei-p"); break;
         case "s":
-          el = span("span", "tei-s"); break;
+          node = el("span", "tei-s"); break;
 
         /* ── Visuelle Ebene (Šimek 2) ── */
         case "pb": {
-          el = span("span", "tei-pb");
           const n  = attr(xmlNode, "n")  || "";
           const ed = attr(xmlNode, "ed") || "";
-          el.dataset.n = n;
-          if (ed === "#GA") el.classList.add("tei-pb-GA");
-          if (ed === "#A")  el.classList.add("tei-pb-A");
-          el.setAttribute("data-n", n);
-          /* ::after zeigt attr(n) — wir setzen auch ein data-n */
-          el.style.cssText += "";
-          /* Seiten-Nummer direkt als CSS-Custom-Property oder
-             einfacher: text-content via JS */
-          el.insertAdjacentHTML("beforeend",
-            `<span style="display:none">${n}</span>`);
-          /* Stattdessen: zwei Pseudo-Spans für ::before / ::after */
-          el = null;
-          /* Vereinfachter Weg: direkt einen <span> mit Text */
           const pbEl = document.createElement("span");
-          pbEl.className = "tei-pb" + (ed === "#GA" ? " tei-pb-GA" : ed === "#A" ? " tei-pb-A" : "");
+          pbEl.className = "tei-pb" +
+            (ed === "#GA" ? " tei-pb-GA" :
+             ed === "#A"  ? " tei-pb-A"  : "");
           pbEl.textContent = "|" + n + "|";
           pbEl.title = "Seitenumbruch " + (ed || "") + " S. " + n;
           htmlParent.appendChild(pbEl);
@@ -386,103 +588,89 @@
 
         case "hi": {
           const rend = attr(xmlNode, "rend") || attr(xmlNode, "rendition") || "";
-          el = span("span", "tei-hi");
+          node = el("span", "tei-hi");
           if (rend.includes("letter-spaced") || rend.includes("spaced"))
-            el.classList.add("tei-hi-letter-spaced");
+            node.classList.add("tei-hi-letter-spaced");
           if (rend.includes("italic") || rend.includes("i"))
-            el.classList.add("tei-hi-italic");
+            node.classList.add("tei-hi-italic");
           break;
         }
 
         /* ── Linguistische Ebene (Šimek 3) ── */
         case "foreign":
-          el = span("span", "tei-foreign");
-          el.lang = attr(xmlNode, "xml:lang") || attr(xmlNode, "lang") || "";
+          node = el("span", "tei-foreign");
+          node.lang = attr(xmlNode, "xml:lang") || attr(xmlNode, "lang") || "";
           break;
 
         /* ── Extensionale Ebene (Šimek 4) ── */
-        case "rs": {
-          el = span("span", "tei-rs");
-          applyAna(xmlNode, el, "SubjectReference", "tei-rs-SubjectReference");
-          applyRef(xmlNode, el);
+        case "rs":
+          node = el("span", "tei-rs");
+          applyAna(xmlNode, node, "SubjectReference", "tei-rs-SubjectReference");
+          applyRef(xmlNode, node);
           break;
-        }
-        case "persName": {
-          el = span("span", "tei-persName");
-          applyAna(xmlNode, el, "PersonReference", "tei-persName-PersonReference");
-          applyRef(xmlNode, el);
+        case "persName":
+          node = el("span", "tei-persName");
+          applyAna(xmlNode, node, "PersonReference", "tei-persName-PersonReference");
+          applyRef(xmlNode, node);
           break;
-        }
         case "placeName":
-          el = span("span", "tei-placeName");
-          applyRef(xmlNode, el);
+          node = el("span", "tei-placeName");
+          applyRef(xmlNode, node);
           break;
         case "title": {
-          el = span("span", "tei-title");
+          node = el("span", "tei-title");
           const rend = attr(xmlNode, "rend") || attr(xmlNode, "rendition") || "";
           if (rend.includes("italic") || rend.includes("i"))
-            el.classList.add("tei-hi-italic");
-          applyAna(xmlNode, el, "WorkReference", "tei-title-WorkReference");
-          applyRef(xmlNode, el);
+            node.classList.add("tei-hi-italic");
+          applyAna(xmlNode, node, "WorkReference", "tei-title-WorkReference");
+          applyRef(xmlNode, node);
           break;
         }
         case "term":
-          el = span("span", "tei-term");
-          applyRef(xmlNode, el);
+          node = el("span", "tei-term");
+          applyRef(xmlNode, node);
           break;
 
-        case "quote": {
-          el = span("span", "tei-quote");
-          applyAna(xmlNode, el, "PrimarySourceQuotation",
+        case "quote":
+          node = el("span", "tei-quote");
+          applyAna(xmlNode, node, "PrimarySourceQuotation",
                    "tei-quote-PrimarySourceQuotation");
           break;
-        }
         case "q": {
-          el = span("span", "tei-q");
+          node = el("span", "tei-q");
           const qlang = attr(xmlNode, "xml:lang") || "";
-          if (qlang === "la") el.classList.add("tei-q-la");
+          if (qlang === "la") node.classList.add("tei-q-la");
           break;
         }
 
         case "ref": {
           const type   = attr(xmlNode, "type")   || "";
           const target = attr(xmlNode, "target") || "";
-          el = span("span", "tei-ref-" + (type || "ref"));
+          node = el("span", "tei-ref-" + (type || "ref"));
           if (target) {
-            el.dataset.target = target;
+            node.dataset.target = target;
             if (type === "note") {
-              /* A-Lösung: das Marker-Zeichen aus dem Ziel-<note>
-                 dereferenzieren. Der XML-Knoten ist hier ein
-                 leeres Element <ref type="note" target="#fn-X"/>;
-                 das anzuzeigende Zeichen (1, 2, …, a, b, …) steht
-                 als @n auf der Ziel-<note>. */
+              /* A-Lösung: Marker-Text aus Ziel-<note> @n. */
               const id = target.startsWith("#") ? target.slice(1) : target;
-              /* xml:id ist kein HTML-id, deshalb über Attribut-
-                 Selektor; DOMParser indiziert xml:id im allgemeinen
-                 nicht via getElementById. */
               const noteEl = xmlNode.ownerDocument.querySelector(
                 '[*|id="' + id + '"]'
               );
               if (noteEl) {
-                const markerText = noteEl.getAttribute("n") || "";
-                const noteType   = noteEl.getAttribute("type") || "";
-                el.textContent = markerText;
+                node.textContent = noteEl.getAttribute("n") || "";
+                const noteType = noteEl.getAttribute("type") || "";
                 if (noteType === "authorial") {
-                  el.classList.add("tei-ref-note-authorial");
+                  node.classList.add("tei-ref-note-authorial");
                 } else if (noteType === "editorial") {
-                  el.classList.add("tei-ref-note-editorial");
+                  node.classList.add("tei-ref-note-editorial");
                 }
               }
-              el.addEventListener("click", () => {
+              node.addEventListener("click", () => {
                 const noteHtml = document.getElementById(id);
                 if (noteHtml) noteHtml.scrollIntoView(
                   { behavior: "smooth", block: "center" }
                 );
               });
-              /* Inhalt ist gesetzt; convertChildren würde nichts
-                 anhängen (leeres Element), aber zur Sicherheit:
-                 wir umgehen den Standard-Append-Pfad. */
-              htmlParent.appendChild(el);
+              htmlParent.appendChild(node);
               return;
             }
           }
@@ -490,29 +678,36 @@
         }
 
         case "bibl":
-          el = span("span", "tei-bibl"); break;
+          node = el("span", "tei-bibl"); break;
         case "citedRange":
-          el = span("span", "tei-citedRange"); break;
+          node = el("span", "tei-citedRange"); break;
 
         /* ── Varianzebene (Šimek 5) ── */
-        case "app":
-          el = span("span", "tei-app"); break;
-        case "lem":
-          el = span("span", "tei-lem"); break;
-        case "rdg": {
-          el = span("span", "tei-rdg");
+        case "app": {
+          node = el("span", "tei-app");
+          const appId = attr(xmlNode, "xml:id") || "";
+          if (appId) node.dataset.appId = appId;
+          /* Kinder rendern, dann ggf. Buchstaben-Anker einfügen. */
+          break;
+        }
+        case "lem": {
+          node = el("span", "tei-lem");
           const wit = attr(xmlNode, "wit") || "";
-          if (wit) el.dataset.wit = wit;
+          if (wit) node.dataset.wit = wit;
+          break;
+        }
+        case "rdg": {
+          node = el("span", "tei-rdg");
+          const wit = attr(xmlNode, "wit") || "";
+          if (wit) node.dataset.wit = wit;
           break;
         }
         case "choice": {
-          /* <choice><sic>/<corr> oder <orig>/<reg> */
-          el = span("span", "tei-choice");
-          /* In Leseansicht: corr/reg bevorzugen, sic/orig verbergen */
+          node = el("span", "tei-choice");
           const corr = xmlNode.querySelector("corr, reg");
           const sic  = xmlNode.querySelector("sic, orig");
           if (corr) {
-            const corrEl = span("span", "tei-corr");
+            const corrEl = el("span", "tei-corr");
             convertChildren(corr, corrEl);
             htmlParent.appendChild(corrEl);
           } else if (sic) {
@@ -521,109 +716,122 @@
           return;
         }
         case "sic":
-          el = span("span", "tei-sic"); break;
+          node = el("span", "tei-sic"); break;
         case "corr":
-          el = span("span", "tei-corr"); break;
+          node = el("span", "tei-corr"); break;
         case "subst":
-          el = span("span", "tei-subst"); break;
+          node = el("span", "tei-subst"); break;
         case "add":
-          el = span("span", "tei-add"); break;
+          node = el("span", "tei-add"); break;
         case "del":
-          el = span("span", "tei-del");
-          el.style.display = "none";  /* Tilgungen in Leseansicht unterdrücken */
+          node = el("span", "tei-del");
+          node.style.display = "none";
           break;
 
         /* ── Fußnoten ── */
         case "note": {
-          const place = attr(xmlNode, "place") || "";
           const type  = attr(xmlNode, "type")  || "";
-          const n     = attr(xmlNode, "n")      || "";
+          const n     = attr(xmlNode, "n")     || "";
           const xmlId = attr(xmlNode, "xml:id") || "";
 
-          el = span("div", "tei-note-foot");
+          node = el("div", "tei-note-foot");
           if (type === "authorial") {
-            el.classList.add("tei-note-foot-authorial");
-            el.dataset.marker = n;
-            el.style.setProperty("--note-marker", JSON.stringify(n + "  "));
+            node.classList.add("tei-note-foot-authorial");
           }
           if (type === "editorial") {
-            el.classList.add("tei-note-foot-editorial");
-            el.dataset.marker = n;
+            node.classList.add("tei-note-foot-editorial");
           }
-          /* Marker als erstes Kind einfügen */
+          node.dataset.marker = n;
           if (n) {
             const marker = document.createElement("span");
             marker.className = "note-marker";
             marker.style.fontWeight = "600";
-            marker.style.color = type === "editorial" ? "var(--c-apparatus)" : "var(--c-text)";
+            marker.style.color =
+              type === "editorial" ? "var(--c-apparatus)" : "var(--c-text)";
             marker.style.marginRight = "0.4em";
             marker.textContent = n;
-            el.appendChild(marker);
+            node.appendChild(marker);
           }
-          if (xmlId) el.id = xmlId;
+          if (xmlId) node.id = xmlId;
           break;
         }
 
-        /* ── Sonstige, stillschweigend weiterlaufen ── */
         default:
-          /* Unbekannte Elemente: Inhalt trotzdem rendern */
           convertChildren(xmlNode, htmlParent);
           return;
       }
 
-      if (!el) return;
-      convertChildren(xmlNode, el);
-      htmlParent.appendChild(el);
-    }
+      if (!node) return;
+      convertChildren(xmlNode, node);
+      htmlParent.appendChild(node);
 
-    /* Erstellt ein HTML-Element mit Klasse */
-    function span(tag, cls) {
-      const el = document.createElement(tag);
-      if (cls) el.className = cls;
-      return el;
-    }
-
-    /* Überträgt ana-Klasse und data-ana */
-    function applyAna(xmlNode, el, concept, cssClass) {
-      const ana = attr(xmlNode, "ana") || "";
-      if (ana.includes(concept)) {
-        el.classList.add(cssClass);
-        el.classList.add("has-ana");
-        el.dataset.ana = ana;
+      /* Nach dem Rendern eines <app>: passenden Buchstaben-Anker
+         als ::after-Geschwister einfügen, sofern eine editorial
+         note mit target="#app-X-Y" existiert. */
+      if (tag === "app") {
+        const appId = attr(xmlNode, "xml:id") || "";
+        if (appId) {
+          const edNote = xmlNode.ownerDocument.querySelector(
+            'note[target="#' + appId + '"]'
+          );
+          if (edNote) {
+            const marker = edNote.getAttribute("n") || "";
+            const noteId = edNote.getAttribute("xml:id")
+                       || edNote.getAttributeNS(
+                            "http://www.w3.org/XML/1998/namespace", "id")
+                       || "";
+            if (marker) {
+              const anchor = document.createElement("span");
+              anchor.className =
+                "tei-ref-note tei-ref-note-editorial app-letter-anchor";
+              anchor.textContent = marker;
+              anchor.dataset.target = "#" + noteId;
+              anchor.addEventListener("click", () => {
+                const el = document.getElementById(noteId);
+                if (el) el.scrollIntoView(
+                  { behavior: "smooth", block: "center" }
+                );
+              });
+              /* Direkt nach dem app-Element einfügen */
+              node.parentNode.insertBefore(anchor, node.nextSibling);
+            }
+          }
+        }
       }
     }
 
-    /* Überträgt @ref als data-tooltip */
-    function applyRef(xmlNode, el) {
-      const ref = attr(xmlNode, "ref") || "";
-      if (ref) {
-        el.dataset.tooltip = "→ " + ref;
-      }
-    }
-
-    /* Rekursiv alle Kinder konvertieren */
     function convertChildren(xmlNode, htmlParent) {
       xmlNode.childNodes.forEach(child => convertNode(child, htmlParent));
     }
 
-    /* ------------------------------------------------------------------ */
-    /* Hauptlogik: fetch → parse → render                                  */
-    /* ------------------------------------------------------------------ */
-    fetch(TEI_FILE)
-      .then(res => {
-        if (!res.ok) throw new Error("HTTP " + res.status + " beim Laden von " + TEI_FILE);
+    /* ============================================================
+       Lade-Logik: Haupt-XML + Aux-XMLs parallel
+       ============================================================ */
+    function fetchXML(file) {
+      return fetch(file).then(res => {
+        if (!res.ok) throw new Error("HTTP " + res.status + " bei " + file);
         return res.text();
+      }).then(text => {
+        const doc = new DOMParser().parseFromString(text, "application/xml");
+        const err = doc.querySelector("parsererror");
+        if (err) throw new Error("XML-Parse-Fehler in " + file + ": " + err.textContent);
+        return doc;
+      });
+    }
+
+    /* Aux-Dateien parallel laden, Fehler tolerieren */
+    const auxPromises = Object.entries(AUX_FILES).map(([key, file]) =>
+      fetchXML(file).then(doc => {
+        auxDocs[key] = doc;
+      }).catch(err => {
+        auxLoadErrors.push({ file, message: err.message });
       })
-      .then(xmlText => {
-        const parser = new DOMParser();
-        const xmlDoc = parser.parseFromString(xmlText, "application/xml");
+    );
 
-        /* Parsing-Fehler abfangen */
-        const parseErr = xmlDoc.querySelector("parsererror");
-        if (parseErr) throw new Error("XML-Parsing-Fehler: " + parseErr.textContent);
-
-        /* Erste-Fußnoten-Klasse: Trennlinie vor erstem authorial- und
-           erstem editorial-note setzen */
+    Promise.all(auxPromises)
+      .then(() => fetchXML(TEI_FILE))
+      .then(xmlDoc => {
+        /* Erste-Fußnoten-Markierung (für visuelle Trennlinien) */
         const notes = xmlDoc.querySelectorAll("note[place='foot']");
         let firstAuth = true, firstEdit = true;
         notes.forEach(n => {
@@ -640,17 +848,25 @@
 
         /* Rendern */
         statusEl.remove();
-        const root = xmlDoc.documentElement;
-        convertNode(root, teiContainer);
+        convertNode(xmlDoc.documentElement, teiContainer);
 
         /* Trennlinien nachträglich setzen */
-        const firstAuthEl = teiContainer.querySelector(
-          ".tei-note-foot-authorial:first-of-type, .tei-note-foot-authorial"
-        );
+        const firstAuthEl = teiContainer.querySelector(".tei-note-foot-authorial");
         if (firstAuthEl) firstAuthEl.classList.add("tei-note-foot-first");
+        const firstEditEl = teiContainer.querySelector(".tei-note-foot-editorial");
+        if (firstEditEl) firstEditEl.classList.add("tei-note-foot-first-app");
 
-        const allEditEl = teiContainer.querySelectorAll(".tei-note-foot-editorial");
-        if (allEditEl.length > 0) allEditEl[0].classList.add("tei-note-foot-first-app");
+        /* Warnung anzeigen, falls Aux-Dateien fehlten */
+        if (auxLoadErrors.length > 0) {
+          auxWarnEl.classList.add("visible");
+          auxWarnEl.innerHTML =
+            "<strong>Hinweis:</strong> " +
+            auxLoadErrors.length +
+            " Hilfsregister konnten nicht geladen werden — Tooltips für " +
+            "Personen-/Werk-/Begriffsverweise fallen auf Roh-Referenzen zurück. " +
+            "Fehlende Datei(en): " +
+            auxLoadErrors.map(e => e.file).join(", ");
+        }
       })
       .catch(err => {
         statusEl.classList.add("error");
@@ -664,18 +880,19 @@
           "→ <code>http://localhost:8000/viewer.html</code>";
       });
 
-    /* ------------------------------------------------------------------ */
-    /* Reading- vs. Source-View Toggle                                     */
-    /* ------------------------------------------------------------------ */
-    const btnR = document.getElementById("btn-reading");
-    const btnS = document.getElementById("btn-source");
-    btnR.addEventListener("click", () => {
-      document.body.classList.remove("source-view");
-      btnR.classList.add("active"); btnS.classList.remove("active");
-    });
-    btnS.addEventListener("click", () => {
-      document.body.classList.add("source-view");
-      btnS.classList.add("active"); btnR.classList.remove("active");
+    /* ============================================================
+       View-Toggle (5 Ansichten)
+       ============================================================ */
+    const viewButtons = document.querySelectorAll(".controls button[data-view]");
+    const VIEW_CLASSES = ["view-ga","view-a","view-a2","view-b","view-apparat"];
+    viewButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const view = btn.dataset.view;
+        VIEW_CLASSES.forEach(c => document.body.classList.remove(c));
+        document.body.classList.add("view-" + view);
+        viewButtons.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+      });
     });
   </script>
 </body>
