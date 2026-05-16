@@ -681,7 +681,7 @@
                  Fachwort, sondern als alltagssprachlicher Begriff.
                  Diese Differenz ist semantisch tragend; deshalb
                  markiert <rs> nur die hervorgehobene Lesart. -->
-            <lem wit="#GA #A2"><rs ref="terms.xml#theologie" ana="hc:SubjectReference" xml:lang="de"><hi rend="#letter-spaced">Theologie</hi></rs></lem>
+            <lem wit="#GA #A2 #A"><rs ref="terms.xml#theologie" ana="hc:SubjectReference" xml:lang="de"><hi rend="#letter-spaced">Theologie</hi></rs></lem>
             <rdg wit="#B">Theologie</rdg>
           </app>,
           um den <rs ref="terms.xml#intellectus-fidei" ana="hc:SubjectReference" xml:lang="la"><foreign xml:lang="la"><hi rend="#italic">intellectus
@@ -695,7 +695,7 @@
           kommt bei <persName ref="persons.xml#anselm" ana="hc:PersonReference">Anselm</persName>
           in Frage, nach dem der
           <app xml:id="app-1-e" type="variant">
-            <lem wit="#GA #A2"><hi rend="#letter-spaced">Glaube</hi></lem>
+            <lem wit="#GA #A2 #A"><hi rend="#letter-spaced">Glaube</hi></lem>
             <rdg wit="#B">Glaube</rdg>
           </app>
           <q>verlangt</q>. Und die Notwendigkeit, kraft
@@ -720,7 +720,7 @@
           <rs ref="terms.xml#negation" ana="hc:SubjectReference" xml:lang="de"><hi rend="#letter-spaced">Negation</hi></rs>. Es handelt sich um
           ein
           <app xml:id="app-1-g" type="variant">
-            <lem wit="#GA #A2">spontanes</lem>
+            <lem wit="#GA #A2 #A">spontanes</lem>
             <rdg wit="#B"><hi rend="#letter-spaced">spontanes</hi></rdg>
           </app>
           Verlangen des Glaubens. Das
@@ -799,7 +799,7 @@
           Denn wie die Wahrheit, d. h. die Sachgemäßheit der Sätze
           menschlichen Erkennens ganz und gar
           <app xml:id="app-1-k" type="variant">
-            <lem wit="#GA #A2"><hi rend="#letter-spaced">gemessen</hi></lem>
+            <lem wit="#GA #A2 #A"><hi rend="#letter-spaced">gemessen</hi></lem>
             <rdg wit="#B">gemessen</rdg>
           </app>
           ist an der geglaubten Sache, so ist diese Sache bzw. der
@@ -998,7 +998,15 @@
         </note>
 
         <note place="foot" n="12" xml:id="fn-12" type="authorial" ana="hc:AuthorialNote">
-          <quote xml:lang="la" ana="hc:PrimarySourceQuotation"><hi rend="#italic">Non ad hoc veni, ut
+          <!-- In dieser Anmerkung trägt B (Vorabdruck 1931) eine
+               eigene Anker-Lesart: das Anselm-Zitat ist auf
+               "Non … ut" gekürzt. Modelliert als inline <app>
+               innerhalb des <quote>-Elements, parallel zu a–l
+               im Haupttext. -->
+          <quote xml:lang="la" ana="hc:PrimarySourceQuotation"><hi rend="#italic"><app xml:id="app-1-j" type="variant">
+            <lem wit="#GA #A2 #A">Non ad hoc veni, ut</lem>
+            <rdg wit="#B">Non … ut</rdg>
+          </app>
           auferas mihi fidei dubitationem</hi></quote>
           (<bibl><title ref="works.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">C. D. h.</title>
           <citedRange unit="book-chapter">I 25</citedRange>,
@@ -1118,12 +1126,12 @@
         </note>
         <note place="foot" n="d" xml:id="ed-d" type="editorial" ana="hc:VariantNote"
               target="#app-1-d">
-          <ref target="#app-1-d">A und B:</ref> <q>Theologie</q>
+          <ref target="#app-1-d">B:</ref> <q>Theologie</q>
           [nicht gesperrt].
         </note>
         <note place="foot" n="e" xml:id="ed-e" type="editorial" ana="hc:VariantNote"
               target="#app-1-e">
-          <ref target="#app-1-e">A und B:</ref> <q>Glaube</q>
+          <ref target="#app-1-e">B:</ref> <q>Glaube</q>
           [nicht gesperrt].
         </note>
         <note place="foot" n="f" xml:id="ed-f" type="editorial" ana="hc:VariantNote"
@@ -1133,7 +1141,7 @@
         </note>
         <note place="foot" n="g" xml:id="ed-g" type="editorial" ana="hc:VariantNote"
               target="#app-1-g">
-          <ref target="#app-1-g">A und B:</ref>
+          <ref target="#app-1-g">B:</ref>
           <q>spontanes</q> [gesperrt].
         </note>
         <note place="foot" n="h" xml:id="ed-h" type="editorial" ana="hc:VariantNote"
@@ -1147,9 +1155,16 @@
           <ref target="#app-1-i">B:</ref> <quote>also der</quote>
           [statt <q>der</q>]
         </note>
+        <note place="foot" n="j" xml:id="ed-j" type="editorial" ana="hc:VariantNote"
+              target="#app-1-j">
+          <!-- Variantenanker innerhalb der Barth-Anmerkung fn-12.
+               B kürzt das Anselm-Zitat zu "Non … ut". -->
+          <ref target="#app-1-j">B:</ref>
+          <quote xml:lang="la"><hi rend="#italic">Non … ut</hi></quote>
+        </note>
         <note place="foot" n="k" xml:id="ed-k" type="editorial" ana="hc:VariantNote"
               target="#app-1-k">
-          <ref target="#app-1-k">A und B:</ref>
+          <ref target="#app-1-k">B:</ref>
           <q>gemessen</q> [nicht gesperrt].
         </note>
         <note place="foot" n="l" xml:id="ed-l" type="editorial" ana="hc:VariantNote"
