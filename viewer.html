@@ -7,53 +7,28 @@
 
   <style>
     /* ============================================================
-       Layout
+       Layout & Custom Properties
+       --font-scale wird per JS gesetzt (Schriftgrößen-Regler).
+       Alle relativen Größen leiten sich daraus ab.
        ============================================================ */
     :root {
       --maxw: 760px;
+      --font-scale: 1;
       --c-text: #1a1a1a;
       --c-muted: #6b6b6b;
       --c-rule: #d0d0d0;
       --c-apparatus: #8b3a3a;
       --c-apparatus-soft: #f6efef;
       --c-term: #1d4e89;
-      --c-pers: #5b2a86;       /* personenfarbe — dunkelviolett */
+      --c-pers: #5b2a86;
       --c-pers-soft: #f3eef8;
       --c-quote: #2d5016;
       --c-link: #1d4e89;
       --c-bg-hover: #fff8e1;
-      --c-bg: #ffffff;
-      --c-tooltip-bg: #1a1a1a;
-      --c-tooltip-fg: #ffffff;
+      --c-ga-page: #fafaf6;   /* Papierton in GA-Ansicht */
+      --c-ga-text: #15140f;
     }
-    /* Dunkelmodus — gesättigte Akzentfarben durch ihre helleren,
-       für dunklen Hintergrund kalibrierten Pendants ersetzt. */
-    body.dark {
-      --c-text: #e8e6e3;
-      --c-muted: #9a9a9a;
-      --c-rule: #3a3a3a;
-      --c-apparatus: #d68a8a;
-      --c-apparatus-soft: #2a1f1f;
-      --c-term: #7ab3e5;
-      --c-pers: #c4a8e3;
-      --c-pers-soft: #2a2330;
-      --c-quote: #9bc47a;
-      --c-link: #7ab3e5;
-      --c-bg-hover: #3a3320;
-      --c-bg: #1a1a1a;
-      --c-tooltip-bg: #f0f0f0;
-      --c-tooltip-fg: #1a1a1a;
-    }
-    body.dark { background: var(--c-bg); color: var(--c-text); }
-    body.dark .controls button { background: #2a2a2a; color: var(--c-text); }
-    body.dark .controls button.active { background: var(--c-text); color: var(--c-bg); }
-    body.dark .tei-pb-GA { color: #bbb; }
-    body.dark .tei-pb-A  { color: #888; }
-    body.dark .tei-teiHeader { background: #222; color: var(--c-muted); }
-    body.dark #cite-panel { background: #222; color: var(--c-text); }
-    body.dark #cite-panel pre { background: #1a1a1a; color: #ddd; }
-    html, body { background: var(--c-bg); transition: background 0.2s, color 0.2s; }
-    html { font-size: 17px; }
+    html { font-size: calc(17px * var(--font-scale)); }
     body {
       font-family: "Source Serif Pro", "EB Garamond", Georgia,
                    "Times New Roman", serif;
@@ -85,10 +60,17 @@
       flex-wrap: wrap;
       gap: 1em;
     }
+    .controls-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4em;
+      align-items: flex-end;
+    }
     .controls {
       display: flex;
       flex-wrap: wrap;
       gap: 0.3em;
+      align-items: center;
     }
     .controls button {
       font: inherit;
@@ -113,6 +95,14 @@
       margin-right: 0.3em;
       font-family: "Source Sans Pro", sans-serif;
     }
+    .controls .fontsize-group button {
+      font-family: "Source Serif Pro", Georgia, serif;
+      min-width: 2.2em;
+      text-align: center;
+    }
+    .controls .fontsize-group button[data-fontsize="small"]  { font-size: 0.7rem; }
+    .controls .fontsize-group button[data-fontsize="medium"] { font-size: 0.85rem; }
+    .controls .fontsize-group button[data-fontsize="large"]  { font-size: 1.0rem; }
 
     /* ============================================================
        teiHeader — verbergen außer in Apparat-Ansicht
@@ -131,7 +121,7 @@
     }
 
     /* ============================================================
-       Grundstruktur
+       Grundstruktur (Default = nicht-GA-Ansichten)
        ============================================================ */
     .tei-TEI, .tei-text, .tei-body, .tei-front { display: block; }
     .tei-div { display: block; margin: 1em 0; }
@@ -150,10 +140,105 @@
     }
 
     /* ============================================================
+       GA-Lesetext-Ansicht — typografische Imitation
+       der Gesamtausgabe (Theol. Verlag Zürich, GA II.13).
+       Aktiv nur in body.view-ga.
+       ============================================================ */
+    body.view-ga #TEI {
+      background: var(--c-ga-page);
+      color: var(--c-ga-text);
+      padding: 2.5em 2.2em 2em;
+      border: 1px solid var(--c-rule);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      font-family: "Source Serif Pro", "EB Garamond", "Adobe Garamond Pro",
+                   Georgia, "Times New Roman", serif;
+    }
+    body.view-ga .tei-head {
+      text-align: center;
+      font-family: "Source Serif Pro", Georgia, serif;
+      font-weight: normal;
+      font-size: 1.05rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin: 0 0 1.6em;
+      padding-bottom: 0;
+      border: none;
+    }
+    /* In GA-Ansicht: <num> in den head einbinden ohne Sondergewicht */
+    body.view-ga .tei-head .tei-num { font-weight: normal; }
+    /* Sperrsatz im head (z.B. "Die Notwendigkeit der Theologie") soll
+       nicht doppelt gesperrt sein — der head selbst hat schon
+       letter-spacing. */
+    body.view-ga .tei-head .tei-hi-letter-spaced { letter-spacing: 0; }
+
+    body.view-ga .tei-p {
+      text-indent: 1.6em;
+      margin: 0;
+      text-align: justify;
+      hyphens: auto;
+      line-height: 1.5;
+    }
+    /* Erster Absatz nach <head> ohne Erstzeilen-Einzug (klassische
+       Tradition; in der GA so umgesetzt). */
+    body.view-ga .tei-head + .tei-p { text-indent: 0; }
+
+    /* GA-Seitenumbruch-Marker prominenter im Text:
+       z.B. |15| in fetter, etwas kleinerer Auszeichnungsschrift,
+       wie im Druck. */
+    body.view-ga .tei-pb-GA {
+      color: #222;
+      font-weight: 700;
+      font-size: 0.78em;
+      letter-spacing: 0;
+      margin: 0 0.1em;
+    }
+    /* Spezialfall: pb direkt vor dem head (= Kapitelanfang).
+       In der GA-Druckvorlage steht hier keine Markierung im Text,
+       weil die Seitenzahl 13 unten zentriert erscheint. Im
+       digitalen Lesetext zeigen wir dies dezent rechtsbündig
+       oberhalb des Titels — informativ, aber visuell zurückhaltend. */
+    body.view-ga .tei-div > .tei-pb-GA:first-child {
+      display: block;
+      text-align: right;
+      font-weight: normal;
+      font-size: 0.7em;
+      color: #888;
+      margin: 0 0 0.4em;
+    }
+    /* A-Seitenumbrüche in GA-Ansicht: dezent, kursiv, klein */
+    body.view-ga .tei-pb-A {
+      color: #888;
+      font-size: 0.72em;
+      font-style: italic;
+    }
+
+    /* GA-Fußnoten enger, mit hängender Einrückung wie im Druck */
+    body.view-ga .tei-note-foot {
+      font-size: 0.86rem;
+      line-height: 1.42;
+      margin: 0.35em 0;
+      padding-left: 1.8em;
+      text-indent: -1.8em;
+    }
+    /* Trenner zwischen authorial (Zahlen) und editorial (Buchstaben)
+       in der GA dezent — Leerraum statt Linie. */
+    body.view-ga .tei-note-foot-first {
+      margin-top: 1.2em;
+      padding-top: 0.6em;
+      border-top: none;
+    }
+    body.view-ga .tei-note-foot-first-app {
+      margin-top: 1em;
+      padding-top: 0.3em;
+      border-top: none;
+    }
+
+    /* ============================================================
        Visuelle Ebene (Šimek 2)
        ============================================================ */
     .tei-hi-letter-spaced { letter-spacing: 0.18em; }
     .tei-hi-italic { font-style: italic; }
+    .tei-num { font-weight: 600; margin-right: 0.3em; }
 
     .tei-pb {
       display: inline;
@@ -163,20 +248,6 @@
     }
     .tei-pb-GA { color: #444; font-weight: 600; }
     .tei-pb-A  { color: #888; font-style: italic; }
-
-    /* Sigel-spezifische Sichtbarkeit der Seitenumbrüche:
-       — view-ga zeigt nur GA-Paginierung
-       — view-a  zeigt nur A-Paginierung
-       — view-a2 zeigt GA-Paginierung als Surrogat (A2 hat in dieser
-                 Edition keine eigene Paginierung, weil GA = A2 + 5 Stellen)
-       — view-b  zeigt keine Paginierung (B ist ZThK-Vorabdruck S. 350–358;
-                 noch kein ed="#B" im XML — späterer Erfassungsschritt)
-       — view-apparat zeigt alles parallel */
-    body.view-ga      .tei-pb-A  { display: none; }
-    body.view-a       .tei-pb-GA { display: none; }
-    body.view-a2      .tei-pb-A  { display: none; }
-    body.view-b       .tei-pb     { display: none; }
-    /* view-apparat: keine Regel = alles sichtbar */
 
     /* ============================================================
        Extensionale Ebene (Šimek 4)
@@ -206,6 +277,19 @@
       font-style: italic;
     }
 
+    /* In GA-Ansicht: Farbauszeichnungen dezenter, da sie das
+       Druckbild stören würden. Dotted-Underlines bleiben (für
+       Tooltip-Affordance), aber neutralisiert. */
+    body.view-ga .tei-rs-SubjectReference,
+    body.view-ga .tei-persName-PersonReference,
+    body.view-ga .tei-title-WorkReference {
+      color: inherit;
+      border-bottom-color: rgba(0,0,0,0.18);
+    }
+    body.view-ga .tei-quote-PrimarySourceQuotation {
+      color: inherit;
+    }
+
     /* ============================================================
        Varianzebene (Šimek 5) — Witness-spezifische Sichtbarkeit
        ============================================================ */
@@ -213,14 +297,9 @@
     .tei-lem { display: inline; }
     .tei-rdg { display: none; }
 
-    /* GA-Ansicht (Default): lem zeigen, alle rdg verbergen */
     body.view-ga  .tei-lem { display: inline; }
     body.view-ga  .tei-rdg { display: none; }
 
-    /* A / A2 / B: das passende Element (lem oder rdg, das #X im
-       wit-Attribut enthält) sichtbar machen, alle anderen verbergen.
-       Hinweis: CSS-Attribut-Selektoren mit ~= prüfen leerzeichen-
-       getrennte Token. "#GA #A2 #A" enthält das Token "#A". */
     body.view-a  .tei-lem,
     body.view-a  .tei-rdg { display: none; }
     body.view-a  .tei-lem[data-wit~="#A"],
@@ -236,7 +315,6 @@
     body.view-b  .tei-lem[data-wit~="#B"],
     body.view-b  .tei-rdg[data-wit~="#B"] { display: inline; }
 
-    /* Apparat-Ansicht: alles parallel zeigen, mit Sigel-Präfix */
     body.view-apparat .tei-lem,
     body.view-apparat .tei-rdg { display: inline; }
     body.view-apparat .tei-rdg {
@@ -257,9 +335,7 @@
     }
 
     /* ============================================================
-       Buchstaben-Anker im Fließtext (a, b, c …)
-       — Per JS hinter jedem app-Element eingefügt, sofern eine
-         passende editorial note existiert.
+       Buchstaben-/Zahl-Anker im Fließtext
        ============================================================ */
     .tei-ref-note {
       display: inline;
@@ -274,9 +350,7 @@
     .tei-ref-note-editorial { color: var(--c-apparatus); }
     .tei-ref-note-editorial:hover { background: var(--c-apparatus-soft); }
 
-    /* In A/B/A2-Ansicht: editorial-Anker und editorial-Notes ausblenden,
-       weil sie nur in der GA-Synopse Sinn ergeben. In Apparat: alles
-       zeigen. */
+    /* In A/B/A2-Ansicht: editorial-Anker und editorial-Notes ausblenden */
     body.view-a  .tei-ref-note-editorial,
     body.view-a2 .tei-ref-note-editorial,
     body.view-b  .tei-ref-note-editorial { display: none; }
@@ -291,7 +365,7 @@
     }
 
     /* ============================================================
-       Fußnoten-Block
+       Fußnoten-Block (Default außerhalb GA-Ansicht)
        ============================================================ */
     .tei-note-foot {
       display: block;
@@ -327,42 +401,70 @@
     .tei-q::after  { content: "“"; }
     .tei-q-la::before { content: "«"; }
     .tei-q-la::after  { content: "»"; }
+    /* In GA-Ansicht: lateinische Zitate in »…« wie im Druck —
+       das ist schon Default. Aber Anführungszeichen für deutsche
+       Zitate sollen klassisch wirken. */
 
     /* ============================================================
-       Tooltip — wird per JS mit echtem Inhalt aus persons/works/
-       terms-XML gefüllt
+       Tooltip — JS-gesteuert (kein ::after mehr)
+       Lösung der Probleme:
+         - vollständige Anzeige langer Texte (max-height + scroll
+           als Fallback);
+         - keine Beschneidung am Viewport-Rand;
+         - mobile: Breite = min(28em, calc(100vw - 2em));
        ============================================================ */
     [data-tooltip] { position: relative; }
-    [data-tooltip]:hover::after {
-      content: attr(data-tooltip);
+
+    #tei-tooltip {
       position: absolute;
-      bottom: 1.6em;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--c-tooltip-bg);
-      color: var(--c-tooltip-fg);
-      font-size: 0.78rem;
-      padding: 0.5em 0.8em;
-      border-radius: 4px;
-      white-space: normal;
-      width: max-content;
-      min-width: 12em;
-      max-width: 26em;
-      z-index: 100;
+      z-index: 1000;
+      background: var(--c-text);
+      color: white;
       font-family: "Source Sans Pro", -apple-system, sans-serif;
       font-style: normal;
       font-weight: normal;
+      font-size: 0.82rem;
       line-height: 1.4;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      padding: 0.55em 0.85em;
+      border-radius: 5px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.22);
+      max-width: 28em;
+      width: max-content;
+      max-height: 60vh;
+      overflow-y: auto;
       pointer-events: none;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 0.12s ease, transform 0.12s ease;
+      white-space: normal;
+      hyphens: auto;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
     }
-    /* Fußnotenkontext: dort sind die Anker oft nah am linken Rand
-       (text-indent: -2.2em) — Tooltip nach rechts ausrichten, damit
-       die ersten Zeichen nicht durch den Container abgeschnitten werden. */
-    .tei-note-foot [data-tooltip]:hover::after {
-      left: 0;
-      transform: translateX(0);
+    #tei-tooltip.visible {
+      opacity: 1;
+      transform: translateY(0);
     }
+    /* Auf Touch-Geräten interagierbar machen, damit Inhalt gescrollt
+       und Links/Schließen-Button geklickt werden können. */
+    #tei-tooltip.touch-mode {
+      pointer-events: auto;
+    }
+    #tei-tooltip .close-btn {
+      display: none;
+      position: absolute;
+      top: 0.15em;
+      right: 0.4em;
+      cursor: pointer;
+      font-size: 1.1rem;
+      line-height: 1;
+      color: rgba(255,255,255,0.7);
+      background: none;
+      border: none;
+      padding: 0.1em 0.3em;
+    }
+    #tei-tooltip.touch-mode .close-btn { display: block; }
+    #tei-tooltip.touch-mode .content { padding-right: 1.2em; }
 
     /* ============================================================
        Status / Loading
@@ -396,137 +498,65 @@
     #aux-warning.visible { display: block; }
 
     /* ============================================================
-       Zitationspanel (modal, rechts oben triggerbar)
+       Responsive — Mobile
        ============================================================ */
-    #cite-panel {
-      display: none;
-      position: fixed;
-      top: 4em;
-      right: 1.5em;
-      width: 28em;
-      max-width: calc(100vw - 3em);
-      max-height: calc(100vh - 6em);
-      overflow-y: auto;
-      background: white;
-      border: 1px solid var(--c-rule);
-      border-radius: 6px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-      padding: 1.2em 1.4em 1.5em;
-      font-family: "Source Sans Pro", -apple-system, sans-serif;
-      font-size: 0.85rem;
-      z-index: 200;
-    }
-    #cite-panel.open { display: block; }
-    #cite-panel h2 {
-      font-size: 0.95rem;
-      margin: 0 0 0.3em;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    #cite-panel .close-btn {
-      background: none;
-      border: none;
-      font-size: 1.3rem;
-      line-height: 1;
-      cursor: pointer;
-      color: var(--c-muted);
-      padding: 0 0.3em;
-    }
-    #cite-panel .close-btn:hover { color: var(--c-text); }
-    #cite-panel .cite-witness-label {
-      font-size: 0.78rem;
-      color: var(--c-muted);
-      margin: 0 0 0.8em;
-      font-style: italic;
-    }
-    #cite-panel .cite-block { margin: 1em 0; }
-    #cite-panel .cite-block h3 {
-      font-size: 0.78rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--c-muted);
-      margin: 0 0 0.3em;
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-    }
-    #cite-panel .copy-btn {
-      font-size: 0.7rem;
-      padding: 0.1em 0.5em;
-      border: 1px solid var(--c-rule);
-      background: white;
-      cursor: pointer;
-      border-radius: 3px;
-      text-transform: none;
-      letter-spacing: 0;
-      color: var(--c-link);
-    }
-    body.dark #cite-panel .copy-btn { background: #2a2a2a; }
-    #cite-panel .copy-btn:hover { background: var(--c-bg-hover); }
-    #cite-panel .copy-btn.copied {
-      background: var(--c-quote);
-      color: white;
-      border-color: var(--c-quote);
-    }
-    #cite-panel pre {
-      font-family: "Source Serif Pro", Georgia, serif;
-      font-size: 0.82rem;
-      line-height: 1.45;
-      background: #fafafa;
-      border: 1px solid var(--c-rule);
-      border-radius: 3px;
-      padding: 0.6em 0.8em;
-      margin: 0;
-      white-space: pre-wrap;
-      word-break: break-word;
-    }
-    #cite-panel .note {
-      font-size: 0.72rem;
-      color: var(--c-muted);
-      margin-top: 1.2em;
-      padding-top: 0.8em;
-      border-top: 1px dashed var(--c-rule);
-      line-height: 1.4;
+    @media (max-width: 600px) {
+      body {
+        margin: 1em auto;
+        padding: 0 0.6em 3em;
+      }
+      header.bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.6em;
+      }
+      .controls-wrap {
+        align-items: stretch;
+      }
+      h1 { font-size: 1.05rem; }
+      body.view-ga #TEI {
+        padding: 1.5em 1.2em 1.2em;
+      }
+      body.view-ga .tei-p {
+        text-indent: 1.2em;
+      }
+      #tei-tooltip {
+        font-size: 0.78rem;
+        max-width: calc(100vw - 1.2em);
+      }
     }
   </style>
 </head>
 <body class="view-ga">
   <header class="bar">
     <h1>Karl Barth, <em>Fides quaerens intellectum</em>, § 1.1 — Prototyp einer digitalen Edition (heiEDITIONS-Variante)</h1>
-    <div class="controls">
-      <span class="group-label">Ansicht:</span>
-      <button data-view="ga"      class="active">Lesetext (GA)</button>
-      <button data-view="a">1. Aufl. 1931 (A)</button>
-      <button data-view="a2">2. Aufl. 1958 (A2)</button>
-      <button data-view="b">Vorabdruck (B)</button>
-      <button data-view="apparat">Apparat (alle)</button>
-      <span class="group-label" style="margin-left:0.8em;">|</span>
-      <button id="cite-btn" title="Zitiervorschläge anzeigen">↗ Zitieren</button>
-      <button id="dark-btn" title="Hell/Dunkel umschalten">◐ Invertieren</button>
+    <div class="controls-wrap">
+      <div class="controls">
+        <span class="group-label">Ansicht:</span>
+        <button data-view="ga"      class="active">Lesetext (GA)</button>
+        <button data-view="a">1. Aufl. 1931 (A)</button>
+        <button data-view="a2">2. Aufl. 1958 (A2)</button>
+        <button data-view="b">Vorabdruck (B)</button>
+        <button data-view="apparat">Apparat (alle)</button>
+      </div>
+      <div class="controls fontsize-group">
+        <span class="group-label">Schriftgröße:</span>
+        <button data-fontsize="small"  title="Kleiner">A</button>
+        <button data-fontsize="medium" class="active" title="Standard">A</button>
+        <button data-fontsize="large"  title="Größer">A</button>
+      </div>
     </div>
   </header>
-
-  <!-- Zitationspanel — wird per JS pro Ansicht neu gefüllt -->
-  <aside id="cite-panel" aria-hidden="true">
-    <h2>
-      <span>Zitiervorschläge</span>
-      <button class="close-btn" id="cite-close" aria-label="Schließen">×</button>
-    </h2>
-    <p class="cite-witness-label" id="cite-witness-label"></p>
-    <div id="cite-blocks"></div>
-    <p class="note">
-      Die Zitiervorschläge werden automatisch aus
-      <code>listWit</code> (TEI-Header) erzeugt. Die Angabe
-      <em>„abgerufen am …“</em> und die URL müssen beim Einfügen in
-      eigene Arbeiten an die tatsächliche Veröffentlichungsadresse
-      angepasst werden.
-    </p>
-  </aside>
 
   <div id="aux-warning"></div>
   <div id="status">Lade TEI-Daten…</div>
   <div id="TEI"></div>
+
+  <!-- Singletons Tooltip-Element — wird von JS positioniert -->
+  <div id="tei-tooltip" role="tooltip" aria-hidden="true">
+    <button class="close-btn" aria-label="Schließen">×</button>
+    <div class="content"></div>
+  </div>
 
   <script>
     "use strict";
@@ -544,8 +574,16 @@
     const statusEl    = document.getElementById("status");
     const auxWarnEl   = document.getElementById("aux-warning");
     const teiContainer = document.getElementById("TEI");
+    const tooltipEl   = document.getElementById("tei-tooltip");
+    const tooltipContentEl = tooltipEl.querySelector(".content");
+    const tooltipCloseBtn  = tooltipEl.querySelector(".close-btn");
 
     const TEI_NS = "http://www.tei-c.org/ns/1.0";
+
+    /* Touch-Erkennung — auf Touch-Geräten zeigen wir Tooltips
+       click-basiert und mit Schließen-Button. */
+    const IS_TOUCH = window.matchMedia("(hover: none)").matches
+                  || ("ontouchstart" in window);
 
     /* ============================================================
        Hilfsfunktionen
@@ -562,14 +600,12 @@
           || null;
     }
 
-    /** Erstellt ein HTML-Element mit Klasse. */
     function el(tag, cls) {
       const e = document.createElement(tag);
       if (cls) e.className = cls;
       return e;
     }
 
-    /** Sammelt Textinhalt aller direkten Text-Kindknoten. */
     function directText(node) {
       let s = "";
       for (const c of node.childNodes) {
@@ -578,7 +614,6 @@
       return s.trim();
     }
 
-    /** Sucht eine ID innerhalb eines XML-Doc via xml:id-Attribut. */
     function findById(xmlDoc, id) {
       return xmlDoc.querySelector('[*|id="' + id + '"]');
     }
@@ -589,9 +624,7 @@
     const auxDocs = { persons: null, works: null, terms: null };
     const auxLoadErrors = [];
 
-    /** Baut einen Tooltip-String aus einem persons.xml <person>. */
     function tooltipFromPerson(personEl) {
-      // Bevorzugter Name
       const preferred = personEl.querySelector(
         'persName[ana~="hc:PreferredAppellation"]'
       );
@@ -603,7 +636,6 @@
         name = persNames[0].textContent.replace(/\s+/g, " ").trim();
       }
 
-      // Geburts-/Todesdatum
       const birth = personEl.getElementsByTagName("birth")[0];
       const death = personEl.getElementsByTagName("death")[0];
       let dates = "";
@@ -615,7 +647,6 @@
         if (bY || dY) dates = " (" + bs + "–" + ds + ")";
       }
 
-      // Beruf
       const occ = personEl.getElementsByTagName("occupation")[0];
       const occText = occ ? occ.textContent.replace(/\s+/g, " ").trim() : "";
 
@@ -624,13 +655,7 @@
       return s;
     }
 
-    /** Baut Tooltip aus terms.xml <entry>. */
     function tooltipFromEntry(entryEl) {
-      /* Konzepteinträge tragen entweder <form type="lemma">
-         (Einwortbegriffe) oder <form type="phrase">
-         (Mehrwortbegriffe wie "Notwendigkeit der Theologie",
-         "intellectus fidei"). Beide werden gleichberechtigt
-         als primäre Form akzeptiert. */
       const lemma = entryEl.querySelector(
         'form[type="lemma"] > orth, form[type="phrase"] > orth'
       );
@@ -640,7 +665,6 @@
       let glossText = "";
       if (gloss) {
         glossText = gloss.textContent.replace(/\s+/g, " ").trim();
-        // Erster Satz oder die ersten ~120 Zeichen
         const dot = glossText.indexOf(". ");
         if (dot > 20 && dot < 200) glossText = glossText.slice(0, dot + 1);
         else if (glossText.length > 200) glossText = glossText.slice(0, 200) + "…";
@@ -648,18 +672,16 @@
       return lemmaText + (glossText ? " — " + glossText : "");
     }
 
-    /** Baut Tooltip aus works.xml <bibl>. */
     function tooltipFromBibl(biblEl) {
       const auth = biblEl.getElementsByTagName("author")[0];
       const fullTitle = biblEl.querySelector('title[type="full"]');
       const firstTitle = biblEl.getElementsByTagName("title")[0];
       const title = (fullTitle || firstTitle);
-      const titleText = title ? title.textContent.trim() : "";
-      const authText  = auth  ? auth.textContent.trim()  : "";
+      const titleText = title ? title.textContent.replace(/\s+/g, " ").trim() : "";
+      const authText  = auth  ? auth.textContent.replace(/\s+/g, " ").trim()  : "";
       return (authText ? authText + ": " : "") + titleText;
     }
 
-    /** Löst @ref="persons.xml#X" zu einem Tooltip-Text. */
     function resolveRef(refValue) {
       if (!refValue) return "";
       const m = refValue.match(/^([^#]+)#(.+)$/);
@@ -679,7 +701,6 @@
         builder = tooltipFromEntry;
       }
       if (entry && builder) return builder(entry);
-      // Fallback: ungelöster Verweis
       return "→ " + refValue;
     }
 
@@ -698,6 +719,173 @@
     }
 
     /* ============================================================
+       Tooltip-Steuerung (JS-Implementation)
+       ============================================================ */
+    let tooltipHideTimer = null;
+    let currentTooltipTarget = null;
+
+    function showTooltip(targetEl) {
+      const text = targetEl.dataset.tooltip;
+      if (!text) return;
+
+      clearTimeout(tooltipHideTimer);
+      currentTooltipTarget = targetEl;
+
+      tooltipContentEl.textContent = text;
+      tooltipEl.classList.toggle("touch-mode", IS_TOUCH);
+      tooltipEl.setAttribute("aria-hidden", "false");
+
+      /* Erstes Positionieren (versteckt, um Maße zu messen),
+         dann sichtbar machen. */
+      tooltipEl.style.left = "0px";
+      tooltipEl.style.top  = "0px";
+      tooltipEl.style.visibility = "hidden";
+      tooltipEl.classList.add("visible");
+
+      // Layout-Update erzwingen, dann ausmessen
+      requestAnimationFrame(() => {
+        positionTooltip(targetEl);
+        tooltipEl.style.visibility = "visible";
+      });
+    }
+
+    function hideTooltip(immediate) {
+      const doHide = () => {
+        tooltipEl.classList.remove("visible");
+        tooltipEl.setAttribute("aria-hidden", "true");
+        currentTooltipTarget = null;
+      };
+      clearTimeout(tooltipHideTimer);
+      if (immediate) doHide();
+      else tooltipHideTimer = setTimeout(doHide, 80);
+    }
+
+    /**
+     * Positioniert das Tooltip relativ zum Viewport, mit
+     * Berücksichtigung der Viewport-Ränder. Bevorzugt: oberhalb
+     * des Target; bei zu wenig Platz: darunter. Horizontal: am
+     * Target ausgerichtet, aber nie aus dem Viewport ragend.
+     */
+    function positionTooltip(targetEl) {
+      const targetRect  = targetEl.getBoundingClientRect();
+      const tooltipRect = tooltipEl.getBoundingClientRect();
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const MARGIN = 8;          // Abstand vom Viewport-Rand
+      const GAP    = 6;          // Abstand zum Target
+
+      /* Tooltip ist position:absolute, also rechnen wir mit
+         document-Koordinaten = viewport-Koordinaten + scroll-Offset. */
+      const scrollX = window.scrollX || window.pageXOffset;
+      const scrollY = window.scrollY || window.pageYOffset;
+
+      const ttW = tooltipRect.width;
+      const ttH = tooltipRect.height;
+
+      /* Horizontale Position: am Target-Anfang ausrichten,
+         aber so verschieben, dass der Tooltip im Viewport bleibt. */
+      let leftVp = targetRect.left;
+      if (leftVp + ttW > vw - MARGIN) {
+        leftVp = vw - ttW - MARGIN;
+      }
+      if (leftVp < MARGIN) {
+        leftVp = MARGIN;
+      }
+
+      /* Vertikale Position: bevorzugt oberhalb. Wenn dort zu eng
+         (Tooltip ragt über den oberen Rand), dann unterhalb. */
+      let topVp;
+      const spaceAbove = targetRect.top - MARGIN;
+      const spaceBelow = vh - targetRect.bottom - MARGIN;
+
+      if (spaceAbove >= ttH + GAP || spaceAbove >= spaceBelow) {
+        // oberhalb
+        topVp = targetRect.top - ttH - GAP;
+        if (topVp < MARGIN) topVp = MARGIN;
+      } else {
+        // unterhalb
+        topVp = targetRect.bottom + GAP;
+        if (topVp + ttH > vh - MARGIN) topVp = vh - ttH - MARGIN;
+        if (topVp < MARGIN) topVp = MARGIN;
+      }
+
+      tooltipEl.style.left = (leftVp + scrollX) + "px";
+      tooltipEl.style.top  = (topVp  + scrollY) + "px";
+    }
+
+    /* Globaler Event-Handler-Setup (einmalig):
+       - Desktop: hover/focus zeigt, mouseleave/blur versteckt
+       - Touch:   click zeigt, click außerhalb oder ×-Button versteckt
+       Wir hängen Handler an document und filtern via closest(),
+       damit auch nachträglich gerenderte Elemente reagieren. */
+
+    function findTooltipTarget(node) {
+      if (!node || node.nodeType !== 1) return null;
+      return node.closest("[data-tooltip]");
+    }
+
+    if (!IS_TOUCH) {
+      document.addEventListener("mouseover", (e) => {
+        const target = findTooltipTarget(e.target);
+        if (target && target !== currentTooltipTarget) {
+          showTooltip(target);
+        }
+      });
+      document.addEventListener("mouseout", (e) => {
+        const target = findTooltipTarget(e.target);
+        if (!target) return;
+        // Wenn das Mouseout zu einem Kind innerhalb desselben
+        // Targets führt, nicht verstecken.
+        const related = e.relatedTarget;
+        if (related && target.contains(related)) return;
+        if (target === currentTooltipTarget) hideTooltip(false);
+      });
+      // Fokus-Steuerung für Tastatur-User
+      document.addEventListener("focusin", (e) => {
+        const target = findTooltipTarget(e.target);
+        if (target) showTooltip(target);
+      });
+      document.addEventListener("focusout", (e) => {
+        const target = findTooltipTarget(e.target);
+        if (target && target === currentTooltipTarget) hideTooltip(true);
+      });
+    } else {
+      // Touch: Tap zum Anzeigen, zweiter Tap auf gleiches Target oder
+      // Tap außerhalb zum Verstecken.
+      document.addEventListener("click", (e) => {
+        // Klick auf Schließen-Button?
+        if (e.target === tooltipCloseBtn) {
+          hideTooltip(true);
+          return;
+        }
+        // Klick im Tooltip selbst? Nicht verstecken.
+        if (tooltipEl.contains(e.target)) return;
+
+        const target = findTooltipTarget(e.target);
+        if (target) {
+          // Wenn dasselbe Target erneut getippt wird: verstecken
+          if (target === currentTooltipTarget) {
+            hideTooltip(true);
+          } else {
+            showTooltip(target);
+          }
+          // Verhindere, dass globale Listeners das wieder schließen
+          e.stopPropagation();
+        } else {
+          hideTooltip(true);
+        }
+      });
+    }
+
+    // Beim Scrollen / Resize neu positionieren oder verstecken
+    window.addEventListener("scroll", () => {
+      if (currentTooltipTarget) positionTooltip(currentTooltipTarget);
+    }, { passive: true });
+    window.addEventListener("resize", () => {
+      if (currentTooltipTarget) positionTooltip(currentTooltipTarget);
+    });
+
+    /* ============================================================
        Konvertierung: XML-Node → HTML-Element
        ============================================================ */
     function convertNode(xmlNode, htmlParent) {
@@ -711,7 +899,6 @@
       let node = null;
 
       switch (tag) {
-        /* ── Strukturebene (Šimek 1) ── */
         case "TEI":
           node = el("div", "tei-TEI"); break;
         case "teiHeader":
@@ -736,8 +923,9 @@
           node = el("p", "tei-p"); break;
         case "s":
           node = el("span", "tei-s"); break;
+        case "num":
+          node = el("span", "tei-num"); break;
 
-        /* ── Visuelle Ebene (Šimek 2) ── */
         case "pb": {
           const n  = attr(xmlNode, "n")  || "";
           const ed = attr(xmlNode, "ed") || "";
@@ -765,13 +953,11 @@
           break;
         }
 
-        /* ── Linguistische Ebene (Šimek 3) ── */
         case "foreign":
           node = el("span", "tei-foreign");
           node.lang = attr(xmlNode, "xml:lang") || attr(xmlNode, "lang") || "";
           break;
 
-        /* ── Extensionale Ebene (Šimek 4) ── */
         case "rs":
           node = el("span", "tei-rs");
           applyAna(xmlNode, node, "SubjectReference", "tei-rs-SubjectReference");
@@ -819,7 +1005,6 @@
           if (target) {
             node.dataset.target = target;
             if (type === "note") {
-              /* A-Lösung: Marker-Text aus Ziel-<note> @n. */
               const id = target.startsWith("#") ? target.slice(1) : target;
               const noteEl = xmlNode.ownerDocument.querySelector(
                 '[*|id="' + id + '"]'
@@ -851,12 +1036,10 @@
         case "citedRange":
           node = el("span", "tei-citedRange"); break;
 
-        /* ── Varianzebene (Šimek 5) ── */
         case "app": {
           node = el("span", "tei-app");
           const appId = attr(xmlNode, "xml:id") || "";
           if (appId) node.dataset.appId = appId;
-          /* Kinder rendern, dann ggf. Buchstaben-Anker einfügen. */
           break;
         }
         case "lem": {
@@ -897,7 +1080,6 @@
           node.style.display = "none";
           break;
 
-        /* ── Fußnoten ── */
         case "note": {
           const type  = attr(xmlNode, "type")  || "";
           const n     = attr(xmlNode, "n")     || "";
@@ -934,9 +1116,6 @@
       convertChildren(xmlNode, node);
       htmlParent.appendChild(node);
 
-      /* Nach dem Rendern eines <app>: passenden Buchstaben-Anker
-         als ::after-Geschwister einfügen, sofern eine editorial
-         note mit target="#app-X-Y" existiert. */
       if (tag === "app") {
         const appId = attr(xmlNode, "xml:id") || "";
         if (appId) {
@@ -961,7 +1140,6 @@
                   { behavior: "smooth", block: "center" }
                 );
               });
-              /* Direkt nach dem app-Element einfügen */
               node.parentNode.insertBefore(anchor, node.nextSibling);
             }
           }
@@ -988,7 +1166,6 @@
       });
     }
 
-    /* Aux-Dateien parallel laden, Fehler tolerieren */
     const auxPromises = Object.entries(AUX_FILES).map(([key, file]) =>
       fetchXML(file).then(doc => {
         auxDocs[key] = doc;
@@ -1000,7 +1177,6 @@
     Promise.all(auxPromises)
       .then(() => fetchXML(TEI_FILE))
       .then(xmlDoc => {
-        /* Erste-Fußnoten-Markierung (für visuelle Trennlinien) */
         const notes = xmlDoc.querySelectorAll("note[place='foot']");
         let firstAuth = true, firstEdit = true;
         notes.forEach(n => {
@@ -1015,17 +1191,14 @@
           }
         });
 
-        /* Rendern */
         statusEl.remove();
         convertNode(xmlDoc.documentElement, teiContainer);
 
-        /* Trennlinien nachträglich setzen */
         const firstAuthEl = teiContainer.querySelector(".tei-note-foot-authorial");
         if (firstAuthEl) firstAuthEl.classList.add("tei-note-foot-first");
         const firstEditEl = teiContainer.querySelector(".tei-note-foot-editorial");
         if (firstEditEl) firstEditEl.classList.add("tei-note-foot-first-app");
 
-        /* Warnung anzeigen, falls Aux-Dateien fehlten */
         if (auxLoadErrors.length > 0) {
           auxWarnEl.classList.add("visible");
           auxWarnEl.innerHTML =
@@ -1050,307 +1223,58 @@
       });
 
     /* ============================================================
-       View-Toggle (5 Ansichten)
+       View-Toggle
        ============================================================ */
     const viewButtons = document.querySelectorAll(".controls button[data-view]");
     const VIEW_CLASSES = ["view-ga","view-a","view-a2","view-b","view-apparat"];
-    let currentView = "ga";
     viewButtons.forEach(btn => {
       btn.addEventListener("click", () => {
         const view = btn.dataset.view;
-        currentView = view;
         VIEW_CLASSES.forEach(c => document.body.classList.remove(c));
         document.body.classList.add("view-" + view);
         viewButtons.forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
-        /* Zitiervorschlag aktualisieren, falls Panel offen */
-        if (document.getElementById("cite-panel").classList.contains("open")) {
-          renderCitations();
-        }
+        hideTooltip(true);
       });
     });
 
     /* ============================================================
-       Dark Mode Toggle
+       Schriftgrößen-Regler
+       Wir nutzen --font-scale auf :root. localStorage ist hier
+       möglich, weil die Datei normal ausgeliefert wird (kein
+       Artifact-Sandbox).
        ============================================================ */
-    const darkBtn = document.getElementById("dark-btn");
-    /* Initial: System-Präferenz, sofern nicht in localStorage anders gesetzt. */
-    try {
-      const stored = localStorage.getItem("viewer-dark");
-      if (stored === "1") document.body.classList.add("dark");
-      else if (stored === "0") document.body.classList.remove("dark");
-      else if (window.matchMedia &&
-               window.matchMedia("(prefers-color-scheme: dark)").matches) {
-        document.body.classList.add("dark");
-      }
-    } catch (e) { /* localStorage evtl. nicht verfügbar */ }
-    if (document.body.classList.contains("dark")) darkBtn.classList.add("active");
-    darkBtn.addEventListener("click", () => {
-      document.body.classList.toggle("dark");
-      const isDark = document.body.classList.contains("dark");
-      darkBtn.classList.toggle("active", isDark);
-      try { localStorage.setItem("viewer-dark", isDark ? "1" : "0"); }
-      catch (e) {}
-    });
-
-    /* ============================================================
-       Zitationspanel — generiert pro Ansicht aus listWit-Daten
-       Vier Formate:
-         APA 7              — englischsprachige Sozialwissenschaft
-         Chicago 17 (AD)    — author-date, geisteswissenschaftlicher Standard
-         Tübingen / SBL     — theologischer Standard (Vollbeleg)
-         Digital-Edition    — Selbstreferenz dieser digitalen Edition
-       Datengrundlage: <listWit> im teiHeader; die Witness-Bibl-
-       Strukturen wurden bereits beim Header-Aufbau erfasst.
-       ============================================================ */
-    const citeBtn   = document.getElementById("cite-btn");
-    const citePanel = document.getElementById("cite-panel");
-    const citeClose = document.getElementById("cite-close");
-    const citeWitnessLabel = document.getElementById("cite-witness-label");
-    const citeBlocks = document.getElementById("cite-blocks");
-
-    /* Bibliografische Stammdaten — manuell gepflegt, da sie aus
-       <listWit> nur mit Aufwand vollständig parsbar wären und der
-       Zitierstil-Output ohnehin formatabhängig ist. Bei Änderungen
-       an <listWit> (TEI-Header) sind diese Datensätze synchron zu
-       halten. */
-    const WITNESS_DATA = {
-      ga: {
-        sigil: "GA",
-        label: "Gesamtausgabe (Leithandschrift dieser Edition)",
-        author: "Barth, Karl",
-        authorAPA: "Barth, K.",
-        title: "Fides quaerens intellectum. Anselms Beweis der Existenz Gottes im Zusammenhang seines theologischen Programms",
-        series: "Karl Barth Gesamtausgabe, Abt. II: Akademische Werke, Bd. 13",
-        editors: ["Eberhard Jüngel", "Ingolf U. Dalferth"],
-        editorsAPA: "Jüngel, E., & Dalferth, I. U.",
-        editorsChicago: "Eberhard Jüngel und Ingolf U. Dalferth",
-        place: "Zürich",
-        publisher: "Theologischer Verlag Zürich",
-        year: 1981,
-        editionNote: "zit. nach 3. Aufl. 2002",
-        isbn: "3-290-17247-3"
-      },
-      a: {
-        sigil: "A",
-        label: "Erstausgabe 1931",
-        author: "Barth, Karl",
-        authorAPA: "Barth, K.",
-        title: "Fides quaerens intellectum. Anselms Beweis der Existenz Gottes im Zusammenhang seines theologischen Programms",
-        series: "Forschungen zur Geschichte und Lehre des Protestantismus IV/3",
-        editors: ["P. Althaus", "K. Barth", "K. Heim"],
-        place: "München",
-        publisher: "Chr. Kaiser",
-        year: 1931
-      },
-      a2: {
-        sigil: "A²",
-        label: "2., neu durchgesehene Auflage 1958",
-        author: "Barth, Karl",
-        authorAPA: "Barth, K.",
-        title: "Fides quaerens intellectum. Anselms Beweis der Existenz Gottes im Zusammenhang seines theologischen Programms",
-        editionNote: "2., neu durchgesehene Aufl.",
-        place: "Zollikon-Zürich",
-        publisher: "Evangelischer Verlag",
-        year: 1958
-      },
-      b: {
-        sigil: "B",
-        label: "Vorabdruck ZThK 1931 (S. 350–358)",
-        author: "Barth, Karl",
-        authorAPA: "Barth, K.",
-        title: "Die Notwendigkeit der Theologie bei Anselm von Canterbury",
-        hostTitle: "Festgabe für Ferdinand Kattenbusch zu seinem 80. Geburtstag (= Zeitschrift für Theologie und Kirche, N. F. 12)",
-        pages: "350–358",
-        year: 1931
-      },
-      apparat: null  /* Apparatansicht: Kombi-Zitat aller Zeugen */
+    const FONTSIZE_MAP = {
+      small:  0.88,
+      medium: 1.00,
+      large:  1.18,
     };
+    const fontsizeButtons = document.querySelectorAll(
+      ".controls button[data-fontsize]"
+    );
 
-    /* Erzeugung der vier Zitierformate für einen Zeugen. */
-    function buildCitations(w) {
-      const today = new Date();
-      const dateDE = today.toLocaleDateString("de-DE", {
-        day: "2-digit", month: "long", year: "numeric"
+    function applyFontsize(name) {
+      const scale = FONTSIZE_MAP[name] || 1;
+      document.documentElement.style.setProperty("--font-scale", String(scale));
+      fontsizeButtons.forEach(b => {
+        b.classList.toggle("active", b.dataset.fontsize === name);
       });
-      const url = "[URL der digitalen Edition]";
-      const out = {};
-
-      /* — APA 7 (englischsprachig) —
-         Editors of a whole book go in parens after the title,
-         not "In Eds., …". Chapter-style "In … (Eds.)" gilt nur
-         für Witness B (Aufsatz im Sammelband). */
-      let apa = w.authorAPA + " (" + w.year + "). ";
-      apa += "*" + w.title + "*";
-      /* editionNote und Eds. in ein gemeinsames Klammerpaar bündeln,
-         falls beide vorhanden — APA 7 rät ausdrücklich davon ab,
-         zwei aufeinanderfolgende Parenthesen zu schreiben. */
-      const apaParens = [];
-      if (w.editionNote) apaParens.push(w.editionNote);
-      if (w.editorsAPA && !w.hostTitle) apaParens.push(w.editorsAPA + ", Eds.");
-      if (apaParens.length) apa += " (" + apaParens.join("; ") + ")";
-      apa += ". ";
-      if (w.hostTitle) {
-        apa += "In ";
-        if (w.editorsAPA) apa += w.editorsAPA + " (Eds.), ";
-        apa += "*" + w.hostTitle + "*";
-        if (w.pages) apa += " (pp. " + w.pages + ")";
-        apa += ". ";
-      }
-      if (w.publisher) apa += w.publisher + ".";
-      if (w.isbn) apa += " ISBN " + w.isbn + ".";
-      out.apa = apa.trim();
-
-      /* — Chicago 17 Author-Date — */
-      let ch = w.author + ". " + w.year + ". ";
-      ch += "*" + w.title + "*";
-      if (w.editionNote) ch += ". " + w.editionNote.charAt(0).toUpperCase() + w.editionNote.slice(1);
-      ch += ". ";
-      if (w.series)     ch += w.series + ". ";
-      if (w.editorsChicago) ch += "Hg. v. " + w.editorsChicago + ". ";
-      if (w.hostTitle)  ch += "In " + w.hostTitle;
-      if (w.pages)      ch += ", " + w.pages;
-      if (w.hostTitle)  ch += ". ";
-      ch += (w.place ? w.place + ": " : "") + (w.publisher || "") + ".";
-      out.chicago = ch.trim();
-
-      /* — Tübingen / SBL (theologischer Vollbeleg, deutschsprachig) — */
-      let tu = w.author + ", ";
-      tu += w.title;
-      if (w.editionNote) tu += " (" + w.editionNote + ")";
-      tu += ", ";
-      if (w.series)     tu += w.series + ", ";
-      if (w.editors && w.editors.length) tu += "hg. v. " + w.editors.join(", ") + ", ";
-      if (w.hostTitle)  tu += "in: " + w.hostTitle + ", ";
-      tu += (w.place ? w.place + ": " : "") + (w.publisher || "") + " " + w.year;
-      if (w.pages) tu += ", " + w.pages;
-      tu += ".";
-      out.tuebingen = tu.trim();
-
-      /* — Digitaledition (Selbstreferenz) — */
-      let de = "Barth, Karl: *Fides quaerens intellectum*, § 1.1, ";
-      de += "in: Digitale Edition (heiEDITIONS-konform), ";
-      de += "Variante " + w.sigil + " (" + w.label + "), ";
-      de += url + " (abgerufen am " + dateDE + ").";
-      out.digital = de;
-
-      return out;
+      try { localStorage.setItem("fqi-fontsize", name); } catch (e) { /* ignore */ }
     }
 
-    /* Kombiniertes Zitat für die Apparat-Ansicht: kurzer Hinweis +
-       Aufzählung der zugrundeliegenden Drucke. */
-    function buildApparatCitation() {
-      const today = new Date();
-      const dateDE = today.toLocaleDateString("de-DE", {
-        day: "2-digit", month: "long", year: "numeric"
+    // Persistierte Wahl wiederherstellen
+    let savedFontsize = "medium";
+    try {
+      const v = localStorage.getItem("fqi-fontsize");
+      if (v && FONTSIZE_MAP[v]) savedFontsize = v;
+    } catch (e) { /* ignore */ }
+    applyFontsize(savedFontsize);
+
+    fontsizeButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        applyFontsize(btn.dataset.fontsize);
+        hideTooltip(true);
       });
-      const url = "[URL der digitalen Edition]";
-      return {
-        digital:
-          "Barth, Karl: *Fides quaerens intellectum*, § 1.1, " +
-          "synoptische Apparatansicht (GA + A 1931 + A² 1958 + B 1931), " +
-          "Digitale Edition (heiEDITIONS-konform), " +
-          url + " (abgerufen am " + dateDE + ").",
-        info:
-          "Die Apparatansicht stellt die Lesarten aller vier Drucke parallel " +
-          "dar. Wird auf eine konkrete Lesart referenziert, ist zusätzlich " +
-          "der jeweilige Druck (GA, A, A² oder B) anzugeben. Bibliografische " +
-          "Vollbelege siehe die Einzelansichten oben."
-      };
-    }
-
-    function escapeHtml(s) {
-      return s.replace(/&/g, "&amp;").replace(/</g, "&lt;")
-              .replace(/>/g, "&gt;");
-    }
-
-    function makeCiteBlock(label, formatId, text) {
-      const block = document.createElement("div");
-      block.className = "cite-block";
-      const h3 = document.createElement("h3");
-      const labelSpan = document.createElement("span");
-      labelSpan.textContent = label;
-      const copyBtn = document.createElement("button");
-      copyBtn.className = "copy-btn";
-      copyBtn.textContent = "Kopieren";
-      copyBtn.addEventListener("click", async () => {
-        try {
-          /* Plain text, ohne Markdown-Sterne. */
-          const plain = text.replace(/\*/g, "");
-          await navigator.clipboard.writeText(plain);
-          copyBtn.textContent = "✓ Kopiert";
-          copyBtn.classList.add("copied");
-          setTimeout(() => {
-            copyBtn.textContent = "Kopieren";
-            copyBtn.classList.remove("copied");
-          }, 1500);
-        } catch (e) {
-          copyBtn.textContent = "✗ Fehler";
-        }
-      });
-      h3.appendChild(labelSpan);
-      h3.appendChild(copyBtn);
-      block.appendChild(h3);
-      const pre = document.createElement("pre");
-      /* Sterne als kursiv rendern (sehr einfacher Markdown-Ersatz). */
-      pre.innerHTML = escapeHtml(text).replace(
-        /\*([^*]+)\*/g, "<em>$1</em>"
-      );
-      block.appendChild(pre);
-      return block;
-    }
-
-    function renderCitations() {
-      citeBlocks.innerHTML = "";
-      const w = WITNESS_DATA[currentView];
-
-      if (currentView === "apparat") {
-        citeWitnessLabel.textContent =
-          "Synoptische Apparatansicht — alle Drucke parallel";
-        const c = buildApparatCitation();
-        citeBlocks.appendChild(makeCiteBlock(
-          "Digitale Edition (Selbstreferenz)", "digital", c.digital
-        ));
-        const info = document.createElement("p");
-        info.className = "note";
-        info.style.marginTop = "0.5em";
-        info.style.borderTop = "none";
-        info.style.paddingTop = "0";
-        info.textContent = c.info;
-        citeBlocks.appendChild(info);
-        return;
-      }
-
-      if (!w) {
-        citeWitnessLabel.textContent = "Keine Zitationsdaten verfügbar.";
-        return;
-      }
-
-      citeWitnessLabel.textContent =
-        "Aktuelle Ansicht: " + w.sigil + " — " + w.label;
-
-      const cites = buildCitations(w);
-      citeBlocks.appendChild(makeCiteBlock("APA 7", "apa", cites.apa));
-      citeBlocks.appendChild(makeCiteBlock("Chicago 17 (Author-Date)", "chicago", cites.chicago));
-      citeBlocks.appendChild(makeCiteBlock("Tübingen / SBL (theologisch)", "tuebingen", cites.tuebingen));
-      citeBlocks.appendChild(makeCiteBlock("Digitale Edition (Selbstreferenz)", "digital", cites.digital));
-    }
-
-    citeBtn.addEventListener("click", () => {
-      const isOpen = citePanel.classList.toggle("open");
-      citePanel.setAttribute("aria-hidden", isOpen ? "false" : "true");
-      if (isOpen) renderCitations();
-    });
-    citeClose.addEventListener("click", () => {
-      citePanel.classList.remove("open");
-      citePanel.setAttribute("aria-hidden", "true");
-    });
-    /* ESC schließt das Panel. */
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && citePanel.classList.contains("open")) {
-        citePanel.classList.remove("open");
-        citePanel.setAttribute("aria-hidden", "true");
-      }
     });
   </script>
 </body>
