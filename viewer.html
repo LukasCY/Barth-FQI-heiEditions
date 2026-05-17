@@ -22,7 +22,37 @@
       --c-quote: #2d5016;
       --c-link: #1d4e89;
       --c-bg-hover: #fff8e1;
+      --c-bg: #ffffff;
+      --c-tooltip-bg: #1a1a1a;
+      --c-tooltip-fg: #ffffff;
     }
+    /* Dunkelmodus — gesättigte Akzentfarben durch ihre helleren,
+       für dunklen Hintergrund kalibrierten Pendants ersetzt. */
+    body.dark {
+      --c-text: #e8e6e3;
+      --c-muted: #9a9a9a;
+      --c-rule: #3a3a3a;
+      --c-apparatus: #d68a8a;
+      --c-apparatus-soft: #2a1f1f;
+      --c-term: #7ab3e5;
+      --c-pers: #c4a8e3;
+      --c-pers-soft: #2a2330;
+      --c-quote: #9bc47a;
+      --c-link: #7ab3e5;
+      --c-bg-hover: #3a3320;
+      --c-bg: #1a1a1a;
+      --c-tooltip-bg: #f0f0f0;
+      --c-tooltip-fg: #1a1a1a;
+    }
+    body.dark { background: var(--c-bg); color: var(--c-text); }
+    body.dark .controls button { background: #2a2a2a; color: var(--c-text); }
+    body.dark .controls button.active { background: var(--c-text); color: var(--c-bg); }
+    body.dark .tei-pb-GA { color: #bbb; }
+    body.dark .tei-pb-A  { color: #888; }
+    body.dark .tei-teiHeader { background: #222; color: var(--c-muted); }
+    body.dark #cite-panel { background: #222; color: var(--c-text); }
+    body.dark #cite-panel pre { background: #1a1a1a; color: #ddd; }
+    html, body { background: var(--c-bg); transition: background 0.2s, color 0.2s; }
     html { font-size: 17px; }
     body {
       font-family: "Source Serif Pro", "EB Garamond", Georgia,
@@ -133,6 +163,20 @@
     }
     .tei-pb-GA { color: #444; font-weight: 600; }
     .tei-pb-A  { color: #888; font-style: italic; }
+
+    /* Sigel-spezifische Sichtbarkeit der Seitenumbrüche:
+       — view-ga zeigt nur GA-Paginierung
+       — view-a  zeigt nur A-Paginierung
+       — view-a2 zeigt GA-Paginierung als Surrogat (A2 hat in dieser
+                 Edition keine eigene Paginierung, weil GA = A2 + 5 Stellen)
+       — view-b  zeigt keine Paginierung (B ist ZThK-Vorabdruck S. 350–358;
+                 noch kein ed="#B" im XML — späterer Erfassungsschritt)
+       — view-apparat zeigt alles parallel */
+    body.view-ga      .tei-pb-A  { display: none; }
+    body.view-a       .tei-pb-GA { display: none; }
+    body.view-a2      .tei-pb-A  { display: none; }
+    body.view-b       .tei-pb     { display: none; }
+    /* view-apparat: keine Regel = alles sichtbar */
 
     /* ============================================================
        Extensionale Ebene (Šimek 4)
@@ -293,21 +337,31 @@
       content: attr(data-tooltip);
       position: absolute;
       bottom: 1.6em;
-      left: 0;
-      background: var(--c-text);
-      color: white;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--c-tooltip-bg);
+      color: var(--c-tooltip-fg);
       font-size: 0.78rem;
       padding: 0.5em 0.8em;
       border-radius: 4px;
       white-space: normal;
       width: max-content;
-      max-width: 22em;
+      min-width: 12em;
+      max-width: 26em;
       z-index: 100;
       font-family: "Source Sans Pro", -apple-system, sans-serif;
       font-style: normal;
+      font-weight: normal;
       line-height: 1.4;
       box-shadow: 0 4px 10px rgba(0,0,0,0.15);
       pointer-events: none;
+    }
+    /* Fußnotenkontext: dort sind die Anker oft nah am linken Rand
+       (text-indent: -2.2em) — Tooltip nach rechts ausrichten, damit
+       die ersten Zeichen nicht durch den Container abgeschnitten werden. */
+    .tei-note-foot [data-tooltip]:hover::after {
+      left: 0;
+      transform: translateX(0);
     }
 
     /* ============================================================
@@ -340,6 +394,101 @@
       display: none;
     }
     #aux-warning.visible { display: block; }
+
+    /* ============================================================
+       Zitationspanel (modal, rechts oben triggerbar)
+       ============================================================ */
+    #cite-panel {
+      display: none;
+      position: fixed;
+      top: 4em;
+      right: 1.5em;
+      width: 28em;
+      max-width: calc(100vw - 3em);
+      max-height: calc(100vh - 6em);
+      overflow-y: auto;
+      background: white;
+      border: 1px solid var(--c-rule);
+      border-radius: 6px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      padding: 1.2em 1.4em 1.5em;
+      font-family: "Source Sans Pro", -apple-system, sans-serif;
+      font-size: 0.85rem;
+      z-index: 200;
+    }
+    #cite-panel.open { display: block; }
+    #cite-panel h2 {
+      font-size: 0.95rem;
+      margin: 0 0 0.3em;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    #cite-panel .close-btn {
+      background: none;
+      border: none;
+      font-size: 1.3rem;
+      line-height: 1;
+      cursor: pointer;
+      color: var(--c-muted);
+      padding: 0 0.3em;
+    }
+    #cite-panel .close-btn:hover { color: var(--c-text); }
+    #cite-panel .cite-witness-label {
+      font-size: 0.78rem;
+      color: var(--c-muted);
+      margin: 0 0 0.8em;
+      font-style: italic;
+    }
+    #cite-panel .cite-block { margin: 1em 0; }
+    #cite-panel .cite-block h3 {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--c-muted);
+      margin: 0 0 0.3em;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+    #cite-panel .copy-btn {
+      font-size: 0.7rem;
+      padding: 0.1em 0.5em;
+      border: 1px solid var(--c-rule);
+      background: white;
+      cursor: pointer;
+      border-radius: 3px;
+      text-transform: none;
+      letter-spacing: 0;
+      color: var(--c-link);
+    }
+    body.dark #cite-panel .copy-btn { background: #2a2a2a; }
+    #cite-panel .copy-btn:hover { background: var(--c-bg-hover); }
+    #cite-panel .copy-btn.copied {
+      background: var(--c-quote);
+      color: white;
+      border-color: var(--c-quote);
+    }
+    #cite-panel pre {
+      font-family: "Source Serif Pro", Georgia, serif;
+      font-size: 0.82rem;
+      line-height: 1.45;
+      background: #fafafa;
+      border: 1px solid var(--c-rule);
+      border-radius: 3px;
+      padding: 0.6em 0.8em;
+      margin: 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    #cite-panel .note {
+      font-size: 0.72rem;
+      color: var(--c-muted);
+      margin-top: 1.2em;
+      padding-top: 0.8em;
+      border-top: 1px dashed var(--c-rule);
+      line-height: 1.4;
+    }
   </style>
 </head>
 <body class="view-ga">
@@ -352,8 +501,28 @@
       <button data-view="a2">2. Aufl. 1958 (A2)</button>
       <button data-view="b">Vorabdruck (B)</button>
       <button data-view="apparat">Apparat (alle)</button>
+      <span class="group-label" style="margin-left:0.8em;">|</span>
+      <button id="cite-btn" title="Zitiervorschläge anzeigen">↗ Zitieren</button>
+      <button id="dark-btn" title="Hell/Dunkel umschalten">◐ Invertieren</button>
     </div>
   </header>
+
+  <!-- Zitationspanel — wird per JS pro Ansicht neu gefüllt -->
+  <aside id="cite-panel" aria-hidden="true">
+    <h2>
+      <span>Zitiervorschläge</span>
+      <button class="close-btn" id="cite-close" aria-label="Schließen">×</button>
+    </h2>
+    <p class="cite-witness-label" id="cite-witness-label"></p>
+    <div id="cite-blocks"></div>
+    <p class="note">
+      Die Zitiervorschläge werden automatisch aus
+      <code>listWit</code> (TEI-Header) erzeugt. Die Angabe
+      <em>„abgerufen am …“</em> und die URL müssen beim Einfügen in
+      eigene Arbeiten an die tatsächliche Veröffentlichungsadresse
+      angepasst werden.
+    </p>
+  </aside>
 
   <div id="aux-warning"></div>
   <div id="status">Lade TEI-Daten…</div>
@@ -885,14 +1054,303 @@
        ============================================================ */
     const viewButtons = document.querySelectorAll(".controls button[data-view]");
     const VIEW_CLASSES = ["view-ga","view-a","view-a2","view-b","view-apparat"];
+    let currentView = "ga";
     viewButtons.forEach(btn => {
       btn.addEventListener("click", () => {
         const view = btn.dataset.view;
+        currentView = view;
         VIEW_CLASSES.forEach(c => document.body.classList.remove(c));
         document.body.classList.add("view-" + view);
         viewButtons.forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
+        /* Zitiervorschlag aktualisieren, falls Panel offen */
+        if (document.getElementById("cite-panel").classList.contains("open")) {
+          renderCitations();
+        }
       });
+    });
+
+    /* ============================================================
+       Dark Mode Toggle
+       ============================================================ */
+    const darkBtn = document.getElementById("dark-btn");
+    /* Initial: System-Präferenz, sofern nicht in localStorage anders gesetzt. */
+    try {
+      const stored = localStorage.getItem("viewer-dark");
+      if (stored === "1") document.body.classList.add("dark");
+      else if (stored === "0") document.body.classList.remove("dark");
+      else if (window.matchMedia &&
+               window.matchMedia("(prefers-color-scheme: dark)").matches) {
+        document.body.classList.add("dark");
+      }
+    } catch (e) { /* localStorage evtl. nicht verfügbar */ }
+    if (document.body.classList.contains("dark")) darkBtn.classList.add("active");
+    darkBtn.addEventListener("click", () => {
+      document.body.classList.toggle("dark");
+      const isDark = document.body.classList.contains("dark");
+      darkBtn.classList.toggle("active", isDark);
+      try { localStorage.setItem("viewer-dark", isDark ? "1" : "0"); }
+      catch (e) {}
+    });
+
+    /* ============================================================
+       Zitationspanel — generiert pro Ansicht aus listWit-Daten
+       Vier Formate:
+         APA 7              — englischsprachige Sozialwissenschaft
+         Chicago 17 (AD)    — author-date, geisteswissenschaftlicher Standard
+         Tübingen / SBL     — theologischer Standard (Vollbeleg)
+         Digital-Edition    — Selbstreferenz dieser digitalen Edition
+       Datengrundlage: <listWit> im teiHeader; die Witness-Bibl-
+       Strukturen wurden bereits beim Header-Aufbau erfasst.
+       ============================================================ */
+    const citeBtn   = document.getElementById("cite-btn");
+    const citePanel = document.getElementById("cite-panel");
+    const citeClose = document.getElementById("cite-close");
+    const citeWitnessLabel = document.getElementById("cite-witness-label");
+    const citeBlocks = document.getElementById("cite-blocks");
+
+    /* Bibliografische Stammdaten — manuell gepflegt, da sie aus
+       <listWit> nur mit Aufwand vollständig parsbar wären und der
+       Zitierstil-Output ohnehin formatabhängig ist. Bei Änderungen
+       an <listWit> (TEI-Header) sind diese Datensätze synchron zu
+       halten. */
+    const WITNESS_DATA = {
+      ga: {
+        sigil: "GA",
+        label: "Gesamtausgabe (Leithandschrift dieser Edition)",
+        author: "Barth, Karl",
+        authorAPA: "Barth, K.",
+        title: "Fides quaerens intellectum. Anselms Beweis der Existenz Gottes im Zusammenhang seines theologischen Programms",
+        series: "Karl Barth Gesamtausgabe, Abt. II: Akademische Werke, Bd. 13",
+        editors: ["Eberhard Jüngel", "Ingolf U. Dalferth"],
+        editorsAPA: "Jüngel, E., & Dalferth, I. U.",
+        editorsChicago: "Eberhard Jüngel und Ingolf U. Dalferth",
+        place: "Zürich",
+        publisher: "Theologischer Verlag Zürich",
+        year: 1981,
+        editionNote: "zit. nach 3. Aufl. 2002",
+        isbn: "3-290-17247-3"
+      },
+      a: {
+        sigil: "A",
+        label: "Erstausgabe 1931",
+        author: "Barth, Karl",
+        authorAPA: "Barth, K.",
+        title: "Fides quaerens intellectum. Anselms Beweis der Existenz Gottes im Zusammenhang seines theologischen Programms",
+        series: "Forschungen zur Geschichte und Lehre des Protestantismus IV/3",
+        editors: ["P. Althaus", "K. Barth", "K. Heim"],
+        place: "München",
+        publisher: "Chr. Kaiser",
+        year: 1931
+      },
+      a2: {
+        sigil: "A²",
+        label: "2., neu durchgesehene Auflage 1958",
+        author: "Barth, Karl",
+        authorAPA: "Barth, K.",
+        title: "Fides quaerens intellectum. Anselms Beweis der Existenz Gottes im Zusammenhang seines theologischen Programms",
+        editionNote: "2., neu durchgesehene Aufl.",
+        place: "Zollikon-Zürich",
+        publisher: "Evangelischer Verlag",
+        year: 1958
+      },
+      b: {
+        sigil: "B",
+        label: "Vorabdruck ZThK 1931 (S. 350–358)",
+        author: "Barth, Karl",
+        authorAPA: "Barth, K.",
+        title: "Die Notwendigkeit der Theologie bei Anselm von Canterbury",
+        hostTitle: "Festgabe für Ferdinand Kattenbusch zu seinem 80. Geburtstag (= Zeitschrift für Theologie und Kirche, N. F. 12)",
+        pages: "350–358",
+        year: 1931
+      },
+      apparat: null  /* Apparatansicht: Kombi-Zitat aller Zeugen */
+    };
+
+    /* Erzeugung der vier Zitierformate für einen Zeugen. */
+    function buildCitations(w) {
+      const today = new Date();
+      const dateDE = today.toLocaleDateString("de-DE", {
+        day: "2-digit", month: "long", year: "numeric"
+      });
+      const url = "[URL der digitalen Edition]";
+      const out = {};
+
+      /* — APA 7 (englischsprachig) —
+         Editors of a whole book go in parens after the title,
+         not "In Eds., …". Chapter-style "In … (Eds.)" gilt nur
+         für Witness B (Aufsatz im Sammelband). */
+      let apa = w.authorAPA + " (" + w.year + "). ";
+      apa += "*" + w.title + "*";
+      /* editionNote und Eds. in ein gemeinsames Klammerpaar bündeln,
+         falls beide vorhanden — APA 7 rät ausdrücklich davon ab,
+         zwei aufeinanderfolgende Parenthesen zu schreiben. */
+      const apaParens = [];
+      if (w.editionNote) apaParens.push(w.editionNote);
+      if (w.editorsAPA && !w.hostTitle) apaParens.push(w.editorsAPA + ", Eds.");
+      if (apaParens.length) apa += " (" + apaParens.join("; ") + ")";
+      apa += ". ";
+      if (w.hostTitle) {
+        apa += "In ";
+        if (w.editorsAPA) apa += w.editorsAPA + " (Eds.), ";
+        apa += "*" + w.hostTitle + "*";
+        if (w.pages) apa += " (pp. " + w.pages + ")";
+        apa += ". ";
+      }
+      if (w.publisher) apa += w.publisher + ".";
+      if (w.isbn) apa += " ISBN " + w.isbn + ".";
+      out.apa = apa.trim();
+
+      /* — Chicago 17 Author-Date — */
+      let ch = w.author + ". " + w.year + ". ";
+      ch += "*" + w.title + "*";
+      if (w.editionNote) ch += ". " + w.editionNote.charAt(0).toUpperCase() + w.editionNote.slice(1);
+      ch += ". ";
+      if (w.series)     ch += w.series + ". ";
+      if (w.editorsChicago) ch += "Hg. v. " + w.editorsChicago + ". ";
+      if (w.hostTitle)  ch += "In " + w.hostTitle;
+      if (w.pages)      ch += ", " + w.pages;
+      if (w.hostTitle)  ch += ". ";
+      ch += (w.place ? w.place + ": " : "") + (w.publisher || "") + ".";
+      out.chicago = ch.trim();
+
+      /* — Tübingen / SBL (theologischer Vollbeleg, deutschsprachig) — */
+      let tu = w.author + ", ";
+      tu += w.title;
+      if (w.editionNote) tu += " (" + w.editionNote + ")";
+      tu += ", ";
+      if (w.series)     tu += w.series + ", ";
+      if (w.editors && w.editors.length) tu += "hg. v. " + w.editors.join(", ") + ", ";
+      if (w.hostTitle)  tu += "in: " + w.hostTitle + ", ";
+      tu += (w.place ? w.place + ": " : "") + (w.publisher || "") + " " + w.year;
+      if (w.pages) tu += ", " + w.pages;
+      tu += ".";
+      out.tuebingen = tu.trim();
+
+      /* — Digitaledition (Selbstreferenz) — */
+      let de = "Barth, Karl: *Fides quaerens intellectum*, § 1.1, ";
+      de += "in: Digitale Edition (heiEDITIONS-konform), ";
+      de += "Variante " + w.sigil + " (" + w.label + "), ";
+      de += url + " (abgerufen am " + dateDE + ").";
+      out.digital = de;
+
+      return out;
+    }
+
+    /* Kombiniertes Zitat für die Apparat-Ansicht: kurzer Hinweis +
+       Aufzählung der zugrundeliegenden Drucke. */
+    function buildApparatCitation() {
+      const today = new Date();
+      const dateDE = today.toLocaleDateString("de-DE", {
+        day: "2-digit", month: "long", year: "numeric"
+      });
+      const url = "[URL der digitalen Edition]";
+      return {
+        digital:
+          "Barth, Karl: *Fides quaerens intellectum*, § 1.1, " +
+          "synoptische Apparatansicht (GA + A 1931 + A² 1958 + B 1931), " +
+          "Digitale Edition (heiEDITIONS-konform), " +
+          url + " (abgerufen am " + dateDE + ").",
+        info:
+          "Die Apparatansicht stellt die Lesarten aller vier Drucke parallel " +
+          "dar. Wird auf eine konkrete Lesart referenziert, ist zusätzlich " +
+          "der jeweilige Druck (GA, A, A² oder B) anzugeben. Bibliografische " +
+          "Vollbelege siehe die Einzelansichten oben."
+      };
+    }
+
+    function escapeHtml(s) {
+      return s.replace(/&/g, "&amp;").replace(/</g, "&lt;")
+              .replace(/>/g, "&gt;");
+    }
+
+    function makeCiteBlock(label, formatId, text) {
+      const block = document.createElement("div");
+      block.className = "cite-block";
+      const h3 = document.createElement("h3");
+      const labelSpan = document.createElement("span");
+      labelSpan.textContent = label;
+      const copyBtn = document.createElement("button");
+      copyBtn.className = "copy-btn";
+      copyBtn.textContent = "Kopieren";
+      copyBtn.addEventListener("click", async () => {
+        try {
+          /* Plain text, ohne Markdown-Sterne. */
+          const plain = text.replace(/\*/g, "");
+          await navigator.clipboard.writeText(plain);
+          copyBtn.textContent = "✓ Kopiert";
+          copyBtn.classList.add("copied");
+          setTimeout(() => {
+            copyBtn.textContent = "Kopieren";
+            copyBtn.classList.remove("copied");
+          }, 1500);
+        } catch (e) {
+          copyBtn.textContent = "✗ Fehler";
+        }
+      });
+      h3.appendChild(labelSpan);
+      h3.appendChild(copyBtn);
+      block.appendChild(h3);
+      const pre = document.createElement("pre");
+      /* Sterne als kursiv rendern (sehr einfacher Markdown-Ersatz). */
+      pre.innerHTML = escapeHtml(text).replace(
+        /\*([^*]+)\*/g, "<em>$1</em>"
+      );
+      block.appendChild(pre);
+      return block;
+    }
+
+    function renderCitations() {
+      citeBlocks.innerHTML = "";
+      const w = WITNESS_DATA[currentView];
+
+      if (currentView === "apparat") {
+        citeWitnessLabel.textContent =
+          "Synoptische Apparatansicht — alle Drucke parallel";
+        const c = buildApparatCitation();
+        citeBlocks.appendChild(makeCiteBlock(
+          "Digitale Edition (Selbstreferenz)", "digital", c.digital
+        ));
+        const info = document.createElement("p");
+        info.className = "note";
+        info.style.marginTop = "0.5em";
+        info.style.borderTop = "none";
+        info.style.paddingTop = "0";
+        info.textContent = c.info;
+        citeBlocks.appendChild(info);
+        return;
+      }
+
+      if (!w) {
+        citeWitnessLabel.textContent = "Keine Zitationsdaten verfügbar.";
+        return;
+      }
+
+      citeWitnessLabel.textContent =
+        "Aktuelle Ansicht: " + w.sigil + " — " + w.label;
+
+      const cites = buildCitations(w);
+      citeBlocks.appendChild(makeCiteBlock("APA 7", "apa", cites.apa));
+      citeBlocks.appendChild(makeCiteBlock("Chicago 17 (Author-Date)", "chicago", cites.chicago));
+      citeBlocks.appendChild(makeCiteBlock("Tübingen / SBL (theologisch)", "tuebingen", cites.tuebingen));
+      citeBlocks.appendChild(makeCiteBlock("Digitale Edition (Selbstreferenz)", "digital", cites.digital));
+    }
+
+    citeBtn.addEventListener("click", () => {
+      const isOpen = citePanel.classList.toggle("open");
+      citePanel.setAttribute("aria-hidden", isOpen ? "false" : "true");
+      if (isOpen) renderCitations();
+    });
+    citeClose.addEventListener("click", () => {
+      citePanel.classList.remove("open");
+      citePanel.setAttribute("aria-hidden", "true");
+    });
+    /* ESC schließt das Panel. */
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && citePanel.classList.contains("open")) {
+        citePanel.classList.remove("open");
+        citePanel.setAttribute("aria-hidden", "true");
+      }
     });
   </script>
 </body>
