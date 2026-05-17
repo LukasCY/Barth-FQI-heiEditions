@@ -284,6 +284,45 @@
       </listPerson>
 
       <!-- =========================================================
+           (2b) DIGITALE EDITION / ENCODER
+                Bearbeiter:in der vorliegenden TEI-Edition
+                (Promotionsprojekt). Diese listPerson-Gruppe ist
+                strukturell von (2) abgesetzt, weil ihre Mitglieder
+                nicht zur Editionsgeschichte des gedruckten Texts
+                (GA II.13) gehören, sondern zur digitalen
+                Editionsschicht ("encoder" im Sinne der TEI
+                <respStmt>/@role).
+           ========================================================= -->
+      <listPerson type="digital-edition">
+
+        <!-- Yu Chen — Doktorand der Theologischen Fakultät
+             Heidelberg; Bearbeiter dieser TEI-Edition.
+             Referenziert aus <revisionDesc>/<change>/@who und aus
+             dem <respStmt> im teiHeader von
+             fqi-barth-1931-section1-heiEDITIONS.xml. -->
+        <person xml:id="bearbeiter" role="encoder">
+          <persName xml:lang="zh" ana="hc:PreferredAppellation">
+            <surname>陈</surname>
+            <forename>羽</forename>
+          </persName>
+          <persName xml:lang="en" ana="hc:AlternativeAppellation">
+            <forename>Yu</forename>
+            <surname>Chen</surname>
+          </persName>
+          <occupation>Doktorand der Systematischen Theologie</occupation>
+          <affiliation>
+            <orgName>Theologische Fakultät</orgName>,
+            <orgName>Ruprecht-Karls-Universität Heidelberg</orgName>
+          </affiliation>
+          <note>Verantwortlich für TEI-Encoding, Editionsmodellierung
+            und heiEDITIONS-Bindung der digitalen Edition. Die
+            Edition entsteht im Rahmen eines Dissertationsprojekts
+            zur Systematischen Theologie.</note>
+        </person>
+
+      </listPerson>
+
+      <!-- =========================================================
            (3) WEITERE ERWÄHNTE PERSONEN
            ========================================================= -->
       <listPerson type="mentioned">
