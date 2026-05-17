@@ -142,10 +142,10 @@
     /* ============================================================
        GA-Lesetext-Ansicht — typografische Imitation
        der Gesamtausgabe (Theol. Verlag Zürich, GA II.13).
-       Aktiv nur in body.view-ga. Jede ga-page ist eine
+       Aktiv nur in body.view-ga-print. Jede ga-page ist eine
        eigenständige Druckseite.
        ============================================================ */
-    body.view-ga #TEI {
+    body.view-ga-print #TEI {
       /* In GA-Ansicht ist #TEI nur ein neutraler Container —
          der Papierhintergrund wandert auf .ga-page. */
       background: transparent;
@@ -200,7 +200,7 @@
       height: 0.4em;
     }
 
-    body.view-ga .tei-head {
+    body.view-ga-print .tei-head {
       text-align: center;
       font-family: "Source Serif Pro", Georgia, serif;
       font-weight: normal;
@@ -212,13 +212,13 @@
       border: none;
     }
     /* In GA-Ansicht: <num> in den head einbinden ohne Sondergewicht */
-    body.view-ga .tei-head .tei-num { font-weight: normal; }
+    body.view-ga-print .tei-head .tei-num { font-weight: normal; }
     /* Sperrsatz im head (z.B. "Die Notwendigkeit der Theologie") soll
        nicht doppelt gesperrt sein — der head selbst hat schon
        letter-spacing. */
-    body.view-ga .tei-head .tei-hi-letter-spaced { letter-spacing: 0; }
+    body.view-ga-print .tei-head .tei-hi-letter-spaced { letter-spacing: 0; }
 
-    body.view-ga .tei-p {
+    body.view-ga-print .tei-p {
       text-indent: 1.6em;
       margin: 0;
       text-align: justify;
@@ -227,46 +227,42 @@
     }
     /* Erster Absatz nach <head> ohne Erstzeilen-Einzug (klassische
        Tradition; in der GA so umgesetzt). */
-    body.view-ga .tei-head + .tei-p { text-indent: 0; }
+    body.view-ga-print .tei-head + .tei-p { text-indent: 0; }
     /* Erster Absatz einer Seite, wenn KEIN head vorausgeht (z.B.
        Seite 14, 15, 16): ebenfalls ohne Einzug, weil das Absatz-
        Fragment in Wahrheit die Fortsetzung des vorigen Absatzes
        ist — kein neuer Absatz beginnt. */
-    body.view-ga .ga-page-body > .tei-div > .tei-p:first-of-type:not(.tei-head + .tei-p) {
+    body.view-ga-print .ga-page-body > .tei-div > .tei-p:first-of-type:not(.tei-head + .tei-p) {
       text-indent: 0;
     }
     /* Sicherheitsregel: jedes erste Kind-p im ga-page-body
        (egal wie tief verschachtelt durch div) ohne Einzug. */
-    body.view-ga .ga-page-body .tei-div > .tei-p:first-child {
+    body.view-ga-print .ga-page-body .tei-div > .tei-p:first-child {
       text-indent: 0;
     }
 
     /* GA-Seitenumbruch-Marker im Text:
-       - Die GA-pb wird im ungeteilten Inhalt nicht mehr explizit
-         angezeigt, weil sie als Seiten-Trenner fungiert. Wir
-         lassen sie aber als unsichtbares Element zu, falls
-         convertNode einen Marker setzt. */
-    body.view-ga .tei-pb-GA {
-      display: none;
-    }
-    /* A-Seitenumbrüche in GA-Ansicht: dezent eingebunden,
-       weil sie eine andere Edition markieren. */
-    body.view-ga .tei-pb-A {
+       Die GA-pb wird in der Druckansicht nicht inline gezeigt, weil
+       sie als Seitentrenner fungiert. Die zentrale Sichtbarkeits-
+       regel weiter unten erledigt das.
+       Hier nur noch die spezifische, leicht zurückhaltende
+       Stilanpassung für nicht-GA-pb (= ed="#A") im GA-Druck. */
+    body.view-ga-print .tei-pb-A {
       color: #888;
       font-size: 0.72em;
       font-style: italic;
     }
 
     /* GA-Fußnoten im paginierten Modus */
-    body.view-ga .tei-note-foot {
+    body.view-ga-print .tei-note-foot {
       font-size: 0.86rem;
       line-height: 1.42;
       margin: 0.35em 0;
       padding-left: 1.8em;
       text-indent: -1.8em;
     }
-    body.view-ga .tei-note-foot-first,
-    body.view-ga .tei-note-foot-first-app {
+    body.view-ga-print .tei-note-foot-first,
+    body.view-ga-print .tei-note-foot-first-app {
       /* Im paginierten Modus übernimmt .ga-page-footrule die
          Trennung. Die alten "first"-Klassen werden hier
          neutralisiert. */
@@ -338,8 +334,43 @@
       font-size: 0.75em;
       margin: 0 0.15em;
     }
-    .tei-pb-GA { color: #444; font-weight: 600; }
+    /* Standardfarben für pb-Marker (kontinuierliche Ansichten).
+       In GA-Druck werden GA-pb ohnehin per separater Regel
+       ausgeblendet — sie fungieren dort als Seitentrenner, nicht
+       als Inline-Marker. */
+    .tei-pb-GA { color: #7a7a7a; font-weight: 600; }   /* dezenter Grauton — Lesefluss-Marker */
     .tei-pb-A  { color: #888; font-style: italic; }
+    .tei-pb-A2 { color: #888; font-style: italic; }
+    .tei-pb-B  { color: #888; font-style: italic; }
+
+    /* ============================================================
+       Sichtbarkeit der pb-Marker nach Ansicht (Šimek 2 + 5)
+       Logik:
+       - GA Druck:   pb ed="#GA" als Seitentrenner (→ Seitencontainer),
+                     im Inline-Fluss verborgen. Nicht-GA-pb dezent.
+       - GA Lese:    GA-pb als Inline-Marker (Lesefluss-Orientierung),
+                     ed="#A" dezent als Sekundärinfo.
+       - A:          nur ed="#A".  GA/A2/B verborgen.
+       - A2:         A2 hat keine eigenen pb im XML → alle pb verborgen.
+       - B:          B  hat keine eigenen pb im XML → alle pb verborgen.
+       - Apparat:    alle pb sichtbar (Vergleichswerkzeug).
+       ============================================================ */
+    body.view-ga-print .tei-pb-GA { display: none; }   /* Seitentrenner, nicht inline */
+
+    body.view-ga-read  .tei-pb-GA { display: inline; }
+    body.view-ga-read  .tei-pb-A,
+    body.view-ga-read  .tei-pb-A2,
+    body.view-ga-read  .tei-pb-B  { display: inline; }
+
+    body.view-a  .tei-pb-GA,
+    body.view-a  .tei-pb-A2,
+    body.view-a  .tei-pb-B  { display: none; }
+    body.view-a  .tei-pb-A  { display: inline; }
+
+    body.view-a2 .tei-pb { display: none; }
+    body.view-b  .tei-pb { display: none; }
+
+    body.view-apparat .tei-pb { display: inline; }
 
     /* ============================================================
        Extensionale Ebene (Šimek 4)
@@ -369,16 +400,20 @@
       font-style: italic;
     }
 
-    /* In GA-Ansicht: Farbauszeichnungen dezenter, da sie das
+    /* In GA-Ansichten: Farbauszeichnungen dezenter, da sie das
        Druckbild stören würden. Dotted-Underlines bleiben (für
        Tooltip-Affordance), aber neutralisiert. */
-    body.view-ga .tei-rs-SubjectReference,
-    body.view-ga .tei-persName-PersonReference,
-    body.view-ga .tei-title-WorkReference {
+    body.view-ga-print .tei-rs-SubjectReference,
+    body.view-ga-print .tei-persName-PersonReference,
+    body.view-ga-print .tei-title-WorkReference,
+    body.view-ga-read  .tei-rs-SubjectReference,
+    body.view-ga-read  .tei-persName-PersonReference,
+    body.view-ga-read  .tei-title-WorkReference {
       color: inherit;
       border-bottom-color: rgba(0,0,0,0.18);
     }
-    body.view-ga .tei-quote-PrimarySourceQuotation {
+    body.view-ga-print .tei-quote-PrimarySourceQuotation,
+    body.view-ga-read  .tei-quote-PrimarySourceQuotation {
       color: inherit;
     }
 
@@ -389,8 +424,10 @@
     .tei-lem { display: inline; }
     .tei-rdg { display: none; }
 
-    body.view-ga  .tei-lem { display: inline; }
-    body.view-ga  .tei-rdg { display: none; }
+    body.view-ga-print  .tei-lem,
+    body.view-ga-read   .tei-lem { display: inline; }
+    body.view-ga-print  .tei-rdg,
+    body.view-ga-read   .tei-rdg { display: none; }
 
     body.view-a  .tei-lem,
     body.view-a  .tei-rdg { display: none; }
@@ -559,6 +596,110 @@
     #tei-tooltip.touch-mode .content { padding-right: 1.2em; }
 
     /* ============================================================
+       Zitierhilfe
+       ============================================================
+       Klappbar (<details>); enthält drei wissenschaftliche Formate.
+       Default: zugeklappt, um den Lesefluss nicht zu stören.
+       ============================================================ */
+    #citation-bar {
+      max-width: var(--maxw);
+      margin: 0 auto 1em;
+      font-family: "Source Sans Pro", -apple-system, sans-serif;
+      font-size: 0.8rem;
+      border: 1px solid var(--c-rule);
+      border-radius: 3px;
+      background: #fbfaf6;
+    }
+    #citation-bar > summary {
+      cursor: pointer;
+      padding: 0.45em 0.8em;
+      color: var(--c-muted);
+      font-weight: 600;
+      list-style: none;
+      user-select: none;
+    }
+    #citation-bar > summary::-webkit-details-marker { display: none; }
+    #citation-bar > summary .cite-chev {
+      display: inline-block;
+      transition: transform 0.15s ease;
+      margin-left: 0.3em;
+    }
+    #citation-bar[open] > summary .cite-chev { transform: rotate(180deg); }
+    .cite-formats {
+      padding: 0.2em 0.8em 0.7em;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5em;
+    }
+    .cite-row {
+      display: grid;
+      grid-template-columns: 5em 1fr auto;
+      gap: 0.6em;
+      align-items: start;
+    }
+    .cite-label {
+      color: var(--c-muted);
+      font-weight: 600;
+      font-size: 0.78rem;
+      padding-top: 0.15em;
+    }
+    .cite-text {
+      font-family: "Source Serif Pro", Georgia, serif;
+      font-size: 0.85rem;
+      line-height: 1.45;
+      color: var(--c-text);
+      hyphens: auto;
+    }
+    .cite-copy {
+      font: inherit;
+      font-size: 0.72rem;
+      padding: 0.25em 0.6em;
+      border: 1px solid var(--c-rule);
+      background: white;
+      cursor: pointer;
+      border-radius: 3px;
+      white-space: nowrap;
+      align-self: start;
+    }
+    .cite-copy:hover { background: var(--c-bg-hover); }
+    .cite-copy.copied {
+      background: #e6f3e0;
+      border-color: #7ab36a;
+      color: #2f5d22;
+    }
+    @media (max-width: 600px) {
+      .cite-row {
+        grid-template-columns: 1fr;
+        gap: 0.2em;
+      }
+      .cite-copy { justify-self: start; }
+    }
+
+    /* ============================================================
+       Theme — Invert (Dunkelmodus durch CSS-Filter)
+       ============================================================
+       Wir wenden filter:invert + hue-rotate auf <html> an, damit
+       die GESAMTE Seite — inkl. Hintergrundfarben, Bilder und
+       UI-Chrome — invertiert wird. Dies ist eine bewusste Design-
+       Entscheidung: ein partielles Invert auf #TEI würde am
+       Desktop einen schwarzen Streifen in weißem Rahmen erzeugen.
+       hue-rotate(180deg) kompensiert die unerwünschte Farbumkehr
+       bunter Akzente (blaue Personennamen würden sonst orange).
+       Bilder bekommen einen Gegenfilter, damit sie nicht
+       doppelt-invertiert werden — hier projektrelevant z.B.
+       künftige Faksimiles. */
+    html.theme-invert {
+      filter: invert(1) hue-rotate(180deg);
+      background: #ffffff;  /* damit Filter eine Fläche zum Wirken hat */
+    }
+    html.theme-invert img,
+    html.theme-invert svg,
+    html.theme-invert video,
+    html.theme-invert iframe {
+      filter: invert(1) hue-rotate(180deg);
+    }
+
+    /* ============================================================
        Status / Loading
        ============================================================ */
     #status {
@@ -606,10 +747,10 @@
         align-items: stretch;
       }
       h1 { font-size: 1.05rem; }
-      body.view-ga #TEI {
+      body.view-ga-print #TEI {
         padding: 1.5em 1.2em 1.2em;
       }
-      body.view-ga .tei-p {
+      body.view-ga-print .tei-p {
         text-indent: 1.2em;
       }
       #tei-tooltip {
@@ -619,13 +760,14 @@
     }
   </style>
 </head>
-<body class="view-ga">
+<body class="view-ga-print">
   <header class="bar">
     <h1>Karl Barth, <em>Fides quaerens intellectum</em>, § 1.1 — Prototyp einer digitalen Edition (heiEDITIONS-Variante)</h1>
     <div class="controls-wrap">
       <div class="controls">
         <span class="group-label">Ansicht:</span>
-        <button data-view="ga"      class="active">Lesetext (GA)</button>
+        <button data-view="ga-print" class="active">GA Druck</button>
+        <button data-view="ga-read">GA Lesefluss</button>
         <button data-view="a">1. Aufl. 1931 (A)</button>
         <button data-view="a2">2. Aufl. 1958 (A2)</button>
         <button data-view="b">Vorabdruck (B)</button>
@@ -637,8 +779,35 @@
         <button data-fontsize="medium" class="active" title="Standard">A</button>
         <button data-fontsize="large"  title="Größer">A</button>
       </div>
+      <div class="controls theme-group">
+        <span class="group-label">Theme:</span>
+        <button data-theme="light"  class="active" title="Hell">☀ Hell</button>
+        <button data-theme="invert" title="Invertiert (Dunkelmodus)">☾ Invert</button>
+      </div>
     </div>
   </header>
+
+  <!-- Zitierhilfe — drei wissenschaftliche Formate, klappbar -->
+  <details id="citation-bar">
+    <summary>Zitiervorschlag <span class="cite-chev">▾</span></summary>
+    <div class="cite-formats">
+      <div class="cite-row" data-format="chicago">
+        <span class="cite-label">Chicago</span>
+        <span class="cite-text"></span>
+        <button class="cite-copy" title="In Zwischenablage kopieren">Kopieren</button>
+      </div>
+      <div class="cite-row" data-format="apa">
+        <span class="cite-label">APA</span>
+        <span class="cite-text"></span>
+        <button class="cite-copy" title="In Zwischenablage kopieren">Kopieren</button>
+      </div>
+      <div class="cite-row" data-format="tuebingen">
+        <span class="cite-label">Tübingen</span>
+        <span class="cite-text"></span>
+        <button class="cite-copy" title="In Zwischenablage kopieren">Kopieren</button>
+      </div>
+    </div>
+  </details>
 
   <div id="aux-warning"></div>
   <div id="status">Lade TEI-Daten…</div>
@@ -1021,10 +1190,12 @@
         case "pb": {
           const n  = attr(xmlNode, "n")  || "";
           const ed = attr(xmlNode, "ed") || "";
+          // ed-Wert zu CSS-Suffix normalisieren: "#GA" → "GA", etc.
+          const edKey = ed.replace(/^#/, "");
           const pbEl = document.createElement("span");
-          pbEl.className = "tei-pb" +
-            (ed === "#GA" ? " tei-pb-GA" :
-             ed === "#A"  ? " tei-pb-A"  : "");
+          pbEl.className = "tei-pb" + (edKey ? " tei-pb-" + edKey : "");
+          pbEl.dataset.ed = ed;
+          pbEl.dataset.n  = n;
           pbEl.textContent = "|" + n + "|";
           pbEl.title = "Seitenumbruch " + (ed || "") + " S. " + n;
           htmlParent.appendChild(pbEl);
@@ -1110,6 +1281,15 @@
                   node.classList.add("tei-ref-note-editorial");
                 }
               }
+              // Backref: erstes Ref-Vorkommen pro Note bekommt eine
+              // id, damit die Fußnoten-Markierung dorthin zurück-
+              // springen kann. Mehrfach-Referenzen bekommen aktuell
+              // KEINE eigene id — Rückkehr geht zur Erstreferenz.
+              if (id && !backrefRegistry.has(id)) {
+                const backId = "backref-" + id;
+                node.id = backId;
+                backrefRegistry.set(id, backId);
+              }
               node.addEventListener("click", () => {
                 const noteHtml = document.getElementById(id);
                 if (noteHtml) noteHtml.scrollIntoView(
@@ -1193,6 +1373,25 @@
               type === "editorial" ? "var(--c-apparatus)" : "var(--c-text)";
             marker.style.marginRight = "0.4em";
             marker.textContent = n;
+            // Rückwärtssprung: klickt der Leser auf die Fußnoten-
+            // Markierung, springen wir zur Erstreferenz im Fließtext.
+            // backrefRegistry wird im Fließtext-Pass befüllt; im
+            // GA-Druck-Modus läuft pro Seite ein eigener Pass, sodass
+            // die Marker zur richtigen Inline-Position derselben
+            // Seite zurückspringen.
+            if (xmlId) {
+              const backId = backrefRegistry.get(xmlId);
+              if (backId) {
+                marker.style.cursor = "pointer";
+                marker.title = "Zurück zur Textstelle";
+                marker.addEventListener("click", () => {
+                  const ref = document.getElementById(backId);
+                  if (ref) ref.scrollIntoView(
+                    { behavior: "smooth", block: "center" }
+                  );
+                });
+              }
+            }
             node.appendChild(marker);
           }
           if (xmlId) node.id = xmlId;
@@ -1226,6 +1425,12 @@
                 "tei-ref-note tei-ref-note-editorial app-letter-anchor";
               anchor.textContent = marker;
               anchor.dataset.target = "#" + noteId;
+              // Backref registrieren (analog zu <ref type="note">).
+              if (noteId && !backrefRegistry.has(noteId)) {
+                const backId = "backref-" + noteId;
+                anchor.id = backId;
+                backrefRegistry.set(noteId, backId);
+              }
               anchor.addEventListener("click", () => {
                 const el = document.getElementById(noteId);
                 if (el) el.scrollIntoView(
@@ -1277,6 +1482,15 @@
     let currentPage = 0;  // Index in GA_PAGE_NUMS
     let GA_PAGE_NUMS = []; // z.B. ["13","14","15","16"]
 
+    /* Registry für Rückwärtssprung von Fußnote zu Inline-Referenz.
+       Schlüssel = xml:id der note (z.B. "fn-7", "edn-1-a");
+       Wert = HTML-id der ersten Inline-<ref>, die diese note
+       referenziert (z.B. "backref-fn-7"). Wird bei jedem
+       renderAll-Lauf (insbesondere pro GA-Seite!) zurückgesetzt,
+       damit der Marker auf einer Seite zur Inline-Position
+       derselben Seite springt. */
+    const backrefRegistry = new Map();
+
     Promise.all(auxPromises)
       .then(() => fetchXML(TEI_FILE))
       .then(xmlDoc => {
@@ -1304,6 +1518,7 @@
 
         statusEl.remove();
         renderAll();
+        fillCitationBar(xmlDoc);
 
         if (auxLoadErrors.length > 0) {
           auxWarnEl.classList.add("visible");
@@ -1334,10 +1549,11 @@
     function renderAll() {
       if (!teiXmlDoc) return;
       teiContainer.innerHTML = "";
+      backrefRegistry.clear();
 
-      const isGA = document.body.classList.contains("view-ga");
+      const isGAPrint = document.body.classList.contains("view-ga-print");
 
-      if (isGA && GA_PAGE_NUMS.length > 0) {
+      if (isGAPrint && GA_PAGE_NUMS.length > 0) {
         renderGAPaged(teiXmlDoc, teiContainer);
       } else {
         renderContinuous(teiXmlDoc, teiContainer);
@@ -1463,8 +1679,9 @@
     }
 
     function gaKeyNavHandler(e) {
-      // Nur wenn GA-Ansicht aktiv
-      if (!document.body.classList.contains("view-ga")) return;
+      // Nur in GA-Druck-Ansicht (paginiert) reagieren — in
+      // Lesefluss / A / A2 / B / Apparat hat ←→ keine Seitenbedeutung.
+      if (!document.body.classList.contains("view-ga-print")) return;
       // Nicht in input/textarea
       const t = e.target;
       if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA")) return;
@@ -1521,6 +1738,10 @@
     /* Rendert eine einzelne GA-Seite in pageHost (vorhanden ersetzt). */
     function renderSinglePage(pageSlices, idx, pageHost) {
       pageHost.innerHTML = "";
+      // Pro Seite eigenen Registry-Stand, damit Rückwärtssprünge
+      // *nicht* auf andere Seiten zeigen (dort gibt es das
+      // Inline-Pendant aktuell gar nicht im DOM).
+      backrefRegistry.clear();
       if (idx < 0 || idx >= pageSlices.length) return;
       const slice = pageSlices[idx];
 
@@ -1729,7 +1950,7 @@
        View-Toggle
        ============================================================ */
     const viewButtons = document.querySelectorAll(".controls button[data-view]");
-    const VIEW_CLASSES = ["view-ga","view-a","view-a2","view-b","view-apparat"];
+    const VIEW_CLASSES = ["view-ga-print","view-ga-read","view-a","view-a2","view-b","view-apparat"];
     viewButtons.forEach(btn => {
       btn.addEventListener("click", () => {
         const view = btn.dataset.view;
@@ -1781,6 +2002,189 @@
         hideTooltip(true);
       });
     });
+
+    /* ============================================================
+       Theme-Regler (Hell / Invert)
+       ============================================================
+       Invert wird per CSS-Filter auf <html> realisiert (siehe
+       CSS-Block oben). localStorage hält die Wahl persistent.
+       ============================================================ */
+    const themeButtons = document.querySelectorAll(
+      ".controls button[data-theme]"
+    );
+
+    function applyTheme(name) {
+      const html = document.documentElement;
+      if (name === "invert") {
+        html.classList.add("theme-invert");
+      } else {
+        html.classList.remove("theme-invert");
+      }
+      themeButtons.forEach(b => {
+        b.classList.toggle("active", b.dataset.theme === name);
+      });
+      try { localStorage.setItem("fqi-theme", name); } catch (e) { /* ignore */ }
+    }
+
+    let savedTheme = "light";
+    try {
+      const v = localStorage.getItem("fqi-theme");
+      if (v === "light" || v === "invert") savedTheme = v;
+    } catch (e) { /* ignore */ }
+    applyTheme(savedTheme);
+
+    themeButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        applyTheme(btn.dataset.theme);
+        hideTooltip(true);
+      });
+    });
+
+    /* ============================================================
+       Zitiervorschläge — Chicago / APA / Tübingen
+       ============================================================
+       Datenquelle: <witness xml:id="GA"> aus listWit (Leithand-
+       schrift dieser Edition) + <publicationStmt>/<titleStmt>
+       für den digitalen Edition-Kontext.
+
+       Formatkonventionen:
+       - Chicago Notes & Bibliography, 17. ed., humanities-bibl.
+       - APA 7th ed.
+       - Tübinger Stil (Theologie, weit verbreitet im DACH-Raum):
+         Verfasser, Vorname: Titel. Untertitel (= Reihe Bd.),
+         Auflage, Ort: Verlag Jahr, ggf. zit. Seite.
+       Alle Formate beziehen sich auf das edierte Werk in der
+       GA-Fassung (= Leithandschrift), nicht auf die digitale
+       Edition selbst — das ist der für Hausarbeiten/Aufsätze
+       relevante Anwendungsfall.
+       ============================================================ */
+    function textOf(el) {
+      return el ? el.textContent.replace(/\s+/g, " ").trim() : "";
+    }
+
+    function buildCitations(xmlDoc) {
+      const gaWit = xmlDoc.querySelector('witness[*|id="GA"] bibl');
+      if (!gaWit) return null;
+
+      const author = textOf(gaWit.querySelector("author"));
+      // "Karl Barth" → ["Karl", "Barth"]
+      const nameParts = author.split(/\s+/);
+      const lastName  = nameParts[nameParts.length - 1] || author;
+      const firstName = nameParts.slice(0, -1).join(" ");
+
+      const titleMain = textOf(gaWit.querySelector('title[type="main"]'));
+      // titleMain im XML enthält bereits Haupt+Untertitel zusammen.
+      // Wir splitten am ersten Punkt für Tübingen/Chicago, falls vorhanden.
+      let titleShort = titleMain;
+      let subtitle   = "";
+      const dotIdx = titleMain.indexOf(". ");
+      if (dotIdx > 0) {
+        titleShort = titleMain.slice(0, dotIdx);
+        subtitle   = titleMain.slice(dotIdx + 2);
+      }
+
+      const seriesTitle = textOf(gaWit.querySelector('title[type="series-main"]'));
+      const abteilung   = textOf(gaWit.querySelector('biblScope[unit="abteilung"]'));
+      const band        = textOf(gaWit.querySelector('biblScope[unit="band"]'));
+      const pubPlace    = textOf(gaWit.querySelector("pubPlace"));
+      const publisher   = textOf(gaWit.querySelector("publisher"));
+      const dateEl      = gaWit.querySelector("date");
+      const year        = dateEl ? (dateEl.getAttribute("when") || textOf(dateEl)) : "";
+
+      // Reihensigel zusammensetzen: "Karl Barth Gesamtausgabe II/13"
+      let seriesRef = "";
+      if (seriesTitle) {
+        seriesRef = seriesTitle;
+        if (abteilung && band)      seriesRef += " " + abteilung + "/" + band;
+        else if (abteilung)         seriesRef += " " + abteilung;
+        else if (band)              seriesRef += " " + band;
+      }
+
+      // Chicago (Bibliography): Last, First. Title. Series. Place: Publisher, Year.
+      const chicago =
+        (lastName ? lastName + (firstName ? ", " + firstName : "") : author) + ". " +
+        (titleMain ? "<i>" + titleMain + "</i>. " : "") +
+        (seriesRef ? seriesRef + ". " : "") +
+        (pubPlace ? pubPlace + ": " : "") +
+        (publisher ? publisher + ", " : "") +
+        (year || "") + ".";
+
+      // APA 7: Last, F. (Year). Title (Series). Publisher.
+      const apaFirstInitial = firstName ? firstName.charAt(0) + "." : "";
+      const apa =
+        (lastName ? lastName + (apaFirstInitial ? ", " + apaFirstInitial : "") : author) +
+        (year ? " (" + year + "). " : ". ") +
+        (titleMain ? "<i>" + titleMain + "</i>" : "") +
+        (seriesRef ? " (" + seriesRef + ")" : "") +
+        ". " +
+        (publisher || "") + ".";
+
+      // Tübingen (Theologie): Nachname, Vorname: Titel. Untertitel
+      //   (= Reihe Bd.), Ort: Verlag Jahr.
+      const tueb =
+        (lastName ? lastName + (firstName ? ", " + firstName : "") : author) + ": " +
+        (titleShort ? "<i>" + titleShort + "</i>" : "") +
+        (subtitle ? ". " + subtitle : "") +
+        (seriesRef ? " (= " + seriesRef + ")" : "") +
+        ", " +
+        (pubPlace || "") +
+        (publisher ? ": " + publisher : "") +
+        (year ? " " + year : "") + ".";
+
+      return { chicago, apa, tuebingen: tueb };
+    }
+
+    function fillCitationBar(xmlDoc) {
+      const cites = buildCitations(xmlDoc);
+      if (!cites) return;
+
+      const rows = document.querySelectorAll(".cite-row");
+      rows.forEach(row => {
+        const fmt = row.dataset.format;  // chicago | apa | tuebingen
+        const txt = cites[fmt] || "";
+        const target = row.querySelector(".cite-text");
+        if (target) target.innerHTML = txt;
+        // Plaintext-Variante für Clipboard (HTML stripping)
+        row.dataset.plaintext = txt.replace(/<[^>]+>/g, "");
+      });
+
+      // Kopierhandler einmalig binden
+      document.querySelectorAll(".cite-copy").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const row = btn.closest(".cite-row");
+          if (!row) return;
+          const txt = row.dataset.plaintext || "";
+          if (!txt) return;
+          const done = () => {
+            btn.classList.add("copied");
+            const old = btn.textContent;
+            btn.textContent = "✓ Kopiert";
+            setTimeout(() => {
+              btn.classList.remove("copied");
+              btn.textContent = old;
+            }, 1400);
+          };
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(txt).then(done).catch(() => {
+              // Fallback
+              const ta = document.createElement("textarea");
+              ta.value = txt; document.body.appendChild(ta);
+              ta.select();
+              try { document.execCommand("copy"); done(); }
+              catch (e) { /* ignore */ }
+              document.body.removeChild(ta);
+            });
+          } else {
+            const ta = document.createElement("textarea");
+            ta.value = txt; document.body.appendChild(ta);
+            ta.select();
+            try { document.execCommand("copy"); done(); }
+            catch (e) { /* ignore */ }
+            document.body.removeChild(ta);
+          }
+        });
+      });
+    }
   </script>
 </body>
 </html>
