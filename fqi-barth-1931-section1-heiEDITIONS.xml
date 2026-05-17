@@ -67,7 +67,7 @@
         </funder>
         <respStmt>
           <resp>Digitale Edition, TEI-Encoding</resp>
-          <persName>[Bearbeiter:in der Promotion]</persName>
+          <persName ref="persons.xml#bearbeiter" xml:id="encoder-chen">Yu Chen</persName>
         </respStmt>
       </titleStmt>
 
@@ -482,7 +482,59 @@
     </profileDesc>
 
     <revisionDesc>
-      <change when="2026-05-16" who="#bearbeiter" status="draft">
+      <change when="2026-05-17" who="persons.xml#bearbeiter" status="draft">
+        v5 (Anmerkungs-Provenienz und -Lokalisierung): Vervollständigung
+        der Apparat-Metadaten an allen 29 <gi>note place="foot"</gi>.
+        (a) Bearbeiter <persName ref="persons.xml#bearbeiter">Yu Chen</persName>
+        in <gi>respStmt</gi> namentlich eingetragen; entsprechender
+        Datensatz neu angelegt in <ref target="persons.xml#bearbeiter"
+        >persons.xml#bearbeiter</ref> (eigener
+        <gi>listPerson type="digital-edition"</gi>-Block).
+        (b) Barths Anmerkungen 1–17 (<gi>note type="authorial"</gi>):
+        Witness-Bindung über
+        <att>wit</att>=<val>#A #A2 #GA</val> ergänzt — alle drei
+        Buchausgaben tragen diese Anmerkungen (so seit der 2. Aufl.
+        1958, vgl. Vorwort GA II.13, S. XI). Der Vorabdruck B
+        (ZThK.NF 12, 1931) bleibt vorerst unberücksichtigt; ob er
+        einzelne dieser Anmerkungen mitführt, ist beim Vergleich mit
+        dem Originaldruck der Festgabe Kattenbusch nachträglich
+        zu prüfen und ggf. monoton zu ergänzen.
+        (c) Herausgeber-Anmerkungen a–l (<gi>note type="editorial"</gi>):
+        <att>resp</att>=<val>#juengel #dalferth</val> ergänzt — diese
+        Apparat-Anmerkungen sind genuines Material der GA-Edition
+        (1981) und nur dort vorhanden.
+        (d) Page-Provenienz: alle 29 <gi>note</gi>-Elemente tragen jetzt
+        <att>source</att>=<val>#ga-13</val>…<val>#ga-16</val>, das auf
+        den jeweiligen <gi>pb ed="#GA"</gi>-Anker im Fließtext zeigt.
+        Damit ist die Fußzeilen-Layout-Verteilung des Drucks
+        rekonstruierbar: S. 13 trägt fn-1–4 + ed-a–c; S. 14 trägt
+        fn-5–7 + ed-d–g; S. 15 trägt fn-8–12 + ed-h–j; S. 16 trägt
+        fn-13–17 + ed-k–l. Die Zuordnung wurde anhand der
+        druckbildtreuen PDF-Extraktion (Marker-JSON,
+        <ref target="Abstract_-_K__Barth__GA_Abt_2_Fides_quaerens_intellectum_meta.json"
+        >meta.json</ref>) verifiziert: die dortigen
+        <code>page_stats[].block_counts.Footnote</code>-Werte
+        (7 / 7 / 8 / 7 für S. 13–16) bestätigen die Verteilung
+        Stück für Stück. — Edge case verifiziert: <gi>note n="j"</gi>
+        (<ref target="#ed-j"/>) hat seinen <gi>app</gi>-Anker
+        innerhalb von <ref target="#fn-12"/> (Barths Anmerkung),
+        nicht im Haupttext. Da fn-12 selbst zur S. 15 gehört,
+        gehört auch ed-j zur S. 15 — nicht etwa zur S. 16, wie ein
+        naiver Sequenzcheck nach Dokumentreihenfolge fälschlich
+        suggerieren würde (denn alle Fußnoten-Elemente stehen in
+        der XML-Reihenfolge erst nach <ptr target="#ga-16"/>).
+        Für künftige Schematron-Regeln, die source-Konsistenz prüfen
+        sollen, ist dies das relevante Gegenbeispiel: der
+        Fußzeilen-Layout-Ort einer <gi>note</gi> richtet sich nach
+        der Layout-Seite ihres <emph>Lemma-Ortes im Druck</emph>,
+        nicht nach der Position in der XML-Dokumentordnung. Verifiziert
+        wurde dies anhand der Marker-Zählung
+        <code>page_stats[2].block_counts.Footnote = 8</code> für S. 15
+        (= fn-8…12 + ed-h…j) gegen
+        <code>page_stats[3] = 7</code> für S. 16
+        (= fn-13…17 + ed-k–l).
+      </change>
+      <change when="2026-05-16" who="persons.xml#bearbeiter" status="draft">
         v4 (heiEDITIONS-Variante): Zusätzliche Bindung zentraler
         Elemente an die Klassenontologie <ref
         target="https://heieditions.github.io/concepts/concepts.html"
@@ -507,7 +559,7 @@
         heiEDITIONS-Vorgabe <gi>rs</gi>, um die TEI-Sub-Spezifizierung
         zu erhalten; im README dokumentiert).
       </change>
-      <change when="2026-05-16" who="#bearbeiter" status="draft">
+      <change when="2026-05-16" who="persons.xml#bearbeiter" status="draft">
         v3: Einführung der theologischen Terminologieebene.
         (a) Neue externe Datei <ref target="terms.xml">terms.xml</ref>
         mit 22 Begriffsdatensätzen in vier Kategorien
@@ -523,7 +575,7 @@
         Erst-Vorkommen jedes Konzepts ausgezeichnet, mehrfache
         Wiederkehrungen nach Ökonomieregel ausgespart.
       </change>
-      <change when="2026-05-15" who="#bearbeiter" status="draft">
+      <change when="2026-05-15" who="persons.xml#bearbeiter" status="draft">
         v2: Vollständige Revision auf Basis des Vorworts der
         Herausgeber (GA II.13, S. VII–XIV). Wesentliche Korrekturen:
         (a) Sigel B umgedeutet von <q>2. Aufl. 1958</q> auf
@@ -538,7 +590,7 @@
         Kodierung: jeder inline-<gi>app</gi> hat nun auch eine
         <gi>note type="editorial"</gi>-Entsprechung am Kapitelende.
       </change>
-      <change when="2026-05-15" who="#bearbeiter" status="draft">
+      <change when="2026-05-15" who="persons.xml#bearbeiter" status="draft">
         v1: Erste TEI-Kodierung von § 1 (S. 13–16) als
         Portfolio-Demonstrator.
       </change>
@@ -825,7 +877,8 @@
              Barths Anmerkungen (arabisch numeriert):
              jede trägt zusätzlich ana="hc:AuthorialNote".
              ================================================= -->
-        <note place="foot" n="1" xml:id="fn-1" type="authorial" ana="hc:AuthorialNote">
+        <note place="foot" n="1" xml:id="fn-1" type="authorial"
+              ana="hc:AuthorialNote" wit="#A #A2 #GA" source="#ga-13">
           <quote xml:lang="la" ana="hc:PrimarySourceQuotation"><hi rend="#italic">Ad magnum et
           <hi rend="#letter-spaced">delectabile</hi> quiddam me subito
           perduxit haec mea meditatio</hi></quote>
@@ -843,7 +896,8 @@
           </bibl>.
         </note>
 
-        <note place="foot" n="2" xml:id="fn-2" type="authorial" ana="hc:AuthorialNote">
+        <note place="foot" n="2" xml:id="fn-2" type="authorial"
+              ana="hc:AuthorialNote" wit="#A #A2 #GA" source="#ga-13">
           <quote xml:lang="la" ana="hc:PrimarySourceQuotation"><hi rend="#italic">… ad pascendum eos,
           qui iam corde fide mundato … fidei ratione … delectantur</hi></quote>
           <bibl>
@@ -853,7 +907,8 @@
           </bibl>.
         </note>
 
-        <note place="foot" n="3" xml:id="fn-3" type="authorial" ana="hc:AuthorialNote">
+        <note place="foot" n="3" xml:id="fn-3" type="authorial"
+              ana="hc:AuthorialNote" wit="#A #A2 #GA" source="#ga-13">
           <bibl rend="cf">
             <title ref="works.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">Cur Deus
             homo</title>
@@ -873,7 +928,8 @@
           esse</hi></foreign></rs>, darf hier auch notiert werden.
         </note>
 
-        <note place="foot" n="4" xml:id="fn-4" type="authorial" ana="hc:AuthorialNote">
+        <note place="foot" n="4" xml:id="fn-4" type="authorial"
+              ana="hc:AuthorialNote" wit="#A #A2 #GA" source="#ga-13">
           <bibl><title ref="works.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">C. D. h.</title>
           <citedRange unit="book-chapter">I 1</citedRange>,
           <citedRange unit="schmitt">II 47,9</citedRange></bibl>;
@@ -883,7 +939,8 @@
           laetifices</hi></quote>.
         </note>
 
-        <note place="foot" n="5" xml:id="fn-5" type="authorial" ana="hc:AuthorialNote">
+        <note place="foot" n="5" xml:id="fn-5" type="authorial"
+              ana="hc:AuthorialNote" wit="#A #A2 #GA" source="#ga-14">
           Vgl. auch <bibl><title ref="works.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">C. D. h.</title>
           <citedRange unit="praefatio">Praef.</citedRange>,
           <citedRange unit="schmitt">II 42,6</citedRange></bibl>:
@@ -891,7 +948,8 @@
           tribulatione …</hi></quote>.
         </note>
 
-        <note place="foot" n="6" xml:id="fn-6" type="authorial" ana="hc:AuthorialNote">
+        <note place="foot" n="6" xml:id="fn-6" type="authorial"
+              ana="hc:AuthorialNote" wit="#A #A2 #GA" source="#ga-14">
           <persName ref="persons.xml#anselm" ana="hc:PersonReference">Anselm</persName> selbst
           hat die Schrift <bibl><title ref="works.xml#de-grammatico" ana="hc:WorkReference"
           xml:lang="la"><hi rend="#italic">De grammatico</hi></title></bibl>
@@ -906,7 +964,8 @@
           theologische aufführt.
         </note>
 
-        <note place="foot" n="7" xml:id="fn-7" type="authorial" ana="hc:AuthorialNote">
+        <note place="foot" n="7" xml:id="fn-7" type="authorial"
+              ana="hc:AuthorialNote" wit="#A #A2 #GA" source="#ga-14">
           <quote xml:lang="la" ana="hc:PrimarySourceQuotation"><hi rend="#italic">… nos vero, quia
           credimus</hi></quote> (<foreign xml:lang="la"><hi rend="#italic">rationem
           quaerimus</hi></foreign>)
@@ -915,7 +974,8 @@
           <citedRange unit="schmitt">II 50,19</citedRange></bibl>).
         </note>
 
-        <note place="foot" n="8" xml:id="fn-8" type="authorial" ana="hc:AuthorialNote">
+        <note place="foot" n="8" xml:id="fn-8" type="authorial"
+              ana="hc:AuthorialNote" wit="#A #A2 #GA" source="#ga-15">
           <quote xml:lang="la" ana="hc:PrimarySourceQuotation"><hi rend="#italic">… quisquis tendendo
           ad illam (sc. summam essentiam) pervenerit, non extra illam
           remanebit, sed intra illam permanebit; quod expressius et
@@ -930,7 +990,8 @@
           <citedRange unit="schmitt">I 83,27–84,2</citedRange></bibl>).
         </note>
 
-        <note place="foot" n="9" xml:id="fn-9" type="authorial" ana="hc:AuthorialNote">
+        <note place="foot" n="9" xml:id="fn-9" type="authorial"
+              ana="hc:AuthorialNote" wit="#A #A2 #GA" source="#ga-15">
           <quote xml:lang="la" ana="hc:PrimarySourceQuotation"><hi rend="#italic">Deus nihil facit
           necessitate, quia nullo modo cogitur aut prohibetur facere
           aliquid</hi></quote>
@@ -951,7 +1012,8 @@
           <citedRange unit="schmitt">I 190,2ff.</citedRange></bibl>).
         </note>
 
-        <note place="foot" n="10" xml:id="fn-10" type="authorial" ana="hc:AuthorialNote">
+        <note place="foot" n="10" xml:id="fn-10" type="authorial"
+              ana="hc:AuthorialNote" wit="#A #A2 #GA" source="#ga-15">
           <quote xml:lang="la" ana="hc:PrimarySourceQuotation"><hi rend="#italic">Neque enim quaero
           intelligere, ut credam …</hi></quote>
           (<bibl><title ref="works.xml#proslogion" ana="hc:WorkReference" xml:lang="la">Prosl.</title>
@@ -967,7 +1029,8 @@
           <citedRange unit="schmitt">III 281,38f.</citedRange></bibl>).
         </note>
 
-        <note place="foot" n="11" xml:id="fn-11" type="authorial" ana="hc:AuthorialNote">
+        <note place="foot" n="11" xml:id="fn-11" type="authorial"
+              ana="hc:AuthorialNote" wit="#A #A2 #GA" source="#ga-15">
           <quote xml:lang="la" ana="hc:PrimarySourceQuotation"><hi rend="#italic">… non ut me in fide
           confirmes</hi></quote>
           (<bibl><title ref="works.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">C. D. h.</title>
@@ -995,7 +1058,8 @@
           <citedRange unit="schmitt">II 5,7ff.</citedRange></bibl>).
         </note>
 
-        <note place="foot" n="12" xml:id="fn-12" type="authorial" ana="hc:AuthorialNote">
+        <note place="foot" n="12" xml:id="fn-12" type="authorial"
+              ana="hc:AuthorialNote" wit="#A #A2 #GA" source="#ga-15">
           <!-- In dieser Anmerkung trägt B (Vorabdruck 1931) eine
                eigene Anker-Lesart: das Anselm-Zitat ist auf
                "Non … ut" gekürzt. Modelliert als inline <app>
@@ -1019,7 +1083,8 @@
           <citedRange unit="schmitt">II 6,2f.</citedRange></bibl>).
         </note>
 
-        <note place="foot" n="13" xml:id="fn-13" type="authorial" ana="hc:AuthorialNote">
+        <note place="foot" n="13" xml:id="fn-13" type="authorial"
+              ana="hc:AuthorialNote" wit="#A #A2 #GA" source="#ga-16">
           <bibl rend="cf"><title ref="works.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">C. D. h.</title>
           <citedRange unit="book-chapter">I 1</citedRange>,
           <citedRange unit="schmitt">II 48,16–49,2</citedRange></bibl>.
@@ -1041,7 +1106,8 @@
           <citedRange unit="schmitt">I 261,25</citedRange></bibl>).
         </note>
 
-        <note place="foot" n="14" xml:id="fn-14" type="authorial" ana="hc:AuthorialNote">
+        <note place="foot" n="14" xml:id="fn-14" type="authorial"
+              ana="hc:AuthorialNote" wit="#A #A2 #GA" source="#ga-16">
           <quote xml:lang="la" ana="hc:PrimarySourceQuotation"><hi rend="#italic">… nulla difficultas
           aut impossibilitas intelligendi valeat illum a veritate, cui
           per fidem adhaesit, excutere</hi></quote>
@@ -1050,7 +1116,8 @@
           <citedRange unit="schmitt">II 10,15f.</citedRange></bibl>).
         </note>
 
-        <note place="foot" n="15" xml:id="fn-15" type="authorial" ana="hc:AuthorialNote">
+        <note place="foot" n="15" xml:id="fn-15" type="authorial"
+              ana="hc:AuthorialNote" wit="#A #A2 #GA" source="#ga-16">
           <quote xml:lang="la" ana="hc:PrimarySourceQuotation"><hi rend="#italic">… cum ad intellectum
           valet pertingere, delectatur; cum vero nequit, quod capere
           non potest, veneratur</hi></quote>
@@ -1078,7 +1145,8 @@
           <citedRange unit="schmitt">II 21,2f.</citedRange></bibl>).
         </note>
 
-        <note place="foot" n="16" xml:id="fn-16" type="authorial" ana="hc:AuthorialNote">
+        <note place="foot" n="16" xml:id="fn-16" type="authorial"
+              ana="hc:AuthorialNote" wit="#A #A2 #GA" source="#ga-16">
           <quote xml:lang="la" ana="hc:PrimarySourceQuotation"><hi rend="#italic">Rectitudo … qua
           significatio recta dicitur, non habet esse aut aliquem motum
           per significationem, quomodocumque ipsa moveatur
@@ -1088,7 +1156,8 @@
           <citedRange unit="schmitt">I 198,18ff.</citedRange></bibl>).
         </note>
 
-        <note place="foot" n="17" xml:id="fn-17" type="authorial" ana="hc:AuthorialNote">
+        <note place="foot" n="17" xml:id="fn-17" type="authorial"
+              ana="hc:AuthorialNote" wit="#A #A2 #GA" source="#ga-16">
           <bibl><title ref="works.xml#proslogion" ana="hc:WorkReference" xml:lang="la">Prosl.</title>
           <citedRange unit="chapter">1</citedRange>,
           <citedRange unit="schmitt">I 100,18</citedRange></bibl>.
@@ -1108,52 +1177,62 @@
              TextCriticalNote ← EditorialNote).
              ================================================= -->
         <note place="foot" n="a" xml:id="ed-a" type="editorial" ana="hc:VariantNote"
+              resp="#juengel #dalferth" source="#ga-13"
               target="#app-1-a">
           <ref target="#app-1-a">B:</ref>
           <quote>Wir fragen nach</quote>
         </note>
         <note place="foot" n="b" xml:id="ed-b" type="editorial" ana="hc:VariantNote"
+              resp="#juengel #dalferth" source="#ga-13"
               target="#app-1-b">
           <ref target="#app-1-b">B:</ref>
           <quote>auf</quote> [statt <q>eben auf</q>]
         </note>
         <note place="foot" n="c" xml:id="ed-c" type="editorial" ana="hc:VariantNote"
+              resp="#juengel #dalferth" source="#ga-13"
               target="#app-1-c">
           <ref target="#app-1-c">A:</ref>
           <quote>doch nur</quote>
         </note>
         <note place="foot" n="d" xml:id="ed-d" type="editorial" ana="hc:VariantNote"
+              resp="#juengel #dalferth" source="#ga-14"
               target="#app-1-d">
           <ref target="#app-1-d">B:</ref> <q>Theologie</q>
           [nicht gesperrt].
         </note>
         <note place="foot" n="e" xml:id="ed-e" type="editorial" ana="hc:VariantNote"
+              resp="#juengel #dalferth" source="#ga-14"
               target="#app-1-e">
           <ref target="#app-1-e">B:</ref> <q>Glaube</q>
           [nicht gesperrt].
         </note>
         <note place="foot" n="f" xml:id="ed-f" type="editorial" ana="hc:VariantNote"
+              resp="#juengel #dalferth" source="#ga-14"
               target="#app-1-f">
           <ref target="#app-1-f">B:</ref> <quote>der</quote>
           [statt <q>derer</q>]
         </note>
         <note place="foot" n="g" xml:id="ed-g" type="editorial" ana="hc:VariantNote"
+              resp="#juengel #dalferth" source="#ga-14"
               target="#app-1-g">
           <ref target="#app-1-g">B:</ref>
           <q>spontanes</q> [gesperrt].
         </note>
         <note place="foot" n="h" xml:id="ed-h" type="editorial" ana="hc:VariantNote"
+              resp="#juengel #dalferth" source="#ga-15"
               target="#app-1-h">
           <ref target="#app-1-h">B:</ref>
           <quote>führen. Aber auch nicht der,</quote>
           [neuer Satz].
         </note>
         <note place="foot" n="i" xml:id="ed-i" type="editorial" ana="hc:VariantNote"
+              resp="#juengel #dalferth" source="#ga-15"
               target="#app-1-i">
           <ref target="#app-1-i">B:</ref> <quote>also der</quote>
           [statt <q>der</q>]
         </note>
         <note place="foot" n="j" xml:id="ed-j" type="editorial" ana="hc:VariantNote"
+              resp="#juengel #dalferth" source="#ga-15"
               target="#app-1-j">
           <!-- Variantenanker innerhalb der Barth-Anmerkung fn-12.
                B kürzt das Anselm-Zitat zu "Non … ut". -->
@@ -1161,11 +1240,13 @@
           <quote xml:lang="la"><hi rend="#italic">Non … ut</hi></quote>
         </note>
         <note place="foot" n="k" xml:id="ed-k" type="editorial" ana="hc:VariantNote"
+              resp="#juengel #dalferth" source="#ga-16"
               target="#app-1-k">
           <ref target="#app-1-k">B:</ref>
           <q>gemessen</q> [nicht gesperrt].
         </note>
         <note place="foot" n="l" xml:id="ed-l" type="editorial" ana="hc:VariantNote"
+              resp="#juengel #dalferth" source="#ga-16"
               target="#app-1-l">
           <ref target="#app-1-l">A und B:</ref>
           <quote>dazu geschrieben</quote> [statt <q>geschrieben</q>].
