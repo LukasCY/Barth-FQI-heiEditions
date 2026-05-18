@@ -400,20 +400,19 @@
       font-style: italic;
     }
 
-    /* In GA-Ansichten: Farbauszeichnungen dezenter, da sie das
-       Druckbild stören würden. Dotted-Underlines bleiben (für
-       Tooltip-Affordance), aber neutralisiert. */
+    /* Nur im GA-Druck: Farbauszeichnungen dezenter, damit das
+       Schriftbild näher am Druckoriginal wirkt. Dotted-Underlines
+       bleiben (für Tooltip-Affordance), aber neutralisiert.
+       Lesefluss / A / A2 / B / Apparat behalten die Farbgebung,
+       weil sie als Studienansichten primär die extensionale
+       Ebene (Šimek 4) sichtbar machen sollen. */
     body.view-ga-print .tei-rs-SubjectReference,
     body.view-ga-print .tei-persName-PersonReference,
-    body.view-ga-print .tei-title-WorkReference,
-    body.view-ga-read  .tei-rs-SubjectReference,
-    body.view-ga-read  .tei-persName-PersonReference,
-    body.view-ga-read  .tei-title-WorkReference {
+    body.view-ga-print .tei-title-WorkReference {
       color: inherit;
       border-bottom-color: rgba(0,0,0,0.18);
     }
-    body.view-ga-print .tei-quote-PrimarySourceQuotation,
-    body.view-ga-read  .tei-quote-PrimarySourceQuotation {
+    body.view-ga-print .tei-quote-PrimarySourceQuotation {
       color: inherit;
     }
 
