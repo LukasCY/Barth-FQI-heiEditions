@@ -806,6 +806,11 @@
         <span class="cite-text"></span>
         <button class="cite-copy" title="In Zwischenablage kopieren">Kopieren</button>
       </div>
+      <div class="cite-row" data-format="digital">
+        <span class="cite-label">Digitalisat</span>
+        <span class="cite-text"></span>
+        <button class="cite-copy" title="In Zwischenablage kopieren">Kopieren</button>
+      </div>
     </div>
   </details>
 
@@ -2131,7 +2136,50 @@
         (publisher ? ": " + publisher : "") +
         (year ? " " + year : "") + ".";
 
-      return { chicago, apa, tuebingen: tueb };
+      // ----------------------------------------------------------
+      // Digitalisat: Diese digitale Edition als eigenständige
+      // Zitierangabe. Datenquelle: <titleStmt> + <publicationStmt>
+      // des Haupt-XML.
+      // ----------------------------------------------------------
+      const ts = xmlDoc.querySelector("titleStmt");
+      const ps = xmlDoc.querySelector("publicationStmt");
+
+      // Bearbeiter dieser digitalen Edition (responseStmt/persName).
+      const encoderEl = ts ? ts.querySelector(
+        'respStmt persName[*|id="encoder-chen"], respStmt persName'
+      ) : null;
+      const encoderName = textOf(encoderEl);
+
+      // Teiltitel (z.B. "§ 1: Die Notwendigkeit der Theologie") —
+      // präzisiert, *welcher* Abschnitt digital ediert ist.
+      const partTitle = ts
+        ? textOf(ts.querySelector('title[type="part"]'))
+        : "";
+
+      const digiPublisher = ps ? textOf(ps.querySelector("publisher")) : "";
+      const digiDateEl    = ps ? ps.querySelector("date") : null;
+      const digiYear      = digiDateEl
+        ? (digiDateEl.getAttribute("when") || textOf(digiDateEl))
+        : "";
+
+      // URL: aktueller Standort, ohne Query/Fragment, damit die
+      // Zitierung beim Wechsel der Ansicht stabil bleibt.
+      const digiURL = (typeof window !== "undefined" && window.location)
+        ? window.location.origin + window.location.pathname
+        : "";
+
+      // Format: Encoder (Hg.): <Werktitel>, <Teiltitel>
+      //         — <Edition-Beschreibung>, <Jahr>, URL <link>.
+      const digital =
+        (encoderName ? encoderName + " (Hg.): " : "") +
+        (titleMain ? "<i>" + titleMain + "</i>" : "") +
+        (partTitle ? ", " + partTitle : "") +
+        (digiPublisher ? " — " + digiPublisher : "") +
+        (digiYear ? ", " + digiYear : "") +
+        (digiURL ? ", URL: " + digiURL : "") +
+        ".";
+
+      return { chicago, apa, tuebingen: tueb, digital };
     }
 
     function fillCitationBar(xmlDoc) {
