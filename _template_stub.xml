@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-model href="https://tei-c.org/release/xml/tei/custom/schema/relaxng/tei_all.rng"
+            type="application/xml"
+            schematypens="http://relaxng.org/ns/structure/1.0"?>
+<!--
+    =================================================================
+    TEMPLATE: Part-Datei für die digitale Edition
+              Karl Barth, Fides quaerens intellectum (GA II.13).
+    =================================================================
+
+    Zweck dieser Datei
+    ==================
+    Dieses Template dokumentiert die strukturelle Konstanz aller
+    künftigen Part-Dateien der Edition. Es ist *kein* funktionaler
+    Bestandteil der Edition; im Viewer wird es nicht geladen, und
+    die TOC verweist nicht auf es. Es liegt dem Repository bei,
+    damit jede künftige Section nach demselben Muster angelegt
+    werden kann.
+
+    Hinweis zur Schreibweise dieses Kommentars: Da XML in Kommentaren
+    keine doppelten Minuszeichen erlaubt, werden visuelle Trennlinien
+    hier mit Gleichheitszeichen gezogen. In den unten erscheinenden
+    Hinweisen auf TEI-Elemente steht statt der literalen
+    spitzen-Klammer-Notation der Elementname kursiviert in einfachen
+    Anführungszeichen, z. B. 'pb', 'div'.
+
+    Bei Anlage einer neuen Part-Datei
+    =================================
+    1. Datei kopieren als fqi-PART-NAME.xml
+       (Konvention der Namensgebung: vgl. README, Tabelle
+       "Datei-Architektur"; und vgl. die im TOC-Inhaltsverzeichnis
+       verwendeten ref-target-Werte).
+
+    2. Folgende {{PLACEHOLDER}}-Werte ersetzen:
+       {{ROOT_XML_ID}}     z. B. "fqi-part-II-A"
+       {{ROOT_XML_LANG}}   "de" für Werktext; bei Übersetzungen
+                           "zh-CN", "en" etc. (BCP-47)
+       {{PART_LABEL_N}}    z. B. "II.A" oder "II.B"; oder
+                           "front", "anhang", "register" für die
+                           entsprechenden Buchteile
+       {{PART_TITLE_FULL}} z. B. "Kapitel II.A. Die Voraussetzungen"
+       {{PART_TITLE_SHORT}} kurze Variante für titleStmt-Teiltitel
+       {{FIRST_PAGE}}      niedrigste GA-Seite der Datei
+       {{LAST_PAGE}}       höchste GA-Seite der Datei
+       {{DIV_TYPE_OUTER}}  "chapter" für Kap II.A/II.B (siehe
+                           Hinweis zu Kapitel II unten);
+                           wenn Frontmatter, dann entfällt der
+                           'body'-Container und 'front' wird zum
+                           Top-Container; bei Anhang und Register
+                           wird 'back' Top-Container
+       {{DIV_XML_ID_OUTER}} z. B. "part-II-A" oder "anhang"
+       {{DIV_N_OUTER}}     z. B. "II.A", "II.B"; entfällt bei
+                           "front" und "back"
+
+    Strukturelle Konstanten (NICHT zu verändern)
+    ============================================
+    (a) Drei-stufige titleStmt: Serie (level=s) zweimal +
+        Monographie (level=m) zweimal + Teiltitel (type=part,
+        level=m). Begründung: FRBR-Bewußtsein (vgl. README,
+        Abschnitt "Extensibility =Editions Layer"); konsistent
+        zwischen allen Part-Dateien.
+    (b) sourceDesc reduziert auf einen bibl-Verweis (corresp=
+        "fqi-toc.xml#fqi-witnesses"). Die vier textgeschichtlichen
+        Zeugen (A/B/A2/GA) sind ausschließlich in fqi-toc.xml
+        deklariert; alle Part-Dateien teilen diese Deklaration
+        und verweisen nicht-redundant zurück.
+    (c) encodingDesc entfällt vollständig. editorialDecl,
+        tagsDecl (Renditions #letter-spaced, #italic), classDecl
+        (citation-units-Taxonomie) und projectDesc sind in
+        fqi-toc.xml zentralisiert. Trade-off: Part-Dateien sind
+        nicht *standalone* validierbar gegen ihre Rendition-
+        Referenzen; im Viewer-Setup wird die TOC jedoch immer
+        mitgeladen, daher akzeptabel. Vgl. README, Abschnitt
+        "Standalone validation".
+    (d) profileDesc/langUsage bleibt lokal. Sie kann von
+        Part-Datei zu Part-Datei minimal variieren (z. B. eine
+        Datei ohne lateinische Zitate würde ident="la" weglassen).
+    (e) revisionDesc entfällt. Change-History wird projektweit
+        in fqi-toc.xml geführt.
+    (f) heiEDITIONS-Namespace xmlns:hc wird unverändert übernommen
+        (zentrale Elemente per @ana an die Klassenontologie
+        gebunden; vgl. README).
+
+    Inhaltsstruktur einer typischen Part-Datei (schematisch)
+    ========================================================
+    body
+      div type={{outer}} n={{n}} xml:id={{id}}
+
+        Optional, nur bei Buchteil-Eröffnung mit Druckvorlagen-
+        Titelseite + Vakatseite: zwei pb-Marker.
+        Vorgabe der Druckvorlage: ungerade Seite mit Großtitel,
+        gerade Vakatseite. Für Kap I dann etwa:
+          pb n="11" ed="#GA" type="titlepage"
+          head type="chapter-titlepage"
+            hi rend="#letter-spaced" mit dem Kapiteltitel
+          /head
+          pb n="12" ed="#GA" type="blank"
+        Im Druck-Scroll-Modus werden Vakatseiten als materielle
+        Seiten ohne Inhalt dargestellt; im Lesefluß-Modus werden
+        sie versteckt.
+
+        Eine oder mehrere div type="section":
+          div type="section" n="X.Y" xml:id="sec-X-Y"
+            pb n="..." ed="#GA" xml:id="ga-..."
+            head ... /head
+            p
+              Volltext, oder bei stub: leerer p mit TODO-Kommentar.
+            /p
+          /div
+
+      /div
+    /body
+
+    Sonderfall: Kapitel II als Aggregat zweier Part-Dateien
+    =======================================================
+    Kapitel II ("Der Beweis der Existenz Gottes") überspannt die
+    Seiten 73 bis 174 und ist auf zwei Part-Dateien aufgeteilt:
+    fqi-part-II-A.xml (Abschnitt A, S. 73 bis 102) und
+    fqi-part-II-B.xml (Abschnitt B, S. 103 bis 174). Das wirft die
+    Frage auf, wie der übergreifende div type="chapter" n="II"-
+    Wrapper auf zwei Dateien zu verteilen ist. Drei Optionen sind
+    methodisch möglich:
+
+      (a) Beide Dateien öffnen je div type="chapter" n="II"
+          xml:id="part-II-fragment-A" bzw. ...fragment-B ohne
+          sauberen Abschluß. XML-formal sauber, aber semantisch
+          erklärungsbedürftig.
+
+      (b) Auf die div type="chapter"-Ebene verzichten und je eine
+          div type="part" xml:id="part-II-A" bzw. ...II-B als
+          Top-Wrapper verwenden. Verliert die Kap-II-Information
+          auf TEI-Ebene; sie liegt nur noch im TOC.
+
+      (c) Beide Dateien öffnen je div type="chapter" n="II"
+          xml:id="part-II-A" bzw. ...II-B. Der xml:id ist
+          unterschiedlich (technisch sauber), der n-Wert identisch
+          (semantisch ehrlich: dieselbe Kap-II-Zugehörigkeit).
+          Der Viewer behandelt die beiden Dateien beim Klick auf
+          den Kap-II-Aggregate-Knoten als zusammengehöriges Kapitel.
+
+    Entscheidung: Option (c) (vgl. Entscheidung in
+    PROJECT-STATE.md und README). Trade-off-Begründung: die
+    Aufspaltung ist allein der Engineering-Granularität geschuldet
+    (Datei-Größe), nicht der editionsphilologischen Struktur.
+    Variante (c) kommuniziert dies am ehrlichsten: jede Datei ist
+    in sich ein wohlgeformter Kap-II-Ausschnitt, die volle Kap-II-
+    Einheit wird durch das TOC-Aggregat rekonstruiert.
+
+    Für fqi-frontmatter.xml und fqi-anhang.xml und fqi-register.xml
+    ===============================================================
+    Diese Dateien führen keinen div type="chapter", sondern direkt
+    eine oder mehrere div-Schwestern unter ihrem Top-Container.
+
+    fqi-frontmatter.xml ist semantisch front, nicht body: hier wird
+    front als Top-Container statt body verwendet, und die einzelnen
+    Vorworte sind div type="preface" (Vorworte 1. und 2.) bzw.
+    div type="preface" subtype="editorial" (Vorwort der Hrsg.) bzw.
+    div type="introduction" (Einleitung).
+
+    fqi-anhang.xml und fqi-register.xml verwenden back als
+    Top-Container, mit div type="appendix" bzw. div type="index"
+    als Sektions-Wrapper.
+
+    Inkrementeller Workflow (für künftige Schritte)
+    ===============================================
+    1. Datei aus diesem Template kopieren und Platzhalter ersetzen.
+    2. Im TOC (fqi-toc.xml) den entsprechenden item finden und
+       note type="encoding-status">nicht-kodiert wechseln zu stub
+       (Datei existiert nun mit Skelett-Inhalt).
+    3. Wenn eine Section voll transkribiert wird, deren Status
+       von stub zu kodiert ändern.
+    4. Bei mehreren parallelen Section-Volltexten in derselben
+       Part-Datei: der TOC-Status des Part-Knotens bleibt stub,
+       solange mindestens eine Subsection nicht-kodiert ist;
+       wechselt zu kodiert erst, wenn alle Subsections kodiert
+       sind. (Faustregel; nicht durch Schematron erzwungen.)
+    5. revisionDesc-Eintrag in fqi-toc.xml hinzufügen, der die
+       Anlage der neuen Part-Datei dokumentiert.
+    =================================================================
+-->
+<TEI xmlns="http://www.tei-c.org/ns/1.0"
+     xmlns:hc="https://lod.ub.uni-heidelberg.de/ontologies/heieditions/hc/current/"
+     xml:id="{{ROOT_XML_ID}}" xml:lang="{{ROOT_XML_LANG}}">
+
+  <!-- {{PART_TITLE_FULL}}
+       Datei {{ROOT_XML_ID}}.xml, GA-Seiten {{FIRST_PAGE}} bis {{LAST_PAGE}} -->
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title type="main" level="s">Karl Barth Gesamtausgabe</title>
+        <title type="sub"  level="s">II. Akademische Werke</title>
+        <title type="main" level="m">Fides quaerens intellectum</title>
+        <title type="sub"  level="m">Anselms Beweis der Existenz Gottes
+          im Zusammenhang seines theologischen Programms</title>
+        <title type="part" level="m" n="{{PART_LABEL_N}}"
+               >{{PART_TITLE_SHORT}}</title>
+        <author>
+          <persName ref="persons-heiEDITIONS.xml#barth">Karl Barth</persName>
+        </author>
+        <editor role="editor-volume">
+          <persName ref="persons-heiEDITIONS.xml#juengel">Eberhard Jüngel</persName>
+        </editor>
+        <editor role="editor-volume">
+          <persName ref="persons-heiEDITIONS.xml#dalferth">Ingolf U. Dalferth</persName>
+        </editor>
+        <respStmt>
+          <resp>Digitale Edition, TEI-Encoding,
+            heiEDITIONS-Anbindung</resp>
+          <persName ref="persons-heiEDITIONS.xml#bearbeiter">Yu Chen</persName>
+        </respStmt>
+      </titleStmt>
+
+      <publicationStmt>
+        <publisher>Prototyp einer digitalen Edition
+          (Portfolio, nicht offiziell publiziert)</publisher>
+        <availability status="restricted">
+          <licence target="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+            CC BY-NC-SA 4.0 für die TEI-Datenmodellierung,
+            Encoding-Entscheidungen und Apparat-Tiefenerschließung;
+            der edierte Text selbst bleibt urheberrechtlich beim
+            Theologischen Verlag Zürich (©1981 TVZ, Karl Barth
+            Gesamtausgabe).
+          </licence>
+        </availability>
+        <date when="2026">2026</date>
+      </publicationStmt>
+
+      <sourceDesc>
+        <bibl corresp="fqi-toc.xml#fqi-witnesses">
+          Vier textgeschichtliche Zeugen (A = 1. Aufl. 1931;
+          B = Vorabdruck ZThK.NF 12, 1931, nur für GA-S. 13 bis 20;
+          A2 = 2. Aufl. 1958; GA = Gesamtausgabe-Edition 1981/³2002)
+          sind im listWit der Einstiegsdatei <ref
+          target="fqi-toc.xml#fqi-witnesses">fqi-toc.xml</ref>
+          deklariert.
+        </bibl>
+      </sourceDesc>
+    </fileDesc>
+
+    <profileDesc>
+      <langUsage>
+        <language ident="de">Deutsch (Haupttext)</language>
+        <language ident="la">Latein (Zitate aus Anselm; Fachterminologie)</language>
+      </langUsage>
+    </profileDesc>
+  </teiHeader>
+
+  <text>
+    <front>
+      <!-- Lokales front bleibt leer; das Werk-Inhaltsverzeichnis
+           liegt in fqi-toc.xml. Ausnahme: fqi-frontmatter.xml
+           verwendet front als Top-Container für die Vorworte;
+           dann entfällt das body unten. -->
+    </front>
+
+    <body>
+      <div type="{{DIV_TYPE_OUTER}}" n="{{DIV_N_OUTER}}"
+           xml:id="{{DIV_XML_ID_OUTER}}">
+
+        <!-- Optional, nur bei Buchteil-Eröffnung mit Titelseite
+             + Vakat, zwei pb-Marker hier einsetzen. Beispiel:
+             pb n="{{FIRST_PAGE}}" ed="#GA" type="titlepage"
+                xml:id="ga-{{FIRST_PAGE}}"
+             head type="chapter-titlepage"
+               hi rend="#letter-spaced" mit dem Kapiteltitel
+             /head
+             pb n="{{FIRST_PAGE_PLUS_1}}" ed="#GA" type="blank"
+                xml:id="ga-{{FIRST_PAGE_PLUS_1}}"
+             Nicht-Buchteil-Eröffnungs-Dateien (z. B.
+             fqi-part-II-B.xml, die mitten im Werk anfängt) lassen
+             den Titelseiten-Block weg. -->
+
+        <!-- Eine div type="section" pro Sektion im TOC. -->
+
+        <div type="section" n="{{SECTION_N}}" xml:id="{{SECTION_XML_ID}}">
+          <pb n="{{SECTION_FIRST_PAGE}}" ed="#GA"
+              xml:id="ga-{{SECTION_FIRST_PAGE}}"/>
+          <head>
+            <num>{{SECTION_NUMBER}}.</num>
+            <hi rend="#letter-spaced">{{SECTION_TITLE}}</hi>
+          </head>
+          <p>
+            <!-- TODO: Volltext-Transkription von Section
+                 {{SECTION_N}} (GA II.13, S. {{SECTION_FIRST_PAGE}}
+                 bis ...). Beim Transkribieren nach folgendem Schema
+                 kodieren:
+                 (1) Šimek-Ebenen 1 bis 5 in Bearbeitungsreihenfolge
+                     (vgl. fqi-toc.xml, editorialDecl, dim-1 bis dim-5);
+                 (2) Apparat-Sigel a, b, c kapitelweise fortlaufend
+                     (vgl. fqi-toc.xml, ed-richtlinien, er-4);
+                 (3) Barths Anmerkungen 1, 2, 3 kapitelweise
+                     fortlaufend. -->
+          </p>
+        </div>
+
+      </div>
+    </body>
+  </text>
+</TEI>

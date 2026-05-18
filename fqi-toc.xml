@@ -1,0 +1,1196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-model href="https://tei-c.org/release/xml/tei/custom/schema/relaxng/tei_all.rng"
+            type="application/xml"
+            schematypens="http://relaxng.org/ns/structure/1.0"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0"
+     xmlns:hc="https://lod.ub.uni-heidelberg.de/ontologies/heieditions/hc/current/"
+     xml:id="fqi-toc" xml:lang="de">
+
+  <!-- =========================================================
+       Karl Barth Gesamtausgabe, II. Akademische Werke
+       Fides quaerens intellectum (FQI), 1931 / GA II.13 (1981, ³2002).
+
+       Diese Datei (fqi-toc.xml) ist die Einstiegsdatei der Multi-
+       File-Edition. Sie hält zentralisiert (gemäß Strategie der
+       Metadaten-Zentralisierung):
+         a) sämtliche projektübergreifenden teiHeader-Anteile
+            (listWit, editorialDecl, projectDesc, tagsDecl,
+             langUsage, textClass, revisionDesc, classDecl/taxonomy);
+         b) das vollständige Inhaltsverzeichnis des Bandes, das
+            der Viewer beim Start zur Konstruktion der TOC-Spalte
+            fetcht.
+
+       Multi-File-Architektur (7 Dateien): Die Aufteilung folgt
+       der Kapitel-/Großabschnittsebene, nicht der §-Ebene
+       (rd. 5700 Zeichen Body je Druckseite × ~190 Druckseiten
+       ergäbe single-file rund 1.1 MB — technisch unproblematisch,
+       aber multi-file vermittelt scope discipline gegenüber
+       Reviewern und ermöglicht spätere BCP-47-Sprachvarianten
+       pro Großabschnitt). Die §-Granularität bleibt durch
+       interne <div type="section">-xml:ids vollständig erhalten;
+       der Viewer kann jeden § via Anker fqi-part-X.xml#sec-Y
+       direkt anspringen.
+
+       Die Part-Dateien (fqi-part-I.xml usw.) tragen einen
+       schlanken teiHeader; sie verweisen via
+       <bibl corresp="fqi-toc.xml#fqi-witnesses"/> hierher zurück.
+
+       Strukturprinzip der Kodierung folgt durchgängig Šimek 2022,
+       "fünf editionsrelevante Textdimensionen": semantisch-
+       logisch, visuell-materiell, linguistisch, extensional
+       (work-vs-manifestation-bewußt im Sinne FRBR) sowie
+       Überlieferungsvarianz. Vgl. die Deklaration in
+       <editorialDecl> unten.
+
+       Methodische Differenzierung interoperability / interchange
+       nach Holmes 2017: das Projekt strebt Interchange-Qualität
+       gegenüber heiEDITIONS an, nicht volle Interoperabilität.
+       Dies wird im README-Abschnitt "Interchange, not
+       interoperability" ausführlich begründet.
+       ========================================================= -->
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title type="main" level="s">Karl Barth Gesamtausgabe</title>
+        <title type="sub"  level="s">II. Akademische Werke</title>
+        <title type="main" level="m">Fides quaerens intellectum</title>
+        <title type="sub"  level="m">Anselms Beweis der Existenz Gottes
+          im Zusammenhang seines theologischen Programms</title>
+        <title type="desc">Editions-Einstiegsdatei: Metadaten,
+          Editionsrichtlinien und Gesamtinhaltsverzeichnis</title>
+        <author>
+          <persName ref="persons-heiEDITIONS.xml#barth"
+                    xml:id="author-barth">Karl Barth</persName>
+        </author>
+        <!-- Reihen-Hrsg. der Karl Barth Gesamtausgabe.
+             Stoevesandt: historischer Reihen-Hrsg.; Drewes: aktueller
+             Reihen-Hrsg. zum Zeitpunkt der 3. Aufl. 2002. -->
+        <editor role="editor-series" subtype="historical">
+          <persName ref="persons-heiEDITIONS.xml#stoevesandt">Hinrich Stoevesandt</persName>
+        </editor>
+        <editor role="editor-series" subtype="current">
+          <persName ref="persons-heiEDITIONS.xml#drewes">Hans-Anton Drewes</persName>
+        </editor>
+        <!-- Bandherausgeber von GA II.13. -->
+        <editor role="editor-volume">
+          <persName ref="persons-heiEDITIONS.xml#juengel">Eberhard Jüngel</persName>
+        </editor>
+        <editor role="editor-volume">
+          <persName ref="persons-heiEDITIONS.xml#dalferth">Ingolf U. Dalferth</persName>
+        </editor>
+        <funder>
+          <orgName ref="persons-heiEDITIONS.xml#kb-stiftung">Karl Barth-Stiftung</orgName>
+        </funder>
+        <respStmt>
+          <resp>Digitale Edition, TEI-Encoding,
+            heiEDITIONS-Anbindung</resp>
+          <persName ref="persons-heiEDITIONS.xml#bearbeiter"
+                    xml:id="encoder-chen">Yu Chen</persName>
+        </respStmt>
+      </titleStmt>
+
+      <publicationStmt>
+        <publisher>Prototyp einer digitalen Edition
+          (Portfolio, nicht offiziell publiziert)</publisher>
+        <availability status="restricted">
+          <licence target="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+            CC BY-NC-SA 4.0 für die TEI-Datenmodellierung,
+            Encoding-Entscheidungen und Apparat-Tiefenerschließung;
+            der edierte Text selbst bleibt urheberrechtlich beim
+            Theologischen Verlag Zürich (©1981 TVZ, Karl Barth
+            Gesamtausgabe).
+          </licence>
+        </availability>
+        <date when="2026">2026</date>
+      </publicationStmt>
+
+      <sourceDesc>
+        <!-- ============================================
+             listWit: vier textgeschichtliche Zeugen.
+             Zentralisiert für alle Section-Dateien;
+             diese referenzieren via @corresp auf
+             #fqi-witnesses.
+
+             Sigel-Konvention nach Vorwort GA II.13, S. XIf.:
+               A  = 1. Auflage 1931 (Chr. Kaiser / München)
+               B  = Vorabdruck 1931 (Kattenbusch-FS, ZThK.NF)
+                    — nur für GA S. 13–20 relevant!
+               A2 = 2. Aufl. 1958 (Leithandschrift der
+                    Neuausgabe; inhaltlich identisch mit GA
+                    außer an 5 explizit gemeldeten Stellen)
+               GA = Neuausgabe innerhalb der Gesamtausgabe
+                    (1. Aufl. 1981, hier zit. n. 3. Aufl. 2002,
+                    ISBN 3-290-17247-3)
+             ============================================ -->
+        <listWit xml:id="fqi-witnesses">
+          <witness xml:id="A">
+            <bibl>
+              <author>Karl Barth</author>
+              <title type="main">Fides quaerens intellectum</title>
+              <title type="sub">Anselms Beweis der Existenz Gottes
+                im Zusammenhang seines theologischen Programms</title>
+              <series>
+                <title>Forschungen zur Geschichte und Lehre des
+                  Protestantismus</title>
+                <biblScope unit="reihe">IV</biblScope>
+                <biblScope unit="band">3</biblScope>
+                <editor>P. Althaus</editor>
+                <editor>K. Barth</editor>
+                <editor>K. Heim</editor>
+              </series>
+              <pubPlace>München</pubPlace>
+              <publisher>Chr. Kaiser</publisher>
+              <date when="1931">1931</date>
+              <extent>X, 199 S.</extent>
+              <note>Erstausgabe. Widmungstext: <q xml:lang="de">Der
+                hochwürdigen theologischen Fakultät der Universität
+                Glasgow als Zeichen des Dankes für die dem Verfasser
+                am 18. Juni 1930 verliehene Würde eines D. D.
+                ehrerbietigst gewidmet</q> (entfällt ab 2. Aufl.).</note>
+            </bibl>
+          </witness>
+
+          <witness xml:id="B">
+            <bibl>
+              <author>Karl Barth</author>
+              <title type="main">Die Notwendigkeit der Theologie bei
+                Anselm von Canterbury</title>
+              <note>Vorabdruck des ersten Abschnitts des ersten
+                Kapitels (= GA II.13, S. 13–20).</note>
+              <title type="hostFestschrift">Festgabe für Ferdinand
+                Kattenbusch zu seinem 80. Geburtstag</title>
+              <title type="hostJournal">Zeitschrift für Theologie
+                und Kirche</title>
+              <biblScope unit="series">N. F.</biblScope>
+              <biblScope unit="jg">12</biblScope>
+              <biblScope unit="page" from="350" to="358">350–358</biblScope>
+              <date when="1931">1931</date>
+              <!-- Geltungsbereich des Zeugen B (maschinenlesbar):
+                   B deckt ausschließlich GA II/13, S. 13–20 ab
+                   (= § 1 "Die Notwendigkeit der Theologie").
+                   Der Viewer wertet biblScope[unit="ga-page"] aus,
+                   um den B-Schalter außerhalb dieses Bereichs zu
+                   deaktivieren. -->
+              <biblScope unit="ga-page" from="13" to="20"/>
+              <note>Geltungsbereich des Sigels B: <emph>nur</emph>
+                S. 13–20 der GA-Ausgabe. Außerhalb dieses Bereichs
+                steht B nicht für eine eigenständige Lesart zur
+                Verfügung.</note>
+            </bibl>
+          </witness>
+
+          <witness xml:id="A2">
+            <bibl>
+              <author>Karl Barth</author>
+              <title>Fides quaerens intellectum. Anselms Beweis der
+                Existenz Gottes im Zusammenhang seines theologischen
+                Programms</title>
+              <edition n="2">2., neu durchgesehene Auflage</edition>
+              <pubPlace>Zollikon-Zürich</pubPlace>
+              <publisher>Evangelischer Verlag</publisher>
+              <date when="1958">1958</date>
+              <note>Gleichzeitige Lizenzausgabe der Wissenschaftlichen
+                Buchgesellschaft, Darmstadt. — Letzte von Barth selbst
+                besorgte Auflage; inhaltliche Leithandschrift der
+                GA-Edition. Wird im Apparat nicht eigens
+                referenziert, weil der GA-Text (außer an 5 explizit
+                gemeldeten Stellen) identisch ist.</note>
+              <note>Die 3. Auflage 1966 (Zollikon, EVZ-Verlag) wurde
+                <q xml:lang="de">ab Stehsatz</q> nach der 2. Aufl. im
+                Bleisatz nachgedruckt und enthält ausschließlich
+                einen Druckfehler auf S. 103
+                (<q xml:lang="de">Duchrführung</q> statt
+                <q xml:lang="de">Durchführung</q>); sie wird daher
+                textgeschichtlich nicht als eigener Zeuge geführt.</note>
+            </bibl>
+          </witness>
+
+          <witness xml:id="GA">
+            <bibl>
+              <author>Karl Barth</author>
+              <title type="main">Fides quaerens intellectum. Anselms
+                Beweis der Existenz Gottes im Zusammenhang seines
+                theologischen Programms</title>
+              <title type="series-main">Karl Barth Gesamtausgabe</title>
+              <biblScope unit="abteilung">II</biblScope>
+              <biblScope unit="abteilung-titel">Akademische Werke</biblScope>
+              <biblScope unit="band">13</biblScope>
+              <editor>Eberhard Jüngel</editor>
+              <editor>Ingolf U. Dalferth</editor>
+              <edition n="1" subtype="ga">1. Aufl. der GA-Edition</edition>
+              <pubPlace>Zürich</pubPlace>
+              <publisher>Theologischer Verlag Zürich</publisher>
+              <date when="1981">1981</date>
+              <idno type="ISBN">3-290-17247-3</idno>
+              <note>Leithandschrift dieser digitalen Edition zitiert
+                aus der 3. Aufl. 2002 (unverändert ggü. 1981).</note>
+              <relatedItem type="reprint">
+                <bibl>
+                  <edition n="3" subtype="ga">3. Aufl. der GA-Edition</edition>
+                  <date when="2002">2002</date>
+                  <publisher>Theologischer Verlag Zürich</publisher>
+                  <respStmt>
+                    <resp>Druck</resp>
+                    <orgName>ROSCH BUCH GmbH</orgName>
+                    <placeName>Scheßlitz</placeName>
+                  </respStmt>
+                </bibl>
+              </relatedItem>
+            </bibl>
+          </witness>
+        </listWit>
+
+        <msDesc>
+          <msIdentifier>
+            <country>Deutschland</country>
+            <settlement>Heidelberg</settlement>
+            <repository>Privatbestand des Bearbeiters
+              (parallel UB Heidelberg, Signatur tba)</repository>
+            <idno>GA II.13, 3. Aufl. 2002</idno>
+          </msIdentifier>
+          <physDesc>
+            <objectDesc form="print">
+              <supportDesc>
+                <support>Gedrucktes Buch</support>
+              </supportDesc>
+            </objectDesc>
+            <typeDesc>
+              <typeNote>Antiqua für deutschen Haupttext, Kursivsatz
+                für fremdsprachliche (überwiegend lateinische)
+                Wendungen, Sperrsatz für Hervorhebungen — eine
+                typographische Festlegung, die nach Vorwort
+                S. XII ausdrücklich aus der 2. Aufl. 1958
+                übernommen und entgegen den allgemeinen
+                Editionsrichtlinien der GA beibehalten wurde,
+                <q xml:lang="de">um der besonderen Eigenart dieses
+                Textes Rechnung zu tragen</q>.</typeNote>
+            </typeDesc>
+          </physDesc>
+        </msDesc>
+      </sourceDesc>
+    </fileDesc>
+
+    <encodingDesc>
+      <projectDesc>
+        <p xml:id="proj-scope">Diese digitale Edition (Portfolio-
+          Demonstrator) modelliert Karl Barths <title type="m">Fides
+          quaerens intellectum</title> (1931) auf Grundlage des
+          Textes der Karl Barth Gesamtausgabe, Band II.13 (Zürich:
+          TVZ, ³2002). Im aktuellen Stand ist § 1 (Die Notwendigkeit
+          der Theologie, GA S. 13–19) als minimal vollständiger
+          Showcase aller fünf editionsrelevanten Textdimensionen
+          nach <bibl><author>Šimek</author>, <date>2022</date>:
+          <title>heiEDITIONS</title></bibl> kodiert. Die übrigen
+          Buchabschnitte sind im Inhaltsverzeichnis (siehe
+          <gi>front</gi>-Bereich dieser Datei) vollständig
+          erschlossen, aber bewußt <emph>nicht</emph> als leere
+          Stub-Dateien materialisiert: ihr Editions-Status ist
+          <val>nicht-kodiert</val>. Zur skalierbaren Anlage neuer
+          Section-Volltexte liegt ein dokumentiertes Template
+          (<ref target="_template_stub.xml"
+          >_template_stub.xml</ref>) bei, das die strukturelle
+          Konstanz aller späteren Section-Dateien gewährleistet.
+          Vgl. README, Abschnitt <emph>Adding new sections —
+          stub workflow</emph>.</p>
+
+        <p xml:id="proj-heieditions-conform">Die Edition bindet
+          zentrale TEI-Elemente zusätzlich an die Klassenontologie
+          <ref target="https://heieditions.github.io/concepts/concepts.html"
+          >heiEDITIONS Concepts</ref> (Heidelberger UB, RDF/OWL,
+          LOD-URIs). Verwendet werden die Klassen
+          <code>hc:SubjectReference</code> (auf <gi>rs</gi>),
+          <code>hc:PrimarySourceQuotation</code> (auf <gi>quote</gi>),
+          <code>hc:AuthorialNote</code> und <code>hc:VariantNote</code>
+          (auf <gi>note</gi>), <code>hc:PersonReference</code> (auf
+          <gi>persName</gi>) und <code>hc:WorkReference</code> (auf
+          <gi>title</gi>). Die letzten beiden weichen bewußt von der
+          heiEDITIONS-Vorgabe (<gi>rs</gi>) ab, um die semantische
+          Sub-Spezifizierung der TEI-Elemente <gi>persName</gi> und
+          <gi>title</gi> zu erhalten; vgl. README, Abschnitt zur
+          Interoperabilität nach Holmes 2017.</p>
+
+        <p xml:id="proj-interchange">Im Sinne der Differenzierung
+          nach <bibl><author>Holmes</author>, <date>2017</date>:
+          <title>Whatever happened to interchange?</title></bibl>
+          strebt das Projekt <emph>Interchange-Qualität</emph>
+          (nicht vollständige Interoperabilität) gegenüber der
+          heiEDITIONS-Infrastruktur an: die TEI-Daten sind strukturell,
+          semantisch und dokumentarisch so aufbereitet, daß sie mit
+          vertretbarem Aufwand in heiEDITIONS oder vergleichbare
+          Editionsumgebungen übernommen werden könnten, ohne daß
+          die hier verwendete Frontend-/Datenbankschicht selbst
+          mit heiEDITIONS identisch wäre.</p>
+      </projectDesc>
+
+      <!-- ============================================
+           editorialDecl: zwei Teile —
+           (A) Šimeks fünf editionsrelevante Textdimensionen,
+               explizit deklariert (dim-1…dim-5);
+           (B) die acht aus dem Vorwort der GA-Hrsg. abgeleiteten
+               Editionsrichtlinien (er-1…er-8).
+           ============================================ -->
+      <editorialDecl>
+
+        <p xml:id="ed-decl-base">Grundlage der Transkription ist eine
+          ABBYY-OCR-Ausgabe der jeweiligen Druckseiten von GA II.13
+          (3. Aufl. 2002). Die OCR wird gegen das PDF-Original Seite
+          für Seite korrigiert. Offensichtliche OCR-Artefakte
+          (z. B. <mentioned>intetilgens</mentioned> statt
+          <mentioned>intelligens</mentioned>;
+          <mentioned>ineam.</mentioned> statt
+          <mentioned>incarn.</mentioned>) werden <emph>stillschweigend
+          korrigiert</emph>, da sie nicht zum überlieferten Text
+          gehören. Die Liste dieser Korrekturen wird in einer
+          Begleitdatei <ident>ocr-corrections.tsv</ident> separat
+          dokumentiert.</p>
+
+        <!-- ============================================
+             Šimek-Fünf-Ebenen-Deklaration
+             (Schlüsselsignal an Reviewer, daß die Edition
+              methodisch auf den von Šimek 2022 formulierten
+              fünf Textdimensionen aufruht.)
+             ============================================ -->
+        <p xml:id="ed-decl-dimensions-intro">Die Kodierung folgt
+          methodisch den fünf editionsrelevanten Textdimensionen
+          nach <bibl><author>Šimek</author>, <date>2022</date>:
+          <title>heiEDITIONS – eine Heidelberger Infrastruktur
+          für Editionen (nicht nur) mittelalterlicher Texte</title>,
+          in: <title type="j">BmE Themenheft</title> 12,
+          S. 27–46</bibl>. Die fünf Dimensionen werden im folgenden
+          einzeln deklariert; sie bilden zugleich die
+          Bearbeitungsreihenfolge in der Kodierung jeder einzelnen
+          Section-Datei.</p>
+
+        <p xml:id="dim-1"><label>Ebene 1 — semantisch-logisch.</label>
+          Sinneinheiten des Textes: Kapitel (<gi>div type="chapter"</gi>),
+          Abschnitte (<gi>div type="section"</gi>), Absätze
+          (<gi>p</gi>), Sätze (<gi>s</gi>, fakultativ), Überschriften
+          (<gi>head</gi>), Anmerkungen (<gi>note place="foot"</gi>) als
+          eigene Sinneinheiten. Die zwei Kapitel und ihre §§ bilden die
+          maßgebliche logische Untergliederung; die zwischen Kapitel II
+          und seinen §§ stehenden Abschnittsüberschriften
+          <emph>A. Die Voraussetzungen</emph> und <emph>B. Die
+          Durchführung</emph> werden als <gi>head</gi> innerhalb der
+          jeweils ersten <gi>div type="section"</gi> kodiert (nicht als
+          eigene <gi>div type="part"</gi>), da sie typographisch und
+          paginal mit dieser zusammen beginnen.</p>
+
+        <p xml:id="dim-2"><label>Ebene 2 — visuell-materiell.</label>
+          Textträgerbezogene Phänomene der gedruckten Vorlage:
+          Seitenwechsel der GA-Ausgabe (<gi>pb ed="#GA"</gi>) und der
+          1. Auflage (<gi>pb ed="#A"</gi>), Zeilenumbrüche
+          (<gi>lb</gi>, fakultativ), typographische Auszeichnungen
+          — Antiqua (default), Kursivsatz für fremdsprachliche Wendungen
+          (<gi>hi rend="#italic"</gi> bzw. das in der Druckpraxis
+          synonyme <gi>foreign xml:lang="la"</gi>), Sperrsatz für
+          Hervorhebungen (<gi>hi rend="#letter-spaced"</gi>).
+          Titel- und Vakatseiten werden als <gi>pb type="titlepage"</gi>
+          bzw. <gi>pb type="blank"</gi> kodiert.</p>
+
+        <p xml:id="dim-3"><label>Ebene 3 — linguistisch.</label>
+          Sprachzuordnung über <att>xml:lang</att>: Defaultsprache
+          des Bandes ist <val>de</val> (Antiqua); lateinische Wendungen
+          (Fachterminologie, Anselm-Zitate) tragen <val>la</val>.
+          Mehrsprachige Einheiten (z. B. das auf Latein wiedergegebene
+          und durch deutsche Glosse kommentierte
+          <foreign xml:lang="la">intelligere</foreign>) werden durch
+          <gi>foreign</gi> innerhalb des deutschsprachigen Kontextes
+          markiert. Tokenisierung, Lemmatisierung und Wortarten-
+          Annotation sind im aktuellen Scope nicht vorgesehen,
+          architektonisch aber durch <gi>w</gi>/<gi>seg</gi>
+          nachträglich integrierbar.</p>
+
+        <p xml:id="dim-4"><label>Ebene 4 — extensional (Verweise auf
+          außertextuelle Entitäten).</label> Personenverweise via
+          <gi>persName ref="persons-heiEDITIONS.xml#…"
+          ana="hc:PersonReference"</gi>, Werkverweise via
+          <gi>title ref="works-heiEDITIONS.xml#…"
+          ana="hc:WorkReference"</gi>, Begriffsverweise via
+          <gi>rs ref="terms-heiEDITIONS.xml#…"
+          ana="hc:SubjectReference"</gi>. — <emph>Wichtige Differenzierung
+          im Sinne FRBR:</emph> die externen Dateien
+          <ref target="works-heiEDITIONS.xml">works-heiEDITIONS.xml</ref>
+          beschreiben primär das <emph>Werk</emph> (work) und seine
+          <emph>Expression</emph> (z. B. <q xml:lang="la">Proslogion</q>
+          als sprachliche Form unabhängig von gedruckten Ausgaben).
+          Konkrete <emph>Manifestationen</emph> (gedruckte Editionen
+          wie Schmitt 1946–1961 oder Migne PL 158) werden als
+          verschachtelte <gi>listBibl type="editions"</gi> innerhalb
+          des Werkeintrags geführt; aus dem Fließtext kann auf eine
+          spezifische Manifestation über <att>source</att> verwiesen
+          werden (vgl. den exemplarischen Editions-Layer-Hook
+          in <gi>citedRange unit="schmitt"</gi>-Elementen).
+          Diese Trennung ist im Demonstrator nicht vollständig
+          ausgebaut, sondern als <emph>Architekturhaken</emph>
+          gesetzt; vgl. den README-Abschnitt
+          <emph>Extensibility — Editions Layer</emph>.</p>
+
+        <p xml:id="dim-5"><label>Ebene 5 — Überlieferungspluralität /
+          Varianz.</label> Die Edition rekonstruiert vier
+          textgeschichtliche Zeugen (A / B / A2 / GA;
+          vgl. <ref target="#fqi-witnesses">listWit</ref>). Varianten
+          werden im Modell der <emph>parallel segmentation</emph>
+          inline kodiert: jeder <gi>app</gi> trägt einen
+          <gi>lem wit="#GA #A2 …"</gi> (Basistext der GA-Edition,
+          inhaltlich identisch mit A2 außer an fünf gemeldeten
+          Stellen) und ein oder mehrere <gi>rdg wit="…"</gi>-Elemente.
+          Editorische Eingriffe der Herausgeber an den fünf
+          namentlich genannten Stellen (S. 34, 47, 122, 147, 150) sind
+          als <gi>app type="emendation"</gi> markiert (in § 1 nicht
+          vorhanden). OCR-bedingte Lesartenunsicherheiten —
+          sofern sie überhaupt textgeschichtlich relevant werden —
+          würden mit <gi>choice><sic/><corr/></gi>
+          ausgezeichnet (im aktuellen § 1 nicht aufgetreten).</p>
+
+        <!-- ============================================
+             Editionsrichtlinien aus dem Vorwort der GA-Hrsg.
+             (Jüngel/Dalferth, Tübingen Juli 1979,
+              GA II.13, S. VII–XIV).
+             ============================================ -->
+        <p xml:id="ed-decl-vorwort">Die Edition folgt den im Vorwort
+          der Herausgeber (<ptr target="#GA"/>, S. VII–XIV, Tübingen
+          Juli 1979) formulierten <emph>Editionsrichtlinien</emph>.
+          Die folgenden acht Punkte fassen diese Richtlinien
+          zusammen, soweit sie für die digitale Kodierung
+          unmittelbar relevant sind:</p>
+
+        <list type="ordered" xml:id="ed-richtlinien">
+          <item xml:id="er-1">Die Neuausgabe fußt textlich auf der
+            <emph>2. Auflage 1958</emph> (<ptr target="#A2"/>) als der
+            letzten von Barth selbst durchgesehenen Fassung. Ihre
+            Seitenzählung wird im fortlaufenden Text durch eingelegte
+            Marker wiedergegeben (siehe Richtlinie 8 zu
+            <gi>pb</gi>).</item>
+          <item xml:id="er-2">Abweichungen der <emph>1. Auflage 1931</emph>
+            gegenüber der 2. Auflage werden in eigens hinzugefügten
+            Herausgeberanmerkungen unter dem Sigel
+            <mentioned>A</mentioned> nachgewiesen
+            (<ptr target="#A"/>).</item>
+          <item xml:id="er-3">Abweichungen des <emph>Vorabdrucks
+            1931</emph> (Kattenbusch-Festgabe, ZThK.NF 12, S. 350–358
+            — vgl. <ptr target="#B"/>) werden analog unter dem Sigel
+            <mentioned>B</mentioned> nachgewiesen. <emph>Dieser
+            Geltungsbereich beschränkt sich auf die Seiten 13–20 der
+            GA-Ausgabe.</emph></item>
+          <item xml:id="er-4">Sämtliche neu hinzugefügten
+            Herausgeberanmerkungen sind durch kleine Buchstaben
+            (a, b, c …) markiert und kapitelweise durchgezählt.
+            Barths eigene Anmerkungen sind durch arabische Ziffern
+            (1, 2, 3 …) markiert und gleichfalls kapitelweise
+            durchgezählt (so bereits seit der 2. Aufl.).</item>
+          <item xml:id="er-5">Druckfehler und eindeutig syntaktisch-
+            grammatische Versehen wurden stillschweigend korrigiert
+            (in beide Richtungen: A-Fehler nicht vermerkt, wenn die
+            2. Aufl. korrekt ist; ebensowenig A2-Druckfehler, wenn die
+            1. Aufl. korrekt ist). Solche Korrekturen werden in dieser
+            digitalen Edition nicht durch
+            <gi>choice</gi>-<gi>sic</gi>-<gi>corr</gi> markiert,
+            sondern folgen stillschweigend der Vorgabe der
+            Gedruckten.</item>
+          <item xml:id="er-6">An <emph>fünf</emph> namentlich
+            genannten Stellen (S. 34 Anm. e, S. 47 Anm. d, S. 122
+            Anm. j, S. 147 Anm. h, S. 150 Anm. k) wurde die
+            <q xml:lang="de">deutlich bessere Lesart</q> der 1. Aufl.
+            in den Haupttext der Edition übernommen, während die
+            Lesart der 2. Aufl. in der Herausgeberanmerkung erscheint.
+            Solche Stellen tragen in unserer TEI-Kodierung
+            <gi>app</gi>-Elemente mit
+            <att>type</att>=<val>emendation</val>.
+            (Keine dieser fünf Stellen liegt in § 1.)</item>
+          <item xml:id="er-7">Vor Stellenangaben in den
+            Herausgeberanmerkungen markiert die Konvention
+            <mentioned>[vgl.]</mentioned>, daß Barth den Anselmtext
+            nicht wörtlich zitiert, sondern paraphrasiert oder
+            zusammenstellt (übliche Geringfügigkeiten:
+            Kasusangleichungen, Flexionsänderungen, Auslassungen).
+            Im TEI-Markup wird dies durch das Attribut
+            <att>rend</att>=<val>cf</val> am betreffenden
+            <gi>bibl</gi> kenntlich gemacht.</item>
+          <item xml:id="er-8">Typographische Festlegungen der
+            Druckausgabe (Antiqua / Kursiv / Sperrsatz) werden
+            beibehalten und in TEI durch <gi>foreign</gi> bzw.
+            <gi>hi rend="…"</gi> reproduziert. Die GA-Seitenzählung
+            wird durch <gi>pb ed="#GA"</gi> markiert; die
+            ursprüngliche Seitenzählung der 1. Aufl. 1931 ist in der
+            Druckausgabe an Spaltenrand bzw. fettgesetzt mit
+            <mentioned>|n|</mentioned> markiert und wird im TEI
+            durch <gi>pb ed="#A"</gi> wiedergegeben.</item>
+        </list>
+
+        <p xml:id="ed-decl-apparatus">Die Variantenkodierung folgt dem
+          TEI-Modell der <emph>parallel segmentation</emph>: jeder
+          inline-<gi>app</gi> trägt einen <gi>lem</gi> (Lesart des
+          Basistexts, hier <ptr target="#GA"/> = inhaltlich
+          <ptr target="#A2"/>) und ein oder mehrere
+          <gi>rdg</gi>-Elemente mit
+          <att>wit</att>-Verweisen auf abweichende Zeugen. Dieselbe
+          Information ist zusätzlich als druckbildtreue
+          <gi>note type="editorial"</gi> am Kapitelende abgebildet
+          (Standoff via <att>target</att>) — diese Doppelkodierung
+          dient (a) der Frontend-Synopse via CETEIcean und
+          (b) der editionsphilologischen Treue gegenüber der
+          gedruckten Ausgabe. — Über <att>type</att> hinaus tragen
+          die Herausgeberanmerkungen das Attribut
+          <att>ana</att>=<val>hc:VariantNote</val>, das sie als
+          Instanzen der heiEDITIONS-Klasse
+          <code>VariantNote</code> (Unterklasse von
+          <code>TextCriticalNote</code> ← <code>EditorialNote</code>)
+          ausweist; Barths eigene Anmerkungen tragen entsprechend
+          <att>ana</att>=<val>hc:AuthorialNote</val>.</p>
+
+        <p xml:id="ed-decl-terms">Über die Šimekschen vier
+          Standardebenen hinaus markiert die Edition die fünfte
+          Dimension (Varianz) und eine sechste, semantisch
+          spezialisierte: eine <emph>theologische
+          Terminologieebene</emph>. Sie ist als eigene Begriffsdatei
+          <ref target="terms-heiEDITIONS.xml">terms-heiEDITIONS.xml</ref>
+          realisiert (analog zu <ref target="persons-heiEDITIONS.xml"
+          >persons-heiEDITIONS.xml</ref> und
+          <ref target="works-heiEDITIONS.xml">works-heiEDITIONS.xml</ref>)
+          und im Fließtext durch <gi>rs</gi>-Elemente mit
+          <att>ref</att>-Verweisen instanziiert. Jedes solche
+          <gi>rs</gi> trägt zusätzlich
+          <att>ana</att>=<val>hc:SubjectReference</val> und gehört
+          damit zur heiEDITIONS-Klasse <code>SubjectReference</code>
+          („Verweis auf eine Sache, typischerweise ein Konzept,
+          ein Thema oder einen Begriff“). — Geltungsregel:
+          markiert werden nicht lateinische oder hervorgehobene
+          Wörter <emph>als solche</emph>, sondern nur diejenigen
+          Vorkommen, die im FQI-Kontext eine theologisch
+          definitorische Funktion erfüllen. — Ökonomieregel: häufig
+          wiederkehrende Termini wie
+          <foreign xml:lang="la">intelligere</foreign> (9× in § 1
+          des Haupttextes) werden bei der <emph>ersten</emph>
+          Erwähnung eines Abschnitts vollständig durch <gi>rs</gi>
+          umschlossen; spätere Vorkommen desselben Begriffs im
+          selben Abschnitt bleiben sprachlich-visuell durch
+          <gi>foreign</gi> und <gi>hi</gi> markiert, aber nicht
+          semantisch re-instanziiert. — Granularität: Einwortbegriffe
+          folgen dem Lemma-Konzept-Modell, Mehrwortbegriffe
+          (<foreign xml:lang="la">intellectus fidei</foreign>,
+          <foreign xml:lang="la">esse rei in intellectu</foreign>,
+          <q xml:lang="la">Credo ut intelligam</q>) sind eigene
+          Konzeptknoten.</p>
+
+        <p xml:id="ed-decl-lang">Lateinische Wendungen und längere
+          Zitate (überwiegend aus Anselms Werken in der Ausgabe
+          Schmitt) sind mit <gi>foreign</gi> bzw. <gi>quote</gi>
+          ausgezeichnet und mit <att>xml:lang</att>=<val>la</val>
+          markiert. Die <gi>quote</gi>-Elemente tragen zudem
+          <att>ana</att>=<val>hc:PrimarySourceQuotation</val>
+          (heiEDITIONS-Klasse für Zitate aus historischen
+          Primärtexten in der jeweiligen Originalsprache). Die
+          bibliographischen Kürzel Barths
+          (<mentioned>Monol.</mentioned>, <mentioned>Prosl.</mentioned>,
+          <mentioned>C. D. h.</mentioned>,
+          <mentioned>Ep. de incarn.</mentioned>) verweisen via
+          <gi>title ref="works-heiEDITIONS.xml#…"
+          ana="hc:WorkReference"</gi> auf Anselms Werke. Die
+          Stellenangaben (z. B. <mentioned>II 47,9</mentioned>) gelten
+          als Band/Seite/Zeile der Ausgabe <bibl><author>F. S.
+          Schmitt</author>, <title>S. Anselmi Cantuariensis
+          archiepiscopi Opera Omnia</title>, 6 Bde., Edinburgh
+          <date>1946–1961</date></bibl>. Bei Anselm-Schriften, die
+          Schmitt als unecht aussonderte, zitiert Barth nach
+          <bibl><title>Patrologia Latina</title>
+          <biblScope unit="vol">158</biblScope> (Migne)</bibl>.</p>
+      </editorialDecl>
+
+      <!-- ============================================
+           classDecl: Taxonomie der Zitations-Einheiten.
+           (Editions-Layer-Hook 3, vgl. PROJECT-STATE.md.)
+           Listet alle aktuell verwendeten @unit-Werte in
+           <citedRange> und <biblScope>-Kontexten auf.
+           Bewußt OHNE <listPrefixDef>, weil derzeit kein
+           Viewer-Konsument für expandierte Prefix-URIs
+           existiert; ein voreiliges Prefix-System wäre
+           Etikettenschwindel.
+           ============================================ -->
+      <classDecl>
+        <taxonomy xml:id="citation-units">
+          <desc>Taxonomie der in dieser Edition verwendeten
+            Zitations-Einheiten (<att>unit</att>-Werte an
+            <gi>citedRange</gi>, <gi>biblScope</gi>).</desc>
+          <category xml:id="cu-chapter">
+            <catDesc>Kapitel- bzw. Buchabschnitts-Nummer
+              (z. B. Prosl. 2, Monol. 64). Erwartete Werte:
+              arabische oder römische Zahl, ggf. mit Kommentar.</catDesc>
+          </category>
+          <category xml:id="cu-schmitt">
+            <catDesc>Stellenangabe nach der Ausgabe Schmitt,
+              <emph>S. Anselmi Cantuariensis archiepiscopi
+              Opera Omnia</emph>, 6 Bde., Edinburgh 1946–1961.
+              Format: <mentioned>Band Seite,Zeile</mentioned>
+              (z. B. <mentioned>I 100,18</mentioned> =
+              Bd. I, S. 100, Z. 18). Die Manifestations-Referenz
+              auf die Schmitt'sche Ausgabe selbst wird über
+              <att>source</att> hergestellt (vgl. Werkdatei
+              <ref target="works-heiEDITIONS.xml#ed-schmitt"
+              >works-heiEDITIONS.xml#ed-schmitt</ref>).</catDesc>
+          </category>
+          <category xml:id="cu-book-chapter">
+            <catDesc>Buch- und Kapitelnummer kombiniert,
+              wo Anselms Werk in Bücher geteilt ist
+              (z. B. C. D. h. I 9 = <emph>Cur Deus homo</emph>
+              Buch I, Kap. 9).</catDesc>
+          </category>
+          <category xml:id="cu-migne-pl">
+            <catDesc>Stellenangabe nach Patrologia Latina
+              (Migne) für die von Schmitt als unecht
+              ausgesonderten Anselm-Schriften. Format:
+              <mentioned>Band, Spalte</mentioned> (z. B.
+              PL 158, 223).</catDesc>
+          </category>
+          <category xml:id="cu-page">
+            <catDesc>Seitenzahl-Angabe in
+              <gi>biblScope</gi>-Kontexten (z. B. ZThK.NF 12,
+              S. 350–358).</catDesc>
+          </category>
+          <category xml:id="cu-ga-page">
+            <catDesc>Seitenzahl der GA-Ausgabe (GA II.13);
+              zur maschinenlesbaren Eingrenzung von
+              Zeugenkompetenz, vgl. die <gi>biblScope
+              unit="ga-page"</gi>-Angabe am Zeugen B.</catDesc>
+          </category>
+        </taxonomy>
+      </classDecl>
+
+      <tagsDecl>
+        <rendition xml:id="letter-spaced" scheme="css">
+          letter-spacing: 0.18em;
+        </rendition>
+        <rendition xml:id="italic" scheme="css">
+          font-style: italic;
+        </rendition>
+      </tagsDecl>
+    </encodingDesc>
+
+    <profileDesc>
+      <langUsage>
+        <language ident="de">Deutsch (Haupttext)</language>
+        <language ident="la">Latein (Zitate aus Anselm; Fachterminologie)</language>
+      </langUsage>
+      <textClass>
+        <keywords scheme="GND">
+          <term ref="https://d-nb.info/gnd/118503065">Anselm von
+            Canterbury, Erzbischof von Canterbury, Heiliger
+            (1033/34–1109)</term>
+          <term ref="https://d-nb.info/gnd/118506838">Barth, Karl
+            (1886–1968)</term>
+          <term ref="https://d-nb.info/gnd/4174333-2">Proslogion</term>
+          <term ref="https://d-nb.info/gnd/4135796-4">Theologie</term>
+        </keywords>
+        <!-- Zweite Keywords-Gruppe: Verweise in das eigene
+             Begriffsregister terms-heiEDITIONS.xml.
+             Innerhalb von <keywords> bleibt <term> stehen, da hier
+             die *Indexstruktur* selbst notiert wird (Einträge eines
+             Sachregisters), nicht die *Vorkommen im Fließtext*. -->
+        <keywords scheme="terms-heiEDITIONS.xml">
+          <term ref="terms-heiEDITIONS.xml#intelligere">intelligere</term>
+          <term ref="terms-heiEDITIONS.xml#intellectus-fidei">intellectus fidei</term>
+          <term ref="terms-heiEDITIONS.xml#ratio">ratio</term>
+          <term ref="terms-heiEDITIONS.xml#fides">fides</term>
+          <term ref="terms-heiEDITIONS.xml#veritas">veritas</term>
+          <term ref="terms-heiEDITIONS.xml#rei-veritas">rei veritas</term>
+          <term ref="terms-heiEDITIONS.xml#fqi-motto">Fides quaerens intellectum</term>
+          <term ref="terms-heiEDITIONS.xml#credo-ut-intelligam">Credo ut intelligam</term>
+          <term ref="terms-heiEDITIONS.xml#notwendigkeit-der-theologie">Notwendigkeit der Theologie</term>
+          <term ref="terms-heiEDITIONS.xml#wesen-des-glaubens">Wesen des Glaubens</term>
+          <term ref="terms-heiEDITIONS.xml#gottesbeweis">Gottesbeweis</term>
+        </keywords>
+      </textClass>
+      <creation>
+        <date when="1931">1931</date>
+        <note>Erstausgabe München (Chr. Kaiser) im Juni 1931;
+          Vorabdruck von § 1 (S. 13–20 der späteren GA-Ausgabe)
+          in der Kattenbusch-Festgabe (ZThK.NF 12) im selben
+          Jahr. Das Werk entstand aus Barths Anselm-Seminar in
+          Bonn (WS 1930/31).</note>
+      </creation>
+    </profileDesc>
+
+    <revisionDesc>
+      <change when="2026-05-18" who="persons-heiEDITIONS.xml#bearbeiter" status="draft">
+        v6 (Multi-File-Architektur, 7-Dateien-Variante): Aufspaltung
+        der bisher monolithischen Datei
+        <ident>fqi-barth-1931-section1-heiEDITIONS.xml</ident> in
+        eine Multi-File-Architektur. (a) Zentralisierung sämtlicher
+        projektübergreifender <gi>teiHeader</gi>-Anteile in dieser
+        TOC-Datei (<gi>listWit</gi>, <gi>editorialDecl</gi> mit
+        Šimek-Fünf-Ebenen-Deklaration, <gi>projectDesc</gi>,
+        <gi>tagsDecl</gi>, <gi>langUsage</gi>, <gi>textClass</gi>,
+        <gi>revisionDesc</gi>, <gi>classDecl</gi>/<gi>taxonomy</gi>).
+        (b) Aufteilung des Werktextes auf <emph>sechs</emph>
+        Part-Dateien gemäß der Kapitel-/Großabschnittsebene
+        (<ident>fqi-frontmatter.xml</ident>,
+        <ident>fqi-part-I.xml</ident>,
+        <ident>fqi-part-II-A.xml</ident>,
+        <ident>fqi-part-II-B.xml</ident>,
+        <ident>fqi-anhang.xml</ident>,
+        <ident>fqi-register.xml</ident>), nicht auf §-Ebene.
+        Begründung: gesamter Werktext rund 1.1 MB (5700 Zeichen
+        Body je Druckseite × ~190 Druckseiten); §-feine Aufteilung
+        wäre nicht size-getrieben, sondern hätte rein
+        organisatorischen Charakter, der durch interne
+        <gi>div type="section"</gi>-Anker (xml:id="sec-X-Y")
+        gleichwertig erreicht wird. Die §-Granularität bleibt
+        damit für Viewer-Routing und potentielle Sprachvarianten
+        vollständig erhalten. (c) Titelseiten und Vakatseiten der
+        Buchteile-Eröffnungen sind unmittelbar als zwei
+        <gi>pb</gi>-Marker im Datei-Anfang der jeweiligen
+        Part-Datei eingebettet (entfällt: separate
+        Titelseiten-Dateien und entfällt: Custom-Attribut
+        <att>hc:titlepage-file</att> am TOC-Knoten). (d) Drei-stufige
+        <gi>titleStmt</gi>-Struktur (Serie / Monographie /
+        Teiltitel) durchgehend in allen Part-Dateien.
+        (e) Editions-Layer-Hook nach FRBR: <gi>classDecl</gi>/
+        <gi>taxonomy xml:id="citation-units"</gi> in dieser Datei,
+        exemplarische Werkverweise mit <att>source</att> auf die
+        Schmitt'sche Manifestation in <ident>fqi-part-I.xml</ident>
+        (innerhalb der §1-Kodierung), verschachtelter <gi>listBibl
+        type="editions"</gi> in <ident>works-heiEDITIONS.xml</ident>.
+        (f) Editions-Status im Inhaltsverzeichnis ausgewiesen
+        (<val>kodiert</val> / <val>stub</val> /
+        <val>nicht-kodiert</val> / <val>aggregate</val>);
+        der frühere fünfte Wert <val>titlepage</val> entfällt,
+        weil Titelseiten nicht mehr eigene Dateien sind.
+        Einziger verbleibender aggregate-Knoten ist Kapitel II,
+        das auf zwei Part-Dateien aufgeteilt ist.
+        (g) Skalierungs-Strategie: die fünf weiteren Part-Dateien
+        (<ident>fqi-frontmatter.xml</ident>,
+        <ident>fqi-part-II-A.xml</ident>,
+        <ident>fqi-part-II-B.xml</ident>,
+        <ident>fqi-anhang.xml</ident>,
+        <ident>fqi-register.xml</ident>) werden <emph>nicht</emph>
+        als leere Stub-Dateien materialisiert. Stattdessen werden
+        sie im TOC mit Status <val>nicht-kodiert</val> geführt
+        und beim Klick im Viewer als grauer, nicht-anklickbarer
+        Knoten dargestellt. Begründung: leere Stub-Dateien sind
+        kein Demonstrator-Mehrwert (sie zeigen lediglich eine
+        Boilerplate-Wiederholung des teiHeader-Musters), und ihre
+        Existenz verwischt die für Reviewer relevante Unterscheidung
+        zwischen <val>stub</val> (Datei mit Volltext-in-Arbeit) und
+        <val>nicht-kodiert</val> (Datei nicht angelegt). Die
+        Statuswerte bleiben damit aussagekräftig: der einzige
+        <val>kodiert</val>-Knoten (§ 1) hebt sich klar von den
+        26 <val>nicht-kodiert</val>-Knoten ab. Die strukturelle
+        Konstanz künftiger Section-Volltexte wird durch das
+        Template <ident>_template_stub.xml</ident> sowie den
+        README-Abschnitt <emph>Adding new sections — stub
+        workflow</emph> dokumentiert; vgl. auch Editions-Layer-
+        Hook 4.
+      </change>
+      <change when="2026-05-17" who="persons-heiEDITIONS.xml#bearbeiter" status="draft">
+        v5 (Anmerkungs-Provenienz und -Lokalisierung): Vervollständigung
+        der Apparat-Metadaten an allen 29 <gi>note place="foot"</gi>
+        in § 1. (a) Bearbeiter <persName ref="persons-heiEDITIONS.xml#bearbeiter"
+        >Yu Chen</persName> in <gi>respStmt</gi> namentlich
+        eingetragen. (b) Barths Anmerkungen 1–17 (<gi>note
+        type="authorial"</gi>): Witness-Bindung über <att>wit</att>=<val>#A
+        #A2 #GA</val> ergänzt. (c) Herausgeber-Anmerkungen a–l
+        (<gi>note type="editorial"</gi>): <att>resp</att>=<val>#juengel
+        #dalferth</val> ergänzt. (d) Page-Provenienz: alle 29
+        <gi>note</gi>-Elemente tragen <att>source</att>=<val>#ga-13</val>
+        …<val>#ga-16</val>. Verifiziert anhand der Marker-JSON-
+        Statistik (page_stats[].block_counts.Footnote: 7/7/8/7 für
+        S. 13–16).
+      </change>
+      <change when="2026-05-16" who="persons-heiEDITIONS.xml#bearbeiter" status="draft">
+        v4 (heiEDITIONS-Variante): Zusätzliche Bindung zentraler
+        Elemente an die Klassenontologie <ref
+        target="https://heieditions.github.io/concepts/concepts.html"
+        >heiEDITIONS Concepts</ref> via <att>ana</att>-Attribut.
+        Änderungen: <att>xmlns:hc</att>-Deklaration am Wurzelelement;
+        <gi>term ref="terms.xml#…"</gi> im Fließtext →
+        <gi>rs ref="terms-heiEDITIONS.xml#…"
+        ana="hc:SubjectReference"</gi>; lateinische Anselm-Zitate
+        zusätzlich <att>ana</att>=<val>hc:PrimarySourceQuotation</val>;
+        Barths Anmerkungen zusätzlich
+        <att>ana</att>=<val>hc:AuthorialNote</val>; Herausgeber-
+        Anmerkungen zusätzlich
+        <att>ana</att>=<val>hc:VariantNote</val>; Personen- und
+        Werkverweise zusätzlich
+        <att>ana</att>=<val>hc:PersonReference</val> bzw.
+        <val>hc:WorkReference</val> (bewußte Abweichung von der
+        heiEDITIONS-Vorgabe <gi>rs</gi>; im README dokumentiert).
+      </change>
+      <change when="2026-05-16" who="persons-heiEDITIONS.xml#bearbeiter" status="draft">
+        v3: Einführung der theologischen Terminologieebene.
+        Neue Datei <ref target="terms-heiEDITIONS.xml"
+        >terms-heiEDITIONS.xml</ref> mit 22 Begriffsdatensätzen in
+        vier Kategorien (scholastic-latin, motto, barthian,
+        dogmatic-shared); Lemmatisierung von Flexionsformen,
+        bilinguale Glossen de/en, GND-Verlinkung wo verfügbar.
+      </change>
+      <change when="2026-05-15" who="persons-heiEDITIONS.xml#bearbeiter" status="draft">
+        v2: Vollständige Revision auf Basis des Vorworts der
+        Herausgeber (GA II.13, S. VII–XIV). (a) Sigel B umgedeutet
+        von <q>2. Aufl. 1958</q> auf <q>Vorabdruck 1931
+        (ZThK.NF 12, S. 350–358)</q>. (b) 2. Aufl. 1958 als eigener
+        Zeuge <ptr target="#A2"/> ergänzt. (c) GA-Edition korrekt
+        datiert. (d) Reihen-Hrsg., Karl Barth-Stiftung, ISBN
+        ergänzt. (e) <gi>editorialDecl</gi> um die acht
+        Editionsrichtlinien des Vorworts erweitert. (f) Parallel-
+        Kodierung der Varianten.
+      </change>
+      <change when="2026-05-15" who="persons-heiEDITIONS.xml#bearbeiter" status="draft">
+        v1: Erste TEI-Kodierung von § 1 (S. 13–16) als
+        Portfolio-Demonstrator.
+      </change>
+    </revisionDesc>
+  </teiHeader>
+
+  <!-- =========================================================
+       Text-Body: vollständiges Inhaltsverzeichnis.
+
+       Der Viewer fetcht beim Start diese Datei und konstruiert
+       aus <text><front><div type="contents"> die linke TOC-
+       Spalte. Pro Eintrag werden ausgewertet:
+         <ref target>     → Datei + xml:id (file-anchor) oder
+                            todo:… für aggregate-Knoten ohne
+                            eigene Datei (Kap II als Wurzel
+                            zweier Part-Dateien)
+         <num type="page"> → Seitenzahl im GA-Druck
+         <note type="encoding-status"> → Anzeige im TOC
+                            (✓ kodiert / ⊘ stub /
+                             ✗ nicht-kodiert / ▣ aggregate)
+
+       Datei-Architektur (7 Dateien):
+
+         fqi-toc.xml          Einstiegsdatei (diese Datei)
+         fqi-frontmatter.xml  Vorwort Hrsg. + Vorworte 1./2. +
+                              Einleitung (S. VII–10)
+         fqi-part-I.xml       Kapitel I, §§ 1–5 (S. 11–72),
+                              incl. Titelseite S. 11 + Vakat S. 12
+                              im Datei-Anfang
+         fqi-part-II-A.xml    Kapitel II, Abschnitt A, §§ 1–2
+                              (S. 73–102), incl. Titelseite des
+                              Kapitels II auf S. 73 + Vakat S. 74
+         fqi-part-II-B.xml    Kapitel II, Abschnitt B, §§ 1–3
+                              (S. 103–174)
+         fqi-anhang.xml       Anhang I–III (S. 175–204),
+                              incl. Titelseite S. 175 + Vakat S. 176
+         fqi-register.xml     Register I–V (S. 205–222),
+                              incl. Titelseite S. 205 + Vakat S. 206
+
+       §-Granularität: Jeder § hat innerhalb seiner Part-Datei
+       eine eigene <div type="section" xml:id="sec-X-Y"/>;
+       das Viewer-Routing zu fqi-part-I.xml#sec-I-3 öffnet die
+       Datei und scrollt zum entsprechenden Anker. Die TOC-
+       Aufzählung der §§ unten ist also nicht redundant zur
+       Datei-Architektur, sondern ein eigenes Navigationsraster.
+
+       Aggregate-Knoten ohne eigene Datei: nur noch *Kapitel II*
+       als Wurzel der beiden Part-Dateien II-A und II-B. Bei Klick
+       konkateniert der Viewer beide Part-Dateien (vgl. Viewer-
+       Ladepfad γ, Aggregate-Modus). — Die Abschnittsknoten II-A
+       und II-B sind hingegen *keine* eigenen aggregate-Knoten
+       mehr, sondern entsprechen je einer realen Datei (Status
+       stub, wird klickbar wie jede andere Part-Datei).
+
+       Titelseiten: Sind direkt im Datei-Anfang der jeweiligen
+       Part-Datei als zwei <pb>-Marker eingebettet (S. 11+12 in
+       Part-I, S. 73+74 in Part-II-A, S. 175+176 in Anhang,
+       S. 205+206 in Register). Daher entfällt das ehemalige
+       Custom-Attribut @hc:titlepage-file (keine separaten
+       Titelseiten-Dateien mehr). Vorteil: Der Viewer braucht
+       keine Sondernavigation; Nachteil entfällt, weil die
+       Druckseite im Scroll-Modus ohnehin sichtbar wird.
+
+       Status-Werte (vier statt fünf):
+         kodiert       Volltext-Transkription in der Datei
+         stub          Datei existiert, aber nur Gerüst
+         nicht-kodiert Datei existiert nicht
+         aggregate     Knoten hat keine eigene Datei,
+                       sondern aggregiert mehrere Part-Dateien
+       ========================================================= -->
+  <text>
+    <front>
+      <div type="contents" xml:id="contents">
+        <head>Inhaltsverzeichnis</head>
+
+        <list type="toc" xml:id="toc-root">
+
+          <!-- ============================================
+               Frontmatter — alle vier Vorwortabschnitte in
+               einer Datei fqi-frontmatter.xml. Das Vorwort
+               der Herausgeber steht *vor* dem Werktitel
+               'Fides quaerens intellectum' (es kommentiert
+               die Edition selbst), die drei Werk-internen
+               Vorworte stehen *nach* dem Werktitel.
+               ============================================ -->
+          <item xml:id="toc-frontmatter-vorwort-hrsg">
+            <ref target="fqi-frontmatter.xml#frontmatter-vorwort-hrsg"
+                 >Vorwort der Herausgeber</ref>
+            <num type="page">VII</num>
+            <note type="encoding-status">nicht-kodiert</note>
+          </item>
+
+          <!-- Nicht-klickbarer Werk-Wurzelknoten: bei Klick
+               im Viewer wird die TOC-Landing-Page geöffnet
+               (keine Aggregation des gesamten Texts). -->
+          <head type="work-root" xml:id="toc-fqi-root">Fides quaerens intellectum</head>
+
+          <item xml:id="toc-frontmatter-vorwort-1">
+            <ref target="fqi-frontmatter.xml#frontmatter-vorwort-1"
+                 >Vorwort zur 1. Auflage</ref>
+            <num type="page">1</num>
+            <note type="encoding-status">nicht-kodiert</note>
+          </item>
+          <item xml:id="toc-frontmatter-vorwort-2">
+            <ref target="fqi-frontmatter.xml#frontmatter-vorwort-2"
+                 >Vorwort zur 2. Auflage</ref>
+            <num type="page">5</num>
+            <note type="encoding-status">nicht-kodiert</note>
+          </item>
+          <item xml:id="toc-frontmatter-einleitung">
+            <ref target="fqi-frontmatter.xml#frontmatter-einleitung"
+                 >Einleitung</ref>
+            <num type="page">9</num>
+            <note type="encoding-status">nicht-kodiert</note>
+          </item>
+
+          <!-- ============================================
+               Kapitel I — eine Datei, fqi-part-I.xml.
+               Die Titelseite S. 11 und die Vakatseite S. 12
+               sind die zwei ersten <pb>-Marker in dieser
+               Datei (vor §1). Status der Datei selbst ist
+               'stub' (nur §1 ist kodiert; die §§2–5 sind
+               als Volltext-leere <div>-Skelette innerhalb
+               derselben Datei vorgesehen). — Bei Klick auf
+               diesen Eintrag öffnet der Viewer die Datei
+               an §1 (xml:id="sec-I-1"); ein zusätzlicher
+               TOC-Knoten 'Titelseite' am Datei-Anfang ist
+               nicht nötig, weil der Druck-Scroll-Modus die
+               Titelseite ohnehin sichtbar macht.
+               ============================================ -->
+          <item xml:id="toc-part-I">
+            <ref target="fqi-part-I.xml#part-I"
+                 >Kapitel I. Das theologische Programm</ref>
+            <num type="page">11</num>
+            <note type="encoding-status">stub</note>
+            <list type="toc">
+              <item xml:id="toc-section-I-1">
+                <ref target="fqi-part-I.xml#sec-I-1"
+                     >§ 1. Die Notwendigkeit der Theologie</ref>
+                <num type="page">13</num>
+                <note type="encoding-status">kodiert</note>
+              </item>
+              <item xml:id="toc-section-I-2">
+                <ref target="fqi-part-I.xml#sec-I-2"
+                     >§ 2. Die Möglichkeit der Theologie</ref>
+                <num type="page">20</num>
+                <note type="encoding-status">stub</note>
+              </item>
+              <item xml:id="toc-section-I-3">
+                <ref target="fqi-part-I.xml#sec-I-3"
+                     >§ 3. Die Bedingungen der Theologie</ref>
+                <num type="page">25</num>
+                <note type="encoding-status">stub</note>
+              </item>
+              <item xml:id="toc-section-I-4">
+                <ref target="fqi-part-I.xml#sec-I-4"
+                     >§ 4. Der Weg der Theologie</ref>
+                <num type="page">40</num>
+                <note type="encoding-status">stub</note>
+              </item>
+              <item xml:id="toc-section-I-5">
+                <ref target="fqi-part-I.xml#sec-I-5"
+                     >§ 5. Das Ziel der Theologie
+                  (Der Beweis)</ref>
+                <num type="page">59</num>
+                <note type="encoding-status">stub</note>
+              </item>
+            </list>
+          </item>
+
+          <!-- ============================================
+               Kapitel II — aggregate-Knoten, weil das Kapitel
+               auf ZWEI Part-Dateien aufgeteilt wäre
+               (fqi-part-II-A.xml + fqi-part-II-B.xml).
+               Beide Dateien sind im aktuellen Demonstrator
+               NICHT angelegt (Status nicht-kodiert); siehe
+               revisionDesc v6, Punkt (g), zur Scope-Disziplin.
+               Wenn beide Dateien angelegt werden, übernimmt
+               der Viewer die Aggregate-Konkatenation: bei Klick
+               auf den Kap-II-Knoten würden beide Part-Dateien
+               geladen und in Seitenzahlfolge gerendert
+               (Viewer-Ladepfad γ, Aggregate-Modus).
+
+               Die Titelseite S. 73 + Vakat S. 74 würden am
+               Anfang von fqi-part-II-A.xml liegen
+               (vgl. fqi-part-I.xml zum analogen Muster).
+
+               Die Abschnittsknoten II-A und II-B sind in dieser
+               Architektur je eine eigenständige Datei: ihr
+               Status ist nicht-kodiert (Datei existiert nicht);
+               würden sie kodiert, würde ihr Wert auf 'stub' oder
+               'kodiert' wechseln. Aggregate-Status haben sie
+               NICHT, da sie genau einer Datei entsprechen.
+               Ihre Abschnittsüberschriften (A. Die Voraussetzungen
+               / B. Die Durchführung) erscheinen als <head> am
+               Anfang der jeweils ersten <div type="section">
+               innerhalb der Datei.
+               ============================================ -->
+          <item xml:id="toc-part-II">
+            <ref target="todo:part-II-aggregate">Kapitel II.
+              Der Beweis der Existenz Gottes</ref>
+            <num type="page">73</num>
+            <note type="encoding-status">aggregate</note>
+            <list type="toc">
+
+              <item xml:id="toc-part-II-A">
+                <ref target="fqi-part-II-A.xml#part-II-A"
+                     >Abschnitt A. Die Voraussetzungen</ref>
+                <num type="page">75</num>
+                <note type="encoding-status">nicht-kodiert</note>
+                <list type="toc">
+                  <item xml:id="toc-section-II-A-1">
+                    <ref target="fqi-part-II-A.xml#sec-II-A-1"
+                         >§ 1. Der Name Gottes</ref>
+                    <num type="page">75</num>
+                    <note type="encoding-status">nicht-kodiert</note>
+                  </item>
+                  <item xml:id="toc-section-II-A-2">
+                    <ref target="fqi-part-II-A.xml#sec-II-A-2"
+                         >§ 2. Die Frage nach der Existenz Gottes</ref>
+                    <num type="page">91</num>
+                    <note type="encoding-status">nicht-kodiert</note>
+                  </item>
+                </list>
+              </item>
+
+              <item xml:id="toc-part-II-B">
+                <ref target="fqi-part-II-B.xml#part-II-B"
+                     >Abschnitt B. Die Durchführung
+                  (Kommentar zu Prosl. 2–4)</ref>
+                <num type="page">103</num>
+                <note type="encoding-status">nicht-kodiert</note>
+                <list type="toc">
+                  <item xml:id="toc-section-II-B-1">
+                    <ref target="fqi-part-II-B.xml#sec-II-B-1"
+                         >§ 1. Die allgemeine Existenz Gottes
+                      (Prosl. 2)</ref>
+                    <num type="page">103</num>
+                    <note type="encoding-status">nicht-kodiert</note>
+                  </item>
+                  <item xml:id="toc-section-II-B-2">
+                    <ref target="fqi-part-II-B.xml#sec-II-B-2"
+                         >§ 2. Die besondere Existenz Gottes
+                      (Prosl. 3)</ref>
+                    <num type="page">135</num>
+                    <note type="encoding-status">nicht-kodiert</note>
+                  </item>
+                  <item xml:id="toc-section-II-B-3">
+                    <ref target="fqi-part-II-B.xml#sec-II-B-3"
+                         >§ 3. Die Möglichkeit der Leugnung
+                      Gottes (Prosl. 4)</ref>
+                    <num type="page">164</num>
+                    <note type="encoding-status">nicht-kodiert</note>
+                  </item>
+                </list>
+              </item>
+
+            </list>
+          </item>
+
+          <!-- ============================================
+               Anhang — eine Datei, fqi-anhang.xml.
+               Titelseite S. 175 + Vakat S. 176 als die zwei
+               ersten <pb>-Marker in der Datei.
+               ============================================ -->
+          <head type="back-section" xml:id="toc-anhang-root">Anhang</head>
+
+          <item xml:id="toc-anhang">
+            <ref target="fqi-anhang.xml#anhang"
+                 >Anhang</ref>
+            <num type="page">175</num>
+            <note type="encoding-status">nicht-kodiert</note>
+            <list type="toc">
+              <item xml:id="toc-anhang-I">
+                <ref target="fqi-anhang.xml#anhang-I"
+                     >I. Heinrich Scholz, Leitsätze</ref>
+                <num type="page">177</num>
+                <note type="encoding-status">nicht-kodiert</note>
+              </item>
+              <item xml:id="toc-anhang-II">
+                <ref target="fqi-anhang.xml#anhang-II"
+                     >II. Barths Seminarvorbereitungen 1959</ref>
+                <num type="page">185</num>
+                <note type="encoding-status">nicht-kodiert</note>
+              </item>
+              <item xml:id="toc-anhang-III">
+                <ref target="fqi-anhang.xml#anhang-III"
+                     >III. Anfrage und Antwort 1959</ref>
+                <num type="page">199</num>
+                <note type="encoding-status">nicht-kodiert</note>
+              </item>
+            </list>
+          </item>
+
+          <!-- ============================================
+               Register — eine Datei, fqi-register.xml.
+               Titelseite S. 205 + Vakat S. 206 als die zwei
+               ersten <pb>-Marker in der Datei.
+               ============================================ -->
+          <head type="back-section" xml:id="toc-register-root">Register</head>
+
+          <item xml:id="toc-register">
+            <ref target="fqi-register.xml#register"
+                 >Register</ref>
+            <num type="page">205</num>
+            <note type="encoding-status">nicht-kodiert</note>
+            <list type="toc">
+              <item xml:id="toc-register-I">
+                <ref target="fqi-register.xml#register-I"
+                     >I. Schlüssel zu den Schriften Anselms</ref>
+                <num type="page">207</num>
+                <note type="encoding-status">nicht-kodiert</note>
+              </item>
+              <item xml:id="toc-register-II">
+                <ref target="fqi-register.xml#register-II"
+                     >II. Stellen aus den Schriften Anselms</ref>
+                <num type="page">210</num>
+                <note type="encoding-status">nicht-kodiert</note>
+              </item>
+              <item xml:id="toc-register-III">
+                <ref target="fqi-register.xml#register-III"
+                     >III. Bibelstellen</ref>
+                <num type="page">215</num>
+                <note type="encoding-status">nicht-kodiert</note>
+              </item>
+              <item xml:id="toc-register-IV">
+                <ref target="fqi-register.xml#register-IV"
+                     >IV. Namen</ref>
+                <num type="page">216</num>
+                <note type="encoding-status">nicht-kodiert</note>
+              </item>
+              <item xml:id="toc-register-V">
+                <ref target="fqi-register.xml#register-V"
+                     >V. Seitenschlüssel zur 1. Auflage</ref>
+                <num type="page">219</num>
+                <note type="encoding-status">nicht-kodiert</note>
+              </item>
+            </list>
+          </item>
+
+        </list>
+      </div>
+    </front>
+
+    <body>
+      <!-- Die TOC-Datei trägt selbst keinen edierten Text;
+           der eigentliche Werktext liegt verteilt in den
+           sechs Part-Dateien. Dieser Body bleibt absichtlich
+           minimal, um TEI-konform den <text>-Container zu
+           schließen. -->
+      <div type="placeholder">
+        <p>Diese Datei (<ident>fqi-toc.xml</ident>) ist die
+          Einstiegs- und Metadatendatei der Multi-File-Edition.
+          Der edierte Text liegt verteilt in den sechs
+          Part-Dateien (vgl. das Inhaltsverzeichnis im
+          <gi>front</gi>-Bereich dieser Datei).</p>
+      </div>
+    </body>
+  </text>
+</TEI>
