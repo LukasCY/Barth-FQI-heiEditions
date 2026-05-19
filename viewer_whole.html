@@ -2970,6 +2970,12 @@ header.bar {
       // einen <p> mit Textinhalt > minimaler Trivialität.
       if (slice.type !== "blank" && slice.type !== "titlepage" && isStubSlice(slice.xmlSlice)) {
         pageEl.classList.add("stub");
+        
+        /* 新增：專為 GA.druck 視圖的 Stub 頁面末尾插入實體德語/英語提示語 */
+        const stubNotice = document.createElement("div");
+        stubNotice.className = "stub-notice";
+        stubNotice.innerHTML = '<div class="de">Volltext in Vorbereitung</div><div class="en">Full text pending transcription</div>';
+        bodyHtml.appendChild(stubNotice);
       }
 
       // Fußnoten-Block (pro Seite) — gleiche Logik wie früher
