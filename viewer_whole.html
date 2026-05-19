@@ -1908,8 +1908,22 @@ header.bar {
 
         case "bibl":
           node = el("span", "tei-bibl"); break;
-        case "citedRange":
-          node = el("span", "tei-citedRange"); break;
+        case "citedRange": {
+          node = el("span", "tei-citedRange");
+          const unit = attr(xmlNode, "unit");
+          if (unit) node.dataset.unit = unit;
+          const src = attr(xmlNode, "source");
+          if (src) node.dataset.source = src;
+          const ctype = attr(xmlNode, "type");
+          if (ctype) node.dataset.type = ctype;
+          // Tooltip nur auf der ÄUSSEREN Schmitt-Hülle, damit der
+          // Cursor durch "II 47,9" nicht drei verschachtelte Karten
+          // auslöst.
+          if (unit === "schmitt") {
+            node.dataset.tooltip = buildSchmittTooltip(xmlNode);
+          }
+          break;
+        }
 
         case "app": {
           node = el("span", "tei-app");
@@ -2065,7 +2079,164 @@ header.bar {
         }
       }
     }
+/* ----------------------------------------------------------
+       buildSchmittTooltip — komponiert eine wissenschaftlich
+       korrekte Kurzreferenz für ein <citedRange unit="schmitt">.
 
+       Aufbau (zwei Blöcke, Leerzeile dazwischen):
+
+         Anselm von Canterbury
+         Epistolae, ep. 136
+
+         ed. F. S. Schmitt,
+         S. Anselmi Cantuariensis archiepiscopi Opera Omnia,
+         Bd. III, S. 281, Z. 40
+
+       Block 1 (Autor + Werk + werk-interne Stelle) wird aus dem
+       Geschwister <title @ref> aufgelöst (Werk-ID in
+       works-heiEDITIONS.xml). Block 2 (Editor + Editionstitel +
+       Schmitt-Stelle) folgt @source -> <bibl xml:id="ed-schmitt">
+       -> <ptr target="#schmitt-opera"> auf das Top-Level-
+       Editionsbibl.
+
+       Sprache der Labels (Bd./S./Z./ed./ep./cap.) richtet sich
+       nach LANG (?lang=...). Fallback: Deutsch.
+
+       Jeder Block, der nicht voll aufgelöst werden kann, wird
+       schlicht weggelassen — kein erfundener Inhalt. */
+
+    const SCHMITT_LABELS = {
+      de: {
+        ed: "ed.",  vol: "Bd.", page: "S.",  line: "Z.",
+        letter: "ep.",  chapter: "cap.",
+        rangeSep: " – ",  enumSep: "; "
+      },
+      en: {
+        ed: "ed.",  vol: "vol.", page: "p.",  line: "l.",
+        letter: "ep.",  chapter: "cap.",
+        rangeSep: " – ",  enumSep: "; "
+      }
+    };
+
+    function schmittLabels() {
+      return SCHMITT_LABELS[LANG] || SCHMITT_LABELS.de;
+    }
+
+    function buildSchmittTooltip(schmittEl) {
+      const L = schmittLabels();
+      const lines = [];
+
+      /* === Block 1: Autor + Werk + werk-interne Stelle ======= */
+      const bibl = schmittEl.parentNode;
+      const titleEl = bibl && bibl.querySelector(':scope > title[ref]');
+      if (titleEl && auxDocs.works) {
+        const workId = (titleEl.getAttribute('ref') || '').split('#')[1];
+        if (workId) {
+          const workBibl = auxDocs.works.querySelector(
+            '[*|id="' + workId + '"]'
+          );
+          if (workBibl) {
+            const author = workBibl.querySelector(':scope > author');
+            const fullTitle = workBibl.querySelector(
+              ':scope > title[type="full"]'
+            );
+            if (author) lines.push(author.textContent.trim());
+            if (fullTitle) {
+              // Werk-interne Stelle aus Geschwister-<citedRange>
+              // (außer Schmitt selbst).
+              const internal = [];
+              const sibCR = bibl.querySelectorAll(':scope > citedRange');
+              sibCR.forEach(cr => {
+                const u = cr.getAttribute('unit');
+                if (!u || u === 'schmitt') return;
+                const txt = cr.textContent.trim();
+                if (!txt) return;
+                const prefixMap = {
+                  'letter':       L.letter + ' ',
+                  'chapter':      L.chapter + ' ',
+                  'book-chapter': '',
+                  'praefatio':    '',
+                };
+                const prefix = (u in prefixMap) ? prefixMap[u] : (u + ' ');
+                internal.push(prefix + txt);
+              });
+              let workLine = fullTitle.textContent.trim();
+              if (internal.length) workLine += ', ' + internal.join(', ');
+              lines.push(workLine);
+            }
+          }
+        }
+      }
+
+      /* === Block 2: Editor + Editionstitel + Schmitt-Stelle == */
+      if (lines.length) lines.push('');  // Leerzeile
+
+      const srcAttr = schmittEl.getAttribute('source') || '';
+      const edId = srcAttr.split('#')[1];
+      let edTopBibl = null;
+      if (edId && auxDocs.works) {
+        const edBibl = auxDocs.works.querySelector(
+          '[*|id="' + edId + '"]'
+        );
+        if (edBibl) {
+          const ptr = edBibl.querySelector(':scope > ptr[target]');
+          if (ptr) {
+            const topId = (ptr.getAttribute('target') || '')
+                            .replace(/^#/, '');
+            edTopBibl = auxDocs.works.querySelector(
+              '[*|id="' + topId + '"]'
+            );
+          }
+          if (!edTopBibl) edTopBibl = edBibl;  // Fallback
+        }
+      }
+
+      const edLineParts = [];
+      if (edTopBibl) {
+        const editor = edTopBibl.querySelector(':scope > editor');
+        const edTitle = edTopBibl.querySelector(
+          ':scope > title[type="full"]'
+        );
+        if (editor) edLineParts.push(L.ed + ' ' + editor.textContent.trim());
+        if (edTitle) {
+          // Vollständiger lateinischer Editionstitel — bewußte
+          // Entscheidung (Wissenschaftlichkeit > Knappheit).
+          edLineParts.push(edTitle.textContent.replace(/\s+/g, ' ').trim());
+        }
+      }
+      if (edLineParts.length) lines.push(edLineParts.join(', '));
+
+      // Schmitt-Stelle (Band/Seite/Zeile) aus den eigenen Kindern.
+      const vol   = schmittEl.querySelector(':scope > citedRange[unit="volume"]');
+      const pages = schmittEl.querySelectorAll(':scope > citedRange[unit="page"]');
+      const lns   = schmittEl.querySelectorAll(':scope > citedRange[unit="line"]');
+      const isRange = schmittEl.getAttribute('type') === 'range';
+
+      const locParts = [];
+      if (vol) locParts.push(L.vol + ' ' + vol.textContent.trim());
+      if (pages.length === 1 && lns.length === 1) {
+        locParts.push(L.page + ' ' + pages[0].textContent.trim());
+        locParts.push(L.line + ' ' + lns[0].textContent.trim());
+      } else if (pages.length >= 2) {
+        // Verbundzitat ("; ") oder Range ("–") — @type entscheidet.
+        const pairs = [];
+        for (let i = 0; i < pages.length && i < lns.length; i++) {
+          pairs.push(L.page + ' ' + pages[i].textContent.trim() +
+                     ' ' + L.line + ' ' + lns[i].textContent.trim());
+        }
+        const sep = isRange ? L.rangeSep : L.enumSep;
+        locParts.push(pairs.join(sep));
+      }
+      if (locParts.length) {
+        const lastLine = lines.pop() || '';
+        lines.push(lastLine
+          ? (lastLine + ', ' + locParts.join(', '))
+          : locParts.join(', '));
+      }
+
+      return lines.join('\n');
+    }
+    
     function convertChildren(xmlNode, htmlParent) {
       xmlNode.childNodes.forEach(child => convertNode(child, htmlParent));
     }
