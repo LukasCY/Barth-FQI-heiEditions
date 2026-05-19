@@ -47,16 +47,15 @@
       padding: 0;
       line-height: 1.55;
       min-height: 100vh;
-      /* Grid: links TOC (320px), rechts Header + Citation + Reader */
+      /* Grid: einspaltig — Header (Row 1), Citation (Row 2),
+         Reader (Row 3). TOC liegt als overlay drawer darüber,
+         standardmäßig eingeklappt (s. nav.toc). */
       display: grid;
-      grid-template-columns: var(--toc-width) 1fr;
+      grid-template-columns: 1fr;
       grid-template-rows: auto auto 1fr;
     }
-    /* Container für Reader-Inhalt, der vorher direkt am body hing.
-       Wir behalten die ursprüngliche max-width für Lesefluss und
-       Apparat-Ansichten bei (Lesbarkeitsgrenze ≈ 760 px). */
     main.reader {
-      grid-column: 2 / 3;
+      grid-column: 1 / -1;
       grid-row: 3 / 4;
       overflow-y: auto;
       padding: 1em 1em 4em;
@@ -81,14 +80,18 @@
     }
 
     /* ============================================================
-       TOC-Spalte (links)
-       Desktop: feste 320 px-Spalte, sticky-ähnlich (eigenes Scroll).
-       Mobile (< 900 px): TOC wird zu einer Schublade (drawer),
-       per Hamburger-Button geöffnet.
+       TOC: Schublade (drawer), Default eingeklappt
+       Per ☰-Button in der Header-Leiste ein-/ausklappbar — sowohl
+       auf Desktop als auch auf Mobile. So bleibt die Lesefläche
+       maximal breit; das TOC erscheint erst auf Anforderung.
        ============================================================ */
     nav.toc {
-      grid-column: 1 / 2;
-      grid-row: 1 / -1;     /* TOC erstreckt sich über alle Zeilen */
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: min(85%, var(--toc-width));
+      z-index: 100;
       background: var(--c-toc-bg);
       border-right: 1px solid var(--c-toc-border);
       overflow-y: auto;
@@ -96,7 +99,12 @@
       font-family: "Source Sans Pro", -apple-system, sans-serif;
       font-size: 0.83rem;
       line-height: 1.4;
-      max-height: 100vh;
+      transform: translateX(-100%);
+      transition: transform 0.2s ease-out;
+      box-shadow: 2px 0 12px rgba(0,0,0,0.15);
+    }
+    nav.toc.open {
+      transform: translateX(0);
     }
     nav.toc h2 {
       font-family: "Source Serif Pro", Georgia, serif;
@@ -193,9 +201,11 @@
       font-size: 0.68rem;
       color: var(--c-muted);
     }
-    /* Hamburger-Button (nur mobile) und Drawer-Backdrop */
+    /* Hamburger-Button (Desktop + Mobile) zum Ein-/Ausklappen des TOC-
+       Drawers. Da das TOC standardmäßig eingeklappt ist, ist dieser
+       Button die einzige Möglichkeit, das Inhaltsverzeichnis zu öffnen. */
     .toc-hamburger {
-      display: none;
+      display: inline-flex;
       background: transparent;
       border: 1px solid var(--c-rule);
       width: 38px;
@@ -207,6 +217,7 @@
       justify-content: center;
       flex-direction: column;
       gap: 4px;
+      flex: 0 0 auto;
     }
     .toc-hamburger span {
       display: block;
@@ -223,7 +234,7 @@
     }
     .toc-drawer-backdrop.visible { display: block; }
     .toc-close {
-      display: none;
+      display: block;
       background: transparent;
       border: 0;
       font-size: 1.4rem;
@@ -238,15 +249,15 @@
        Header / Controls
        ============================================================ */
     header.bar {
-      grid-column: 2 / 3;
+      grid-column: 1 / -1;
       grid-row: 1 / 2;
       margin: 0;
       padding: 0.9em 1em 0.8em;
       display: flex;
       justify-content: space-between;
-      align-items: flex-start;
+      align-items: center;
       flex-wrap: wrap;
-      gap: 1em;
+      gap: 0.6em 1em;
       background: var(--c-toc-bg);
       border-bottom: 1px solid var(--c-toc-border);
     }
@@ -270,9 +281,11 @@
     }
     .controls-wrap {
       display: flex;
-      flex-direction: column;
-      gap: 0.4em;
-      align-items: flex-end;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 0.6em 1em;
+      align-items: center;
+      justify-content: flex-end;
     }
     .controls {
       display: flex;
@@ -576,35 +589,10 @@
       color: var(--c-muted);
     }
 
-    /* Mobile responsive: TOC wird zur Schublade */
+    /* Mobile-spezifisches Layout: kleinere Page-Innenmaße. Das
+       TOC-Drawer-Verhalten ist jetzt global (s. nav.toc oben),
+       gilt also für Desktop und Mobile gleichermaßen. */
     @media (max-width: 900px) {
-      body {
-        grid-template-columns: 1fr;
-      }
-      nav.toc {
-        position: fixed;
-        top: 0;
-        left: 0;
-        bottom: 0;
-        width: min(85%, 320px);
-        z-index: 100;
-        transform: translateX(-100%);
-        transition: transform 0.2s ease-out;
-        box-shadow: 2px 0 12px rgba(0,0,0,0.15);
-      }
-      nav.toc.open {
-        transform: translateX(0);
-      }
-      nav.toc .toc-close { display: block; }
-      .toc-hamburger {
-        display: inline-flex;
-      }
-      header.bar {
-        grid-column: 1 / -1;
-      }
-      main.reader {
-        grid-column: 1 / -1;
-      }
       .ga-page {
         padding: 1.5em 1.2em 1em;
       }
@@ -1053,8 +1041,8 @@
        Default: zugeklappt, um den Lesefluss nicht zu stören.
        ============================================================ */
     #citation-bar {
-      grid-column: 2 / 3;
-      grid-row: 2 / 3;   /* unter dem Header, vor dem Reader */
+      grid-column: 1 / -1;
+      grid-row: 2 / 3;
       align-self: start;
       max-width: 100%;
       margin: 0;
@@ -1063,15 +1051,6 @@
       border-bottom: 1px solid var(--c-rule);
       background: #fbfaf6;
       z-index: 5;
-    }
-    /* Wenn die Citation-Bar offen ist, soll sie sich nicht über
-       den Reader legen — sie ist Teil der Grid-Struktur und
-       drückt den Reader entsprechend nach unten. Wenn das stört,
-       ist die Bar einfach wieder zuzuklappen. */
-    @media (max-width: 900px) {
-      #citation-bar {
-        grid-column: 1 / -1;
-      }
     }
     #citation-bar > summary {
       cursor: pointer;
@@ -1214,17 +1193,13 @@
        Responsive — Mobile
        ============================================================ */
     @media (max-width: 600px) {
-      body {
-        margin: 1em auto;
-        padding: 0 0.6em 3em;
-      }
       header.bar {
         flex-direction: column;
         align-items: stretch;
         gap: 0.6em;
       }
       .controls-wrap {
-        align-items: stretch;
+        justify-content: flex-start;
       }
       h1 { font-size: 1.05rem; }
       body.view-ga-print #TEI {
@@ -1262,7 +1237,7 @@
     <h1>
       Karl Barth, <em>Fides quaerens intellectum</em>
       <span class="h1-sub" id="header-subtitle">
-        GA II.13 — digitale Edition (heiEDITIONS-Demonstrator, nur §1.1 S.13-16)
+        GA II.13 — digitale Edition (heiEDITIONS-Demonstrator, nur § 1.1 S. 13–16)
       </span>
     </h1>
     <div class="controls-wrap">
@@ -2289,7 +2264,12 @@
       a.addEventListener("click", e => {
         e.preventDefault();
         location.hash = "#" + id;
-        if (window.innerWidth < 900) closeToc();
+        // Drawer schließen: das TOC ist jetzt grundsätzlich als
+        // Schublade ausgeführt (Desktop + Mobile), und ein gerade
+        // ausgewählter Knoten wird durch die Hash-Routing-Logik
+        // ohnehin gerendert. Das Drawer offen zu lassen würde nur
+        // den Lesefluss verdecken.
+        closeToc();
       });
 
       li.appendChild(a);
@@ -2610,21 +2590,67 @@
       fillCitationBar(xmlDoc, witIdForView(currentViewSlug()));
       updateWitnessButtonsAvailability();
 
-      // Nach Render: zum Anker scrollen
+      // Nach Render: zum Anker scrollen.
+      // Problem: bei cloneRangeBetweenPbs entstehen pro übergreifender
+      // Section mehrere Klone in mehreren ga-pages — alle tragen
+      // dieselbe xml:id. Ein bloßes querySelector('#sec-I-1') trifft
+      // dann den ERSTEN Treffer, der häufig in einer leeren (Vakat-)
+      // Seite liegt und damit visuell nichts bringt. Wir lösen den
+      // Anker daher über die TEI-Quelle auf: zur Section "sec-I-1"
+      // suchen wir das erste <pb ed="#GA"> *innerhalb* dieser Section
+      // und scrollen zu dessen ga-page-Container (dessen id = xml:id
+      // des pb, vgl. renderOneGaPage). So landet der Leser zuverlässig
+      // auf der Druckseite, mit der die Section beginnt.
       if (anchor) {
         requestAnimationFrame(() => {
-          const target = teiContainer.querySelector('#' + cssEscape(anchor));
+          const target = resolveAnchorTarget(xmlDoc, anchor);
           if (target) {
             target.scrollIntoView({ behavior: "smooth", block: "start" });
           } else {
-            // Fallback: nach dem ersten <pb ed="#GA"> aufschlagen
-            const reader = document.getElementById("reader");
-            reader.scrollTo({ top: 0, behavior: "instant" });
+            document.getElementById("reader").scrollTo({ top: 0, behavior: "instant" });
           }
         });
       } else {
         document.getElementById("reader").scrollTo({ top: 0, behavior: "instant" });
       }
+    }
+
+    /* Übersetzt einen TEI-xml:id-Anker in das tatsächliche HTML-
+       Zielement im Reader. Bevorzugt die "echte" Startseite einer
+       Section (= ga-page des ersten in der Section enthaltenen GA-pb).
+       Fallbacks der Reihe nach:
+         1. xml:id ist selbst ein pb → ga-page mit dieser id direkt
+         2. xml:id eines tei-Knotens (z.B. div, head) → erstes GA-pb
+            innerhalb der TEI-Section → dessen ga-page suchen
+         3. letzter Notnagel: erstes HTML-Element mit dieser id im
+            Reader (kann mehrfach vorkommen — getElementById nimmt
+            den ersten Treffer, was meist die Vakatseite ist; nur
+            als letzte Option)
+    */
+    function resolveAnchorTarget(xmlDoc, anchorId) {
+      const reader = document.getElementById("reader");
+
+      // (1) Direkter pb-Anker?
+      const directGaPage = reader.querySelector('.ga-page[id="' + cssEscape(anchorId) + '"]');
+      if (directGaPage) return directGaPage;
+
+      // (2) TEI-Element mit dieser xml:id finden, dann erstes pb
+      const teiEl = xmlDoc.querySelector('[*|id="' + anchorId + '"]');
+      if (teiEl) {
+        const firstPb = teiEl.querySelector('pb[ed="#GA"]')
+                     || (teiEl.localName === "pb" ? teiEl : null);
+        if (firstPb) {
+          const pbId = firstPb.getAttribute("xml:id")
+                    || firstPb.getAttributeNS(XML_NS, "id");
+          if (pbId) {
+            const pg = reader.querySelector('.ga-page[id="' + cssEscape(pbId) + '"]');
+            if (pg) return pg;
+          }
+        }
+      }
+
+      // (3) Notnagel
+      return reader.querySelector('#' + cssEscape(anchorId));
     }
 
     function renderPlaceholderForItem(label, page, customNote) {
@@ -2654,7 +2680,7 @@
       teiXmlDoc = null;
       setActiveToc(null);
       const header = document.getElementById("header-subtitle");
-      if (header) header.textContent = "GA II.13 — digitale Edition (heiEDITIONS-Demonstrator)";
+      if (header) header.textContent = "GA II.13 — digitale Edition (heiEDITIONS-Demonstrator, nur § 1.1 S. 13–16)";
 
       const tocList = State.toc.querySelector('div[type="contents"] list[type="toc"]');
       let bodyHtml = '<ul class="toc-landing-list">';
