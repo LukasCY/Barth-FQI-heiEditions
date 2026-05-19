@@ -2879,13 +2879,21 @@ header.bar {
          visuell anders gerendert (Schraffur + Hinweistext).
        ============================================================ */
     function renderGAPaged(xmlDoc, container) {
-      const body = xmlDoc.querySelector("body");
-      if (!body) {
+      let rootNode = xmlDoc.querySelector("body");
+      
+      /* 新增：如果有點擊特定章節（存在 anchor），則將渲染範圍縮小到該章節 */
+      if (State.activeAnchor) {
+        const anchorNode = xmlDoc.querySelector('[*|id="' + State.activeAnchor + '"]');
+        if (anchorNode) rootNode = anchorNode;
+      }
+
+      if (!rootNode) {
         renderContinuous(xmlDoc, container);
         return;
       }
 
-      const gaPbs = Array.from(xmlDoc.querySelectorAll('pb[ed="#GA"]'));
+      /* 修改：只在縮小範圍後的 rootNode 裡面尋找分頁標記 */
+      const gaPbs = Array.from(rootNode.querySelectorAll('pb[ed="#GA"]'));
       if (gaPbs.length === 0) {
         renderContinuous(xmlDoc, container);
         return;
@@ -2896,7 +2904,9 @@ header.bar {
       for (let i = 0; i < gaPbs.length; i++) {
         const startPb = gaPbs[i];
         const endPb = gaPbs[i + 1] || null;
-        const slice = cloneRangeBetweenPbs(body, startPb, endPb);
+        /* 修改：使用 rootNode 替代 body 進行範圍提取 */
+        const slice = cloneRangeBetweenPbs(rootNode, startPb, endPb);
+        
         pageSlices.push({
           n: startPb.getAttribute("n"),
           type: startPb.getAttribute("type") || "",
