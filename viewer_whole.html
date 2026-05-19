@@ -2585,8 +2585,6 @@ header.bar {
           '</div>';
         teiXmlDoc = null;
         updateWitnessButtonsAvailability();
-        /* ADDED: 點擊尚未建置的 Aggregate 節點時，強制刷新引文 */
-        fillCitationBar(State.toc, witIdForView(currentViewSlug()));
         return;
       }
 
@@ -2643,7 +2641,7 @@ header.bar {
       //  vollkodiert sind. Der Banner ist daher entfallen.)
 
       renderAll();
-      fillCitationBar(xmlDoc, witIdForView(currentViewSlug()));
+
       updateWitnessButtonsAvailability();
 
       // Nach Render: zum Anker scrollen.
@@ -2724,9 +2722,6 @@ header.bar {
           (page ? '<p style="font-size: 0.78rem; color: var(--c-muted); margin-top: 0.8em;">GA S. ' + escapeHtml(page) + ' ff.</p>' : '') +
         '</div>';
       updateWitnessButtonsAvailability();
-      
-      /* ADDED: Force updating the citation bar when switching to a placeholder/non-encoded item */
-      fillCitationBar(State.toc, witIdForView(currentViewSlug()));
     }
 
     /* ============================================================
@@ -2810,9 +2805,6 @@ header.bar {
 
       updateWitnessButtonsAvailability();
       document.getElementById("reader").scrollTo({ top: 0, behavior: "instant" });
-
-      /* ADDED: Force updating the citation bar when returning to the landing page (clears specific section citation) */
-      fillCitationBar(State.toc, witIdForView(currentViewSlug()));
     }
 
     /* ============================================================
