@@ -434,6 +434,25 @@ inside § 1, the optional `@source="works-heiEDITIONS.xml#ed-schmitt"`
 is attached as a demonstration of how editions-layer linkage scales;
 see § *Extensibility — Editions Layer*.
 
+By placing the *band/page/line* tail inside `<citedRange unit="schmitt">`
+rather than leaving `II 47,9` as inline text, the edition turns what is,
+in print, an opaque alphanumeric string into a structured, queryable
+citation object. A reverse index of the kind *"all footnotes in § 1
+that cite Schmitt volume III"* becomes a single XPath
+(`//citedRange[@unit='schmitt' and starts-with(., 'III')]`) rather
+than a regex over typographic variants. Where the `unit="schmitt"`
+element wraps three nested `<citedRange>` children (`unit="volume"`,
+`unit="page"`, `unit="line"`; see § *Schmitt citations — nested form*
+below), the same query gains line-level granularity:
+`//citedRange[@unit='line']/@from` returns every line number cited in
+the work. This is the concrete sense in which the digital edition
+realises Šimek's *extensional* dimension (Šimek 2022, §§ 3.4, 4)
+on the citation layer itself: the apparatus's bibliographic references
+are no longer ornamental annotations of a base text but **first-class
+data** that can be aggregated, counted, cross-referenced and resolved
+against external manifestations — operations that print can present
+but cannot perform.
+
 #### 4c. Theological concepts — `terms-heiEDITIONS.xml`
 
 This is an **extension** of Šimek's fourth dimension specific to
