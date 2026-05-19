@@ -489,9 +489,15 @@ plain text and is preserved verbatim. The structure adds three things:
 3. **Faithful representation of compound and range citations.**
    - `II 48,8f.; 49,19` — two `page,line` pairs separated by a literal
      `; ` between them. Both refer to volume II.
-   - `I 83,27–84,2` — cross-page range, encoded as two `page,line`
-     pairs separated by `–`; no `@to` is emitted because the range
-     spans pages, not lines.
+   - `I 83,27–84,2` — cross-page range, encoded with `@type="range"`
+     on the outer `<citedRange unit="schmitt">` and two `page,line`
+     pairs internally (the en-dash between them is plain text, kept
+     for the reading view). No `@to` is emitted, because the range
+     spans pages, not lines. The `@type="range"` marker means *"this
+     is a continuous span"* is first-class data, not an inference
+     from the en-dash glyph — XPath `//citedRange[@unit='schmitt'
+     and @type='range']` returns every cross-page citation in the
+     edition.
    - `II 116,5ff.` — single page/line, the `ff.` kept in the line
      element's text, `@from="5"`.
 
