@@ -46,11 +46,11 @@
       margin: 0;
       padding: 0;
       line-height: 1.55;
-      height: 100vh;
+      height: 100vh;  /* 舊版瀏覽器備用 */
+      height: 100dvh; /* 新增：完美適配手機動態網址列，防止底部或頂部被吃掉 */
       display: grid;
       grid-template-columns: 1fr;
-      /* 修改：增加一列 auto 來容納設定面板 */
-      grid-template-rows: auto auto auto 1fr; 
+      grid-template-rows: auto auto auto 1fr;
       overflow: hidden;
     }
     main.reader {
@@ -324,6 +324,9 @@ header.bar {
       align-items: center;
       justify-content: flex-start;
       padding: 0.2em 0.8em 0.7em; 
+      /* 新增：防止設定面板撐爆螢幕，並允許內部滑動 */
+      max-height: 35vh; 
+      overflow-y: auto; 
     }
     .controls {
       display: flex;
@@ -1111,6 +1114,9 @@ header.bar {
       display: flex;
       flex-direction: column;
       gap: 0.5em;
+      /* 新增：防止引文面板撐爆螢幕，並允許內部滑動 */
+      max-height: 40vh; 
+      overflow-y: auto; 
     }
     .cite-row {
       display: grid;
@@ -1233,9 +1239,14 @@ header.bar {
        ============================================================ */
     @media (max-width: 600px) {
       header.bar {
-        /* 修改：維持 Grid 排版，防止破圖 */
         display: grid;
         grid-template-columns: auto 1fr;
+        /* 新增：讓漢堡按鈕與標題頂部對齊，防止標題折行時按鈕位置跑掉 */
+        align-items: start; 
+      }
+      header.bar .toc-hamburger {
+        /* 新增：微調漢堡按鈕的頂部間距，使其與文字第一行對齊 */
+        margin-top: 0.15em; 
       }
       .controls-wrap {
         justify-content: flex-start;
@@ -2574,6 +2585,8 @@ header.bar {
           '</div>';
         teiXmlDoc = null;
         updateWitnessButtonsAvailability();
+        /* ADDED: 點擊尚未建置的 Aggregate 節點時，強制刷新引文 */
+        fillCitationBar(State.toc, witIdForView(currentViewSlug()));
         return;
       }
 
