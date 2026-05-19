@@ -476,26 +476,24 @@ header.bar {
           var(--c-ga-page) 0, var(--c-ga-page) 8px,
           rgba(181,136,0,0.04) 8px, rgba(181,136,0,0.04) 16px);
     }
-    .ga-page.stub .ga-page-body::after {
-      content: "Volltext in Vorbereitung";
+    /* 新增：統一的 Stub 提示詞樣式 */
+    .stub-notice {
+      margin: 4em auto 2em;
+      text-align: center;
       display: block;
-      margin: 4em auto 0;
+    }
+    .stub-notice .de {
       font-style: italic;
       color: var(--c-status-stub);
-      text-align: center;
       font-size: 0.9rem;
       letter-spacing: 0.04em;
+      margin-bottom: 0.5em;
     }
-    .ga-page.stub .ga-page-body::before {
-      content: "Full text pending transcription";
-      display: block;
-      margin: 0 auto 0.5em;
+    .stub-notice .en {
       font-style: italic;
       color: var(--c-muted);
-      text-align: center;
       font-size: 0.72rem;
       letter-spacing: 0.04em;
-      order: 99;
     }
 
     /* Placeholder für komplett fehlende Sections / aggregate fallback */
@@ -1986,6 +1984,14 @@ header.bar {
       }
       convertChildren(xmlNode, node);
       htmlParent.appendChild(node);
+
+      /* 新增：在所有視圖的 Stub 章節末尾統一插入德語/英語提示語 */
+      if (tag === "div" && attr(xmlNode, "type") === "section" && isStubSlice(xmlNode)) {
+        const stubNotice = document.createElement("div");
+        stubNotice.className = "stub-notice";
+        stubNotice.innerHTML = '<div class="de">Volltext in Vorbereitung</div><div class="en">Full text pending transcription</div>';
+        node.appendChild(stubNotice);
+      }
 
       if (tag === "app") {
         const appId = attr(xmlNode, "xml:id") || "";
