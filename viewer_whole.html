@@ -3543,14 +3543,6 @@ header.bar {
       // <title type="part">-Elemente mehr (sie wären zwangsläufig
       // unpräzise, wenn eine Datei mehrere §§ enthält).
       // ----------------------------------------------------------
-      let partTitle = "";
-      if (State.activeTocId) {
-        const activeItem = State.tocItemsById.get(State.activeTocId);
-        if (activeItem) {
-          const refEl = activeItem.querySelector(":scope > ref");
-          if (refEl) partTitle = collapseSpace(refEl.textContent);
-        }
-      }
 
       const gaBibl = witnessRoot.querySelector('witness[*|id="GA"] bibl');
       const gaTitleMain = gaBibl
@@ -3564,20 +3556,14 @@ header.bar {
         ? (digiDateEl.getAttribute("when") || textOf(digiDateEl))
         : "";
 
-      // Für die URL: wenn ein Knoten aktiv ist, hängen wir seinen
-      // toc-id als Fragment an, damit das Zitat direkt auf diese
-      // Section verlinkt.
+      // Simplified: URL points to the main project page without dynamic hash fragments
       let digiURL = (typeof window !== "undefined" && window.location)
         ? window.location.origin + window.location.pathname
         : "";
-      if (digiURL && State.activeTocId) {
-        digiURL += "#" + State.activeTocId;
-      }
 
       const digital =
         (encoderName ? encoderName + " (Hg.): " : "") +
         (gaTitleMain ? "<i>" + gaTitleMain + "</i>" : "") +
-        (partTitle ? ", " + partTitle : "") +
         (digiPublisher ? " — " + digiPublisher : "") +
         (digiYear ? ", " + digiYear : "") +
         (digiURL ? ", URL: " + digiURL : "") +
