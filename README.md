@@ -131,6 +131,84 @@ full with rationale and examples in
 
 ---
 
+## How the TEI is shaped (and why these specific choices)
+
+The TEI encoding is not "TEI in general" but a set of named decisions, each
+trading something away for something gained. Six of them are worth pointing
+out, because they show up everywhere in the files and they are what makes
+this prototype something different from a typographic transcription with
+angle brackets.
+
+1. **Šimek's five dimensions as the actual encoding scaffold, not as
+   decoration.** Every `<editorialDecl>` declares the project's five
+   working layers — *semantic-logical*, *visual-material*, *linguistic*,
+   *extensional*, *variant* (Šimek 2022) — and the encoding of each
+   `<note>`, `<bibl>`, `<persName>`, `<hi>` etc. is consistent with
+   exactly one of them. The five-fold structure of `ENCODING.md` mirrors
+   this. The cost is editor discipline; the gain is that asking
+   *"what does this edition do at the extensional layer?"* is a single
+   document section, not an archaeology dig.
+
+2. **`@ana="hc:..."` on every semantic entity.** Names, work-titles,
+   subject references and quotations carry an `@ana` value drawn from
+   the heiEDITIONS concept vocabulary — `hc:PersonReference`,
+   `hc:WorkReference`, `hc:SubjectReference`, `hc:PrimarySourceQuotation`,
+   `hc:AuthorialNote`. This makes the apparatus *queryable by role*:
+   `//persName[@ana='hc:PersonReference']` returns every person mention
+   in the edition without traversing prose. heiEDITIONS-interchange is
+   built on this: not just *that* an entity is referenced, but *as what*.
+
+3. **Citation tails as structured data, not strings.** Where Barth writes
+   `II 47,9` (Schmitt's *Opera Omnia*, volume II, page 47, line 9), the
+   apparatus encodes this as a `<citedRange unit="schmitt">` whose three
+   nested children (`unit="volume"`, `unit="page"`, `unit="line"`)
+   expose the parts to XPath. `@from` on `<citedRange unit="line">`
+   carries the leading integer even where the textual form preserves
+   `f.` or `ff.`; `@source="works-heiEDITIONS.xml#ed-schmitt"` on the
+   outer element anchors the citation in a specific FRBR-*manifestation*
+   while `<title @ref>` continues to identify the FRBR-*work*. A reverse
+   index *"all footnotes citing Schmitt vol. III"* becomes one XPath;
+   *"all line numbers Barth cites from p. 47"* another.
+
+4. **External authority files instead of inline strings.** Persons,
+   works and theological terms each live in their own data file
+   (`persons-heiEDITIONS.xml`, `works-heiEDITIONS.xml`,
+   `terms-heiEDITIONS.xml`) with stable `xml:id`s and external authority
+   links (GND, VIAF, Wikidata where applicable). The encoded text never
+   says `<persName>Anselm</persName>` and is done with it; it says
+   `<persName ref="persons-heiEDITIONS.xml#anselm">Anselm</persName>`.
+   The cost is one extra indirection per entity; the gain is that
+   correcting a date, adding an alternative spelling, or hooking the
+   edition into a future linked-data context is a one-place change.
+
+5. **Witness sigla declared once, attached everywhere.** The four
+   witnesses (`#A`, `#A2`, `#GA`, `#B`) are declared in the project
+   header. Every `<note>`, every editorial intervention, and every
+   apparatus entry carries `@wit` listing the witnesses to which it
+   applies. The variant layer is therefore not a separate document but
+   a property of the same elements that carry the text — which is what
+   makes parallel-segmentation visible to the reader-mode toggle in the
+   viewer.
+
+6. **Interchange, not interoperability — and the difference is
+   load-bearing.** Following Holmes 2017 and Šimek's footnote 14, the
+   project does not claim that the TEI plugs into the running
+   heiEDITIONS frontend without work; the frontend and database layer
+   of heiEDITIONS are not publicly reusable. What it does claim is that
+   the data layer — the TEI, the personography, the bibliography, the
+   term register, the rendering taxonomy — is structurally and
+   documentarily prepared so that *importing* into heiEDITIONS or a
+   comparable infrastructure is a tractable task, not a rewrite. The
+   distinction is the difference between *"works out of the box"* and
+   *"reads cleanly into the next system"*; this edition aims for the
+   second.
+
+The full element-by-element rationale, with examples and trade-off
+discussion for each of these decisions, is in
+[`docs/ENCODING.md`](docs/ENCODING.md).
+
+---
+
 ## Repository layout
 
 | Layer | File(s) |
