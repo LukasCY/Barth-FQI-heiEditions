@@ -987,7 +987,7 @@
           <hi rend="#letter-spaced">ad</hi> illam</hi></quote>
           (<bibl><title ref="works-heiEDITIONS.xml#monologion" ana="hc:WorkReference" xml:lang="la">Monol.</title>
           <citedRange unit="chapter">76</citedRange>,
-          <citedRange unit="schmitt" source="works-heiEDITIONS.xml#ed-schmitt"><citedRange unit="volume">I</citedRange> <citedRange unit="page">83</citedRange>,<citedRange unit="line" from="27">27</citedRange>–<citedRange unit="page">84</citedRange>,<citedRange unit="line" from="2">2</citedRange></citedRange></bibl>).
+          <citedRange unit="schmitt" type="range" source="works-heiEDITIONS.xml#ed-schmitt"><citedRange unit="volume">I</citedRange> <citedRange unit="page">83</citedRange>,<citedRange unit="line" from="27">27</citedRange>–<citedRange unit="page">84</citedRange>,<citedRange unit="line" from="2">2</citedRange></citedRange></bibl>).
         </note>
 
         <note place="foot" n="9" xml:id="fn-9" type="authorial"
@@ -1087,7 +1087,7 @@
               ana="hc:AuthorialNote" wit="#A #A2 #GA" source="#ga-16">
           <bibl rend="cf"><title ref="works-heiEDITIONS.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">C. D. h.</title>
           <citedRange unit="book-chapter">I 1</citedRange>,
-          <citedRange unit="schmitt" source="works-heiEDITIONS.xml#ed-schmitt"><citedRange unit="volume">II</citedRange> <citedRange unit="page">48</citedRange>,<citedRange unit="line" from="16">16</citedRange>–<citedRange unit="page">49</citedRange>,<citedRange unit="line" from="2">2</citedRange></citedRange></bibl>.
+          <citedRange unit="schmitt" type="range" source="works-heiEDITIONS.xml#ed-schmitt"><citedRange unit="volume">II</citedRange> <citedRange unit="page">48</citedRange>,<citedRange unit="line" from="16">16</citedRange>–<citedRange unit="page">49</citedRange>,<citedRange unit="line" from="2">2</citedRange></citedRange></bibl>.
           <quote xml:lang="la" ana="hc:PrimarySourceQuotation"><hi rend="#italic">Saepe namque aliquid
           esse certi sumus et tamen hoc ratione probare nescimus</hi></quote>
           (<bibl><title ref="works-heiEDITIONS.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">ib.</title>
