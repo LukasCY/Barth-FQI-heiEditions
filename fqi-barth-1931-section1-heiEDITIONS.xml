@@ -422,7 +422,7 @@
           (<mentioned>Monol.</mentioned>, <mentioned>Prosl.</mentioned>,
           <mentioned>C. D. h.</mentioned>,
           <mentioned>Ep. de incarn.</mentioned>) verweisen via
-          <gi>title ref="works.xml#…" ana="hc:WorkReference"</gi> auf
+          <gi>title ref="works-heiEDITIONS.xml#…" ana="hc:WorkReference"</gi> auf
           Anselms Werke. Die Stellenangaben (z. B.
           <mentioned>II 47,9</mentioned>) gelten als Band/Seite/Zeile
           der Ausgabe <bibl><author>F. S. Schmitt</author>,
@@ -678,7 +678,7 @@
 
           Ist es Zufall, wenn gerade als Zweck der so ausgesprochen
           beweisen wollenden Schrift
-          <bibl><title ref="works.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">
+          <bibl><title ref="works-heiEDITIONS.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">
             <hi rend="#italic">Cur Deus homo</hi></title></bibl>
           dieses <rs ref="terms.xml#delectatio" ana="hc:SubjectReference" xml:lang="la"><foreign xml:lang="la"><hi rend="#italic">delectari</hi></foreign></rs>
           an erster, die polemische Verantwortung nach
@@ -693,7 +693,7 @@
           <persName ref="persons.xml#anselm" ana="hc:PersonReference">Anselm</persName> sein, ob
           man in der Lage ist, zu verstehen, daß die Verzweiflung, mit
           der er im Proömium des
-          <bibl><title ref="works.xml#proslogion" ana="hc:WorkReference" xml:lang="la">
+          <bibl><title ref="works-heiEDITIONS.xml#proslogion" ana="hc:WorkReference" xml:lang="la">
             <hi rend="#italic">Pros<pb n="15" ed="#A" xml:id="a-15"/>logion</hi></title></bibl>
           nach jenem <rs ref="terms.xml#unum-argumentum" ana="hc:SubjectReference" xml:lang="la"><foreign xml:lang="la"><hi rend="#italic">unum
           argumentum</hi></foreign></rs> gesucht zu<pb n="14" ed="#GA" xml:id="ga-14"/> haben
@@ -739,7 +739,7 @@
           fidei</hi></foreign></rs>.
           <rs ref="terms.xml#fqi-motto" ana="hc:SubjectReference" xml:lang="la"><foreign xml:lang="la"><hi rend="#italic">Fides quaerens
           intellectum</hi></foreign></rs> sollte der Titel des
-          <bibl><title ref="works.xml#proslogion" ana="hc:WorkReference" xml:lang="la">
+          <bibl><title ref="works-heiEDITIONS.xml#proslogion" ana="hc:WorkReference" xml:lang="la">
             <hi rend="#italic">Proslogion</hi></title></bibl>
           nach der Angabe des Proömium ursprünglich lauten. Also das
           und nur das <foreign xml:lang="la"><hi rend="#italic">intelligere</hi></foreign>
@@ -883,16 +883,16 @@
           <hi rend="#letter-spaced">delectabile</hi> quiddam me subito
           perduxit haec mea meditatio</hi></quote>
           <bibl>
-            <title ref="works.xml#monologion" ana="hc:WorkReference" xml:lang="la">Monol.</title>
+            <title ref="works-heiEDITIONS.xml#monologion" ana="hc:WorkReference" xml:lang="la">Monol.</title>
             <citedRange unit="chapter">6</citedRange>,
-            <citedRange unit="schmitt">I 19,15f.</citedRange>
+            <citedRange unit="schmitt" source="works-heiEDITIONS.xml#ed-schmitt"><citedRange unit="volume">I</citedRange> <citedRange unit="page">19</citedRange>,<citedRange unit="line" from="15">15f.</citedRange></citedRange>
           </bibl>.
           <quote xml:lang="la" ana="hc:PrimarySourceQuotation"><hi rend="#italic">… cum ad intellectum
           valet pertingere, <hi rend="#letter-spaced">delectatur</hi></hi></quote>
           <bibl>
-            <title ref="works.xml#anselm-epistolae" ana="hc:WorkReference" xml:lang="la">Ep.</title>
+            <title ref="works-heiEDITIONS.xml#anselm-epistolae" ana="hc:WorkReference" xml:lang="la">Ep.</title>
             <citedRange unit="letter">136</citedRange>,
-            <citedRange unit="schmitt">III 281,40</citedRange>
+            <citedRange unit="schmitt" source="works-heiEDITIONS.xml#ed-schmitt"><citedRange unit="volume">III</citedRange> <citedRange unit="page">281</citedRange>,<citedRange unit="line" from="40">40</citedRange></citedRange>
           </bibl>.
         </note>
 
@@ -901,24 +901,24 @@
           <quote xml:lang="la" ana="hc:PrimarySourceQuotation"><hi rend="#italic">… ad pascendum eos,
           qui iam corde fide mundato … fidei ratione … delectantur</hi></quote>
           <bibl>
-            <title ref="works.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">Cur Deus
+            <title ref="works-heiEDITIONS.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">Cur Deus
             homo</title>, <citedRange unit="praefatio">comm. op.</citedRange>,
-            <citedRange unit="schmitt">II 39,4ff.</citedRange>
+            <citedRange unit="schmitt" source="works-heiEDITIONS.xml#ed-schmitt"><citedRange unit="volume">II</citedRange> <citedRange unit="page">39</citedRange>,<citedRange unit="line" from="4">4ff.</citedRange></citedRange>
           </bibl>.
         </note>
 
         <note place="foot" n="3" xml:id="fn-3" type="authorial"
               ana="hc:AuthorialNote" wit="#A #A2 #GA" source="#ga-13">
           <bibl rend="cf">
-            <title ref="works.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">Cur Deus
+            <title ref="works-heiEDITIONS.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">Cur Deus
             homo</title>
             <citedRange unit="book-chapter">I 1</citedRange>,
-            <citedRange unit="schmitt">II 48,8f.; 49,19</citedRange>
+            <citedRange unit="schmitt" source="works-heiEDITIONS.xml#ed-schmitt"><citedRange unit="volume">II</citedRange> <citedRange unit="page">48</citedRange>,<citedRange unit="line" from="8">8f.</citedRange>; <citedRange unit="page">49</citedRange>,<citedRange unit="line" from="19">19</citedRange></citedRange>
           </bibl>. — Wir erfahren hier nebenbei, daß
           <persName ref="persons.xml#anselm" ana="hc:PersonReference">Anselm</persName> durchaus
           in der Lage war, sich richtig zu ärgern — über schlechte
           Christusbilder. Daß in
-          <bibl><title ref="works.xml#proslogion" ana="hc:WorkReference" xml:lang="la">Prosl.</title>
+          <bibl><title ref="works-heiEDITIONS.xml#proslogion" ana="hc:WorkReference" xml:lang="la">Prosl.</title>
           <citedRange unit="chapter">2</citedRange></bibl>
           ausgerechnet ein <foreign xml:lang="la"><hi rend="#italic">pictor</hi></foreign>
           auftritt als Kronzeuge für das Verhältnis zwischen dem
@@ -930,20 +930,20 @@
 
         <note place="foot" n="4" xml:id="fn-4" type="authorial"
               ana="hc:AuthorialNote" wit="#A #A2 #GA" source="#ga-13">
-          <bibl><title ref="works.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">C. D. h.</title>
+          <bibl><title ref="works-heiEDITIONS.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">C. D. h.</title>
           <citedRange unit="book-chapter">I 1</citedRange>,
-          <citedRange unit="schmitt">II 47,9</citedRange></bibl>;
-          vgl. auch <bibl><title ref="works.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">II 15</title>,
-          <citedRange unit="schmitt">II 116,11f.</citedRange></bibl>:
+          <citedRange unit="schmitt" source="works-heiEDITIONS.xml#ed-schmitt"><citedRange unit="volume">II</citedRange> <citedRange unit="page">47</citedRange>,<citedRange unit="line" from="9">9</citedRange></citedRange></bibl>;
+          vgl. auch <bibl><title ref="works-heiEDITIONS.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">II 15</title>,
+          <citedRange unit="schmitt" source="works-heiEDITIONS.xml#ed-schmitt"><citedRange unit="volume">II</citedRange> <citedRange unit="page">116</citedRange>,<citedRange unit="line" from="11">11f.</citedRange></citedRange></bibl>:
           <quote xml:lang="la" ana="hc:PrimarySourceQuotation"><hi rend="#italic">… ut me … intellectu
           laetifices</hi></quote>.
         </note>
 
         <note place="foot" n="5" xml:id="fn-5" type="authorial"
               ana="hc:AuthorialNote" wit="#A #A2 #GA" source="#ga-14">
-          Vgl. auch <bibl><title ref="works.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">C. D. h.</title>
+          Vgl. auch <bibl><title ref="works-heiEDITIONS.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">C. D. h.</title>
           <citedRange unit="praefatio">Praef.</citedRange>,
-          <citedRange unit="schmitt">II 42,6</citedRange></bibl>:
+          <citedRange unit="schmitt" source="works-heiEDITIONS.xml#ed-schmitt"><citedRange unit="volume">II</citedRange> <citedRange unit="page">42</citedRange>,<citedRange unit="line" from="6">6</citedRange></citedRange></bibl>:
           <quote xml:lang="la" ana="hc:PrimarySourceQuotation"><hi rend="#italic">In magna … cordis
           tribulatione …</hi></quote>.
         </note>
@@ -951,15 +951,15 @@
         <note place="foot" n="6" xml:id="fn-6" type="authorial"
               ana="hc:AuthorialNote" wit="#A #A2 #GA" source="#ga-14">
           <persName ref="persons.xml#anselm" ana="hc:PersonReference">Anselm</persName> selbst
-          hat die Schrift <bibl><title ref="works.xml#de-grammatico" ana="hc:WorkReference"
+          hat die Schrift <bibl><title ref="works-heiEDITIONS.xml#de-grammatico" ana="hc:WorkReference"
           xml:lang="la"><hi rend="#italic">De grammatico</hi></title></bibl>
           ausdrücklich als nicht theologische gekennzeichnet
-          (<bibl><title ref="works.xml#de-veritate" ana="hc:WorkReference" xml:lang="la">De
+          (<bibl><title ref="works-heiEDITIONS.xml#de-veritate" ana="hc:WorkReference" xml:lang="la">De
           verit.</title> <citedRange unit="praefatio">Praef.</citedRange>,
-          <citedRange unit="schmitt">I 173,5ff.</citedRange></bibl>).
+          <citedRange unit="schmitt" source="works-heiEDITIONS.xml#ed-schmitt"><citedRange unit="volume">I</citedRange> <citedRange unit="page">173</citedRange>,<citedRange unit="line" from="5">5ff.</citedRange></citedRange></bibl>).
           Man bemerke, daß er an derselben Stelle die nach unsern
           Begriffen rein logische bzw. metaphysische Schrift
-          <bibl><title ref="works.xml#de-veritate" ana="hc:WorkReference" xml:lang="la"><hi
+          <bibl><title ref="works-heiEDITIONS.xml#de-veritate" ana="hc:WorkReference" xml:lang="la"><hi
           rend="#italic">De veritate</hi></title></bibl> selbst als
           theologische aufführt.
         </note>
@@ -969,9 +969,9 @@
           <quote xml:lang="la" ana="hc:PrimarySourceQuotation"><hi rend="#italic">… nos vero, quia
           credimus</hi></quote> (<foreign xml:lang="la"><hi rend="#italic">rationem
           quaerimus</hi></foreign>)
-          (<bibl><title ref="works.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">C. D. h.</title>
+          (<bibl><title ref="works-heiEDITIONS.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">C. D. h.</title>
           <citedRange unit="book-chapter">I 3</citedRange>,
-          <citedRange unit="schmitt">II 50,19</citedRange></bibl>).
+          <citedRange unit="schmitt" source="works-heiEDITIONS.xml#ed-schmitt"><citedRange unit="volume">II</citedRange> <citedRange unit="page">50</citedRange>,<citedRange unit="line" from="19">19</citedRange></citedRange></bibl>).
         </note>
 
         <note place="foot" n="8" xml:id="fn-8" type="authorial"
@@ -985,9 +985,9 @@
           puto congruentius posse dici credendum esse
           <hi rend="#letter-spaced">in</hi> illam quam
           <hi rend="#letter-spaced">ad</hi> illam</hi></quote>
-          (<bibl><title ref="works.xml#monologion" ana="hc:WorkReference" xml:lang="la">Monol.</title>
+          (<bibl><title ref="works-heiEDITIONS.xml#monologion" ana="hc:WorkReference" xml:lang="la">Monol.</title>
           <citedRange unit="chapter">76</citedRange>,
-          <citedRange unit="schmitt">I 83,27–84,2</citedRange></bibl>).
+          <citedRange unit="schmitt" source="works-heiEDITIONS.xml#ed-schmitt"><citedRange unit="volume">I</citedRange> <citedRange unit="page">83</citedRange>,<citedRange unit="line" from="27">27</citedRange>–<citedRange unit="page">84</citedRange>,<citedRange unit="line" from="2">2</citedRange></citedRange></bibl>).
         </note>
 
         <note place="foot" n="9" xml:id="fn-9" type="authorial"
@@ -995,47 +995,47 @@
           <quote xml:lang="la" ana="hc:PrimarySourceQuotation"><hi rend="#italic">Deus nihil facit
           necessitate, quia nullo modo cogitur aut prohibetur facere
           aliquid</hi></quote>
-          (<bibl><title ref="works.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">C. D. h.</title>
+          (<bibl><title ref="works-heiEDITIONS.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">C. D. h.</title>
           <citedRange unit="book-chapter">II 5</citedRange>,
-          <citedRange unit="schmitt">II 100,20f.</citedRange></bibl>).
+          <citedRange unit="schmitt" source="works-heiEDITIONS.xml#ed-schmitt"><citedRange unit="volume">II</citedRange> <citedRange unit="page">100</citedRange>,<citedRange unit="line" from="20">20f.</citedRange></citedRange></bibl>).
           <quote xml:lang="la" ana="hc:PrimarySourceQuotation"><hi rend="#italic">Deus nulli quicquam
           debet, sed omnis creatura illi debet; et ideo non expedit
           homini ut agat cum Deo, quemadmodum par cum pari</hi></quote>
-          (<bibl><title ref="works.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">ib.</title>
+          (<bibl><title ref="works-heiEDITIONS.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">ib.</title>
           <citedRange unit="book-chapter">I 19</citedRange>,
-          <citedRange unit="schmitt">II 86,7ff.</citedRange></bibl>).
+          <citedRange unit="schmitt" source="works-heiEDITIONS.xml#ed-schmitt"><citedRange unit="volume">II</citedRange> <citedRange unit="page">86</citedRange>,<citedRange unit="line" from="7">7ff.</citedRange></citedRange></bibl>).
           <quote xml:lang="la" ana="hc:PrimarySourceQuotation"><hi rend="#italic">… summa veritas …
           nulli quicquam debet; nec ulla ratione est quod est, nisi
           quia est</hi></quote>
-          (<bibl><title ref="works.xml#de-veritate" ana="hc:WorkReference" xml:lang="la">De
+          (<bibl><title ref="works-heiEDITIONS.xml#de-veritate" ana="hc:WorkReference" xml:lang="la">De
           verit.</title> <citedRange unit="chapter">10</citedRange>,
-          <citedRange unit="schmitt">I 190,2ff.</citedRange></bibl>).
+          <citedRange unit="schmitt" source="works-heiEDITIONS.xml#ed-schmitt"><citedRange unit="volume">I</citedRange> <citedRange unit="page">190</citedRange>,<citedRange unit="line" from="2">2ff.</citedRange></citedRange></bibl>).
         </note>
 
         <note place="foot" n="10" xml:id="fn-10" type="authorial"
               ana="hc:AuthorialNote" wit="#A #A2 #GA" source="#ga-15">
           <quote xml:lang="la" ana="hc:PrimarySourceQuotation"><hi rend="#italic">Neque enim quaero
           intelligere, ut credam …</hi></quote>
-          (<bibl><title ref="works.xml#proslogion" ana="hc:WorkReference" xml:lang="la">Prosl.</title>
+          (<bibl><title ref="works-heiEDITIONS.xml#proslogion" ana="hc:WorkReference" xml:lang="la">Prosl.</title>
           <citedRange unit="chapter">1</citedRange>,
-          <citedRange unit="schmitt">I 100,18</citedRange></bibl>).
+          <citedRange unit="schmitt" source="works-heiEDITIONS.xml#ed-schmitt"><citedRange unit="volume">I</citedRange> <citedRange unit="page">100</citedRange>,<citedRange unit="line" from="18">18</citedRange></citedRange></bibl>).
           <quote xml:lang="la" ana="hc:PrimarySourceQuotation"><hi rend="#italic">… non ut per
           rationem ad fidem accedant</hi></quote>
-          (<bibl><title ref="works.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">C. D. h.</title>
+          (<bibl><title ref="works-heiEDITIONS.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">C. D. h.</title>
           <citedRange unit="book-chapter">I 1</citedRange>,
-          <citedRange unit="schmitt">II 47,8f.</citedRange></bibl>;
-          vgl. <bibl><title ref="works.xml#anselm-epistolae" ana="hc:WorkReference" xml:lang="la">Ep.</title>
+          <citedRange unit="schmitt" source="works-heiEDITIONS.xml#ed-schmitt"><citedRange unit="volume">II</citedRange> <citedRange unit="page">47</citedRange>,<citedRange unit="line" from="8">8f.</citedRange></citedRange></bibl>;
+          vgl. <bibl><title ref="works-heiEDITIONS.xml#anselm-epistolae" ana="hc:WorkReference" xml:lang="la">Ep.</title>
           <citedRange unit="letter">136</citedRange>,
-          <citedRange unit="schmitt">III 281,38f.</citedRange></bibl>).
+          <citedRange unit="schmitt" source="works-heiEDITIONS.xml#ed-schmitt"><citedRange unit="volume">III</citedRange> <citedRange unit="page">281</citedRange>,<citedRange unit="line" from="38">38f.</citedRange></citedRange></bibl>).
         </note>
 
         <note place="foot" n="11" xml:id="fn-11" type="authorial"
               ana="hc:AuthorialNote" wit="#A #A2 #GA" source="#ga-15">
           <quote xml:lang="la" ana="hc:PrimarySourceQuotation"><hi rend="#italic">… non ut me in fide
           confirmes</hi></quote>
-          (<bibl><title ref="works.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">C. D. h.</title>
+          (<bibl><title ref="works-heiEDITIONS.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">C. D. h.</title>
           <citedRange unit="book-chapter">II 15</citedRange>,
-          <citedRange unit="schmitt">II 116,11</citedRange></bibl>).
+          <citedRange unit="schmitt" source="works-heiEDITIONS.xml#ed-schmitt"><citedRange unit="volume">II</citedRange> <citedRange unit="page">116</citedRange>,<citedRange unit="line" from="11">11</citedRange></citedRange></bibl>).
           <persName ref="persons.xml#anselm" ana="hc:PersonReference">Anselm</persName> bittet
           dringend, ihm nicht die verwerfliche
           <foreign xml:lang="la"><hi rend="#italic">praesumptio</hi></foreign>
@@ -1053,9 +1053,9 @@
           esse gaudent</hi></foreign>, müßten sich über mich entrüsten,
           <foreign xml:lang="la"><hi rend="#italic">si eum meis
           rationibus fulcire et quasi nutantem stabilire nitar</hi></foreign>!
-          (<bibl><title ref="works.xml#ep-de-incarnatione" ana="hc:WorkReference" xml:lang="la">Ep. de
+          (<bibl><title ref="works-heiEDITIONS.xml#ep-de-incarnatione" ana="hc:WorkReference" xml:lang="la">Ep. de
           incarn.</title> <citedRange unit="chapter">1</citedRange>,
-          <citedRange unit="schmitt">II 5,7ff.</citedRange></bibl>).
+          <citedRange unit="schmitt" source="works-heiEDITIONS.xml#ed-schmitt"><citedRange unit="volume">II</citedRange> <citedRange unit="page">5</citedRange>,<citedRange unit="line" from="7">7ff.</citedRange></citedRange></bibl>).
         </note>
 
         <note place="foot" n="12" xml:id="fn-12" type="authorial"
@@ -1070,40 +1070,40 @@
             <rdg wit="#B">Non … ut</rdg>
           </app>
           auferas mihi fidei dubitationem</hi></quote>
-          (<bibl><title ref="works.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">C. D. h.</title>
+          (<bibl><title ref="works-heiEDITIONS.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">C. D. h.</title>
           <citedRange unit="book-chapter">I 25</citedRange>,
-          <citedRange unit="schmitt">II 96,6</citedRange></bibl>). Er
+          <citedRange unit="schmitt" source="works-heiEDITIONS.xml#ed-schmitt"><citedRange unit="volume">II</citedRange> <citedRange unit="page">96</citedRange>,<citedRange unit="line" from="6">6</citedRange></citedRange></bibl>). Er
           entschließt sich, den unter gewissen dogmatischen
           Schwierigkeiten Leidenden zu Hilfe zu kommen
           <foreign xml:lang="la"><hi rend="#italic">etiam si fides in
           illis superet rationem quae illis fidei videtur
           repugnare</hi></foreign>
-          (<bibl><title ref="works.xml#ep-de-incarnatione" ana="hc:WorkReference" xml:lang="la">Ep. de
+          (<bibl><title ref="works-heiEDITIONS.xml#ep-de-incarnatione" ana="hc:WorkReference" xml:lang="la">Ep. de
           incarn.</title> <citedRange unit="chapter">1</citedRange>,
-          <citedRange unit="schmitt">II 6,2f.</citedRange></bibl>).
+          <citedRange unit="schmitt" source="works-heiEDITIONS.xml#ed-schmitt"><citedRange unit="volume">II</citedRange> <citedRange unit="page">6</citedRange>,<citedRange unit="line" from="2">2f.</citedRange></citedRange></bibl>).
         </note>
 
         <note place="foot" n="13" xml:id="fn-13" type="authorial"
               ana="hc:AuthorialNote" wit="#A #A2 #GA" source="#ga-16">
-          <bibl rend="cf"><title ref="works.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">C. D. h.</title>
+          <bibl rend="cf"><title ref="works-heiEDITIONS.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">C. D. h.</title>
           <citedRange unit="book-chapter">I 1</citedRange>,
-          <citedRange unit="schmitt">II 48,16–49,2</citedRange></bibl>.
+          <citedRange unit="schmitt" source="works-heiEDITIONS.xml#ed-schmitt"><citedRange unit="volume">II</citedRange> <citedRange unit="page">48</citedRange>,<citedRange unit="line" from="16">16</citedRange>–<citedRange unit="page">49</citedRange>,<citedRange unit="line" from="2">2</citedRange></citedRange></bibl>.
           <quote xml:lang="la" ana="hc:PrimarySourceQuotation"><hi rend="#italic">Saepe namque aliquid
           esse certi sumus et tamen hoc ratione probare nescimus</hi></quote>
-          (<bibl><title ref="works.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">ib.</title>
+          (<bibl><title ref="works-heiEDITIONS.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">ib.</title>
           <citedRange unit="book-chapter">II 13</citedRange>,
-          <citedRange unit="schmitt">II 113,17f.</citedRange></bibl>).
+          <citedRange unit="schmitt" source="works-heiEDITIONS.xml#ed-schmitt"><citedRange unit="volume">II</citedRange> <citedRange unit="page">113</citedRange>,<citedRange unit="line" from="17">17f.</citedRange></citedRange></bibl>).
           <quote xml:lang="la" ana="hc:PrimarySourceQuotation"><hi rend="#italic">… cuncta, quae ipse
           (sc. Deus) dicit, certa esse … dubitandum non est, quamvis
           non eorum ratio intelligatur a nobis</hi></quote>
-          (<bibl><title ref="works.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">ib.</title>
+          (<bibl><title ref="works-heiEDITIONS.xml#cur-deus-homo" ana="hc:WorkReference" xml:lang="la">ib.</title>
           <citedRange unit="book-chapter">II 15</citedRange>,
-          <citedRange unit="schmitt">II 116,5ff.</citedRange></bibl>).
+          <citedRange unit="schmitt" source="works-heiEDITIONS.xml#ed-schmitt"><citedRange unit="volume">II</citedRange> <citedRange unit="page">116</citedRange>,<citedRange unit="line" from="5">5ff.</citedRange></citedRange></bibl>).
           <quote xml:lang="la" ana="hc:PrimarySourceQuotation"><hi rend="#italic">Credentem me fecisti
           scire, quod nesciens credebam</hi></quote>
-          (<bibl><title ref="works.xml#de-casu-diaboli" ana="hc:WorkReference" xml:lang="la">De
+          (<bibl><title ref="works-heiEDITIONS.xml#de-casu-diaboli" ana="hc:WorkReference" xml:lang="la">De
           casu diab.</title> <citedRange unit="chapter">16</citedRange>,
-          <citedRange unit="schmitt">I 261,25</citedRange></bibl>).
+          <citedRange unit="schmitt" source="works-heiEDITIONS.xml#ed-schmitt"><citedRange unit="volume">I</citedRange> <citedRange unit="page">261</citedRange>,<citedRange unit="line" from="25">25</citedRange></citedRange></bibl>).
         </note>
 
         <note place="foot" n="14" xml:id="fn-14" type="authorial"
@@ -1111,9 +1111,9 @@
           <quote xml:lang="la" ana="hc:PrimarySourceQuotation"><hi rend="#italic">… nulla difficultas
           aut impossibilitas intelligendi valeat illum a veritate, cui
           per fidem adhaesit, excutere</hi></quote>
-          (<bibl><title ref="works.xml#ep-de-incarnatione" ana="hc:WorkReference" xml:lang="la">Ep. de
+          (<bibl><title ref="works-heiEDITIONS.xml#ep-de-incarnatione" ana="hc:WorkReference" xml:lang="la">Ep. de
           incarn.</title> <citedRange unit="chapter">1</citedRange>,
-          <citedRange unit="schmitt">II 10,15f.</citedRange></bibl>).
+          <citedRange unit="schmitt" source="works-heiEDITIONS.xml#ed-schmitt"><citedRange unit="volume">II</citedRange> <citedRange unit="page">10</citedRange>,<citedRange unit="line" from="15">15f.</citedRange></citedRange></bibl>).
         </note>
 
         <note place="foot" n="15" xml:id="fn-15" type="authorial"
@@ -1121,12 +1121,12 @@
           <quote xml:lang="la" ana="hc:PrimarySourceQuotation"><hi rend="#italic">… cum ad intellectum
           valet pertingere, delectatur; cum vero nequit, quod capere
           non potest, veneratur</hi></quote>
-          (<bibl><title ref="works.xml#anselm-epistolae" ana="hc:WorkReference" xml:lang="la">Ep.</title>
+          (<bibl><title ref="works-heiEDITIONS.xml#anselm-epistolae" ana="hc:WorkReference" xml:lang="la">Ep.</title>
           <citedRange unit="letter">136</citedRange>,
-          <citedRange unit="schmitt">III 281,40f.</citedRange></bibl>).
+          <citedRange unit="schmitt" source="works-heiEDITIONS.xml#ed-schmitt"><citedRange unit="volume">III</citedRange> <citedRange unit="page">281</citedRange>,<citedRange unit="line" from="40">40f.</citedRange></citedRange></bibl>).
           Ausdrücklich vom
-          <bibl><title ref="works.xml#monologion" ana="hc:WorkReference" xml:lang="la">Monologion</title></bibl>
-          und <bibl><title ref="works.xml#proslogion" ana="hc:WorkReference" xml:lang="la">Proslogion</title></bibl>
+          <bibl><title ref="works-heiEDITIONS.xml#monologion" ana="hc:WorkReference" xml:lang="la">Monologion</title></bibl>
+          und <bibl><title ref="works-heiEDITIONS.xml#proslogion" ana="hc:WorkReference" xml:lang="la">Proslogion</title></bibl>
           sagt <persName ref="persons.xml#anselm" ana="hc:PersonReference">Anselm</persName>, er
           habe diese Schriften auch
           <!-- Inline app-Eintrag innerhalb der Barth-Anmerkung:
@@ -1140,9 +1140,9 @@
           <foreign xml:lang="la"><hi rend="#italic">ad adiuvandum
           religiosum studium eorum, qui humiliter quaerunt
           intelligere, quod firmissime credunt</hi></foreign>
-          (<bibl><title ref="works.xml#ep-de-incarnatione" ana="hc:WorkReference" xml:lang="la">Ep. de
+          (<bibl><title ref="works-heiEDITIONS.xml#ep-de-incarnatione" ana="hc:WorkReference" xml:lang="la">Ep. de
           incarn.</title> <citedRange unit="chapter">6</citedRange>,
-          <citedRange unit="schmitt">II 21,2f.</citedRange></bibl>).
+          <citedRange unit="schmitt" source="works-heiEDITIONS.xml#ed-schmitt"><citedRange unit="volume">II</citedRange> <citedRange unit="page">21</citedRange>,<citedRange unit="line" from="2">2f.</citedRange></citedRange></bibl>).
         </note>
 
         <note place="foot" n="16" xml:id="fn-16" type="authorial"
@@ -1151,16 +1151,16 @@
           significatio recta dicitur, non habet esse aut aliquem motum
           per significationem, quomodocumque ipsa moveatur
           significatio</hi></quote>
-          (<bibl><title ref="works.xml#de-veritate" ana="hc:WorkReference" xml:lang="la">De
+          (<bibl><title ref="works-heiEDITIONS.xml#de-veritate" ana="hc:WorkReference" xml:lang="la">De
           verit.</title> <citedRange unit="chapter">13</citedRange>,
-          <citedRange unit="schmitt">I 198,18ff.</citedRange></bibl>).
+          <citedRange unit="schmitt" source="works-heiEDITIONS.xml#ed-schmitt"><citedRange unit="volume">I</citedRange> <citedRange unit="page">198</citedRange>,<citedRange unit="line" from="18">18ff.</citedRange></citedRange></bibl>).
         </note>
 
         <note place="foot" n="17" xml:id="fn-17" type="authorial"
               ana="hc:AuthorialNote" wit="#A #A2 #GA" source="#ga-16">
-          <bibl><title ref="works.xml#proslogion" ana="hc:WorkReference" xml:lang="la">Prosl.</title>
+          <bibl><title ref="works-heiEDITIONS.xml#proslogion" ana="hc:WorkReference" xml:lang="la">Prosl.</title>
           <citedRange unit="chapter">1</citedRange>,
-          <citedRange unit="schmitt">I 100,18</citedRange></bibl>.
+          <citedRange unit="schmitt" source="works-heiEDITIONS.xml#ed-schmitt"><citedRange unit="volume">I</citedRange> <citedRange unit="page">100</citedRange>,<citedRange unit="line" from="18">18</citedRange></citedRange></bibl>.
         </note>
 
         <!-- =================================================
