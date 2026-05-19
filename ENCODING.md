@@ -674,11 +674,13 @@ The data model reflects this:
   type="editions">` containing exactly one `<bibl xml:id="ed-schmitt"
   type="edition">`: this is the **manifestation layer** in
   miniature.
-- In `fqi-part-I.xml`, exactly one `<citedRange unit="schmitt">I
-  100,18</citedRange>` carries `@source="works-heiEDITIONS.xml#ed-schmitt"`
-  as an attached XML comment explains. All other `<citedRange
-  unit="schmitt">` elements remain unlinked, because the demonstrator
-  does not need to multiply the example.
+- In `fqi-part-I.xml` (and the mirror file
+  `fqi-barth-1931-section1-heiEDITIONS.xml`), every `<citedRange
+  unit="schmitt">` carries `@source="works-heiEDITIONS.xml#ed-schmitt"`.
+  An attached XML comment on the first occurrence (`Prosl.` 1 = I 100,18,
+  inside fn-10) flags this as the FRBR work/manifestation hook; the
+  remaining occurrences carry the same `@source` silently. The hook is
+  thus a working convention of the edition, not a one-off demo.
 
 ### Four extension hooks
 
