@@ -46,20 +46,21 @@
       margin: 0;
       padding: 0;
       line-height: 1.55;
-      min-height: 100vh;
+      height: 100vh;
       /* Grid: einspaltig — Header (Row 1), Citation (Row 2),
-         Reader (Row 3). TOC liegt als overlay drawer darüber,
-         standardmäßig eingeklappt (s. nav.toc). */
+         Reader (Row 3, scrollbar). TOC liegt als overlay drawer
+         darüber, standardmäßig eingeklappt (s. nav.toc). */
       display: grid;
       grid-template-columns: 1fr;
       grid-template-rows: auto auto 1fr;
+      overflow: hidden;
     }
     main.reader {
       grid-column: 1 / -1;
       grid-row: 3 / 4;
       overflow-y: auto;
       padding: 1em 1em 4em;
-      max-height: calc(100vh - var(--header-height, 0px));
+      min-height: 0;   /* damit Grid-Child sich überhaupt scrollbar verhält */
     }
     /* Innenmaß für ALLE Reader-Bereiche außer GA-Druckansicht:
        760 px-Spalte zentriert. GA-Druck hat eigenes max-width
@@ -246,28 +247,38 @@
     }
 
     /* ============================================================
-       Header / Controls
+       Header: zweizeilig.
+       Zeile 1 — Hamburger + Werktitel (mit Untertitel)
+       Zeile 2 — Steuerleisten (Ansicht, Schriftgröße, Theme)
+       Beide Zeilen bleiben oben fixiert; das Reader-Element
+       scrollt unter ihnen weg.
        ============================================================ */
     header.bar {
       grid-column: 1 / -1;
       grid-row: 1 / 2;
       margin: 0;
-      padding: 0.9em 1em 0.8em;
-      display: flex;
-      justify-content: space-between;
+      padding: 0.7em 1em 0.6em;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      grid-template-rows: auto auto;
+      column-gap: 0.8em;
+      row-gap: 0.5em;
       align-items: center;
-      flex-wrap: wrap;
-      gap: 0.6em 1em;
       background: var(--c-toc-bg);
       border-bottom: 1px solid var(--c-toc-border);
     }
+    header.bar .toc-hamburger {
+      grid-column: 1 / 2;
+      grid-row: 1 / 2;
+    }
     header.bar h1 {
+      grid-column: 2 / 3;
+      grid-row: 1 / 2;
       font-size: 1.05rem;
       margin: 0;
       padding: 0;
       border: 0;
       color: var(--c-text);
-      flex: 1 1 280px;
       min-width: 0;
     }
     header.bar h1 .h1-sub {
@@ -280,12 +291,16 @@
       margin-top: 0.15em;
     }
     .controls-wrap {
+      grid-column: 1 / -1;
+      grid-row: 2 / 3;
       display: flex;
       flex-direction: row;
       flex-wrap: wrap;
-      gap: 0.6em 1em;
+      gap: 0.5em 1em;
       align-items: center;
-      justify-content: flex-end;
+      justify-content: flex-start;
+      padding-top: 0.3em;
+      border-top: 1px solid rgba(0,0,0,0.06);
     }
     .controls {
       display: flex;
@@ -571,6 +586,7 @@
       display: flex;
       align-items: baseline;
       gap: 0.5em;
+      flex-wrap: wrap;   /* damit verschachtelte <ul> in eine neue Zeile umbrechen */
     }
     .toc-landing-list .leader {
       flex: 1 1 auto;
