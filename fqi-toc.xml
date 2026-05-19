@@ -966,7 +966,7 @@
                ============================================ -->
           <item xml:id="toc-part-I">
             <ref target="fqi-part-I.xml#part-I"
-                 >Kapitel I. Das theologische Programm</ref>
+                 >I. Das theologische Programm</ref>
             <num type="page">11</num>
             <note type="encoding-status">stub</note>
             <list type="toc">
@@ -1033,8 +1033,8 @@
                innerhalb der Datei.
                ============================================ -->
           <item xml:id="toc-part-II">
-            <ref target="todo:part-II-aggregate">Kapitel II.
-              Der Beweis der Existenz Gottes</ref>
+            <ref target="todo:part-II-aggregate">II. Der Beweis der
+              Existenz Gottes</ref>
             <num type="page">73</num>
             <note type="encoding-status">aggregate</note>
             <list type="toc">
