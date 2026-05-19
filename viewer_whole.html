@@ -1011,13 +1011,19 @@ header.bar {
        (volume/page/line) sind im laufenden Text unsichtbar, werden
        aber im Tooltip dekodiert. In GA-Druckansicht abgeschaltet
        (Reproduktion der Druckseite muß sauber bleiben). */
-    .tei-citedRange[data-unit="schmitt"] {
+    /* Visuelles Signal wandert vom inneren <citedRange unit="schmitt">
+       auf das umschließende <bibl>: enthält ein bibl irgendwo einen
+       Schmitt-Verweis, leuchtet die GESAMTE Zitateinheit auf — sonst
+       wirkte "C. D. h. I 3" unmarkiert neben markiertem "II 50,19".
+       :has() macht die Auswahl strukturell, ohne Klassen zu vergeben.
+       (Browser: Chrome 105+, Firefox 121+, Safari 15.4+.) */
+    .tei-bibl:has(> .tei-citedRange[data-unit="schmitt"]) {
       border-bottom: 1px dotted rgba(29, 78, 137, 0.35);
       cursor: help;
       padding-bottom: 1px;
       transition: background-color 0.15s ease;
     }
-    .tei-citedRange[data-unit="schmitt"]:hover {
+    .tei-bibl:has(> .tei-citedRange[data-unit="schmitt"]):hover {
       background: var(--c-bg-hover);
       border-bottom-color: var(--c-link);
     }
@@ -1030,7 +1036,7 @@ header.bar {
       letter-spacing: 0.02em;
     }
     /* In GA-Druckansicht keine Hervorhebung. */
-    body.view-ga-print .tei-citedRange[data-unit="schmitt"] {
+    body.view-ga-print .tei-bibl:has(> .tei-citedRange[data-unit="schmitt"]) {
       border-bottom: none;
       cursor: text;
     }
@@ -1906,8 +1912,21 @@ header.bar {
           break;
         }
 
-        case "bibl":
-          node = el("span", "tei-bibl"); break;
+        case "bibl": {
+          node = el("span", "tei-bibl");
+          // Enthält dieses <bibl> einen <citedRange unit="schmitt">,
+          // hängen wir den Tooltip an die GANZE Zitateinheit. So
+          // reagiert der Hover über "C. D. h. I 3" genauso wie über
+          // "II 50,19" — die Citation ist visuell und interaktiv
+          // ein Block.
+          const schmittInside = xmlNode.querySelector(
+            ':scope > citedRange[unit="schmitt"]'
+          );
+          if (schmittInside) {
+            node.dataset.tooltip = buildSchmittTooltip(schmittInside);
+          }
+          break;
+        }
         case "citedRange": {
           node = el("span", "tei-citedRange");
           const unit = attr(xmlNode, "unit");
@@ -1916,12 +1935,6 @@ header.bar {
           if (src) node.dataset.source = src;
           const ctype = attr(xmlNode, "type");
           if (ctype) node.dataset.type = ctype;
-          // Tooltip nur auf der ÄUSSEREN Schmitt-Hülle, damit der
-          // Cursor durch "II 47,9" nicht drei verschachtelte Karten
-          // auslöst.
-          if (unit === "schmitt") {
-            node.dataset.tooltip = buildSchmittTooltip(xmlNode);
-          }
           break;
         }
 
@@ -2124,11 +2137,11 @@ header.bar {
 
     function buildSchmittTooltip(schmittEl) {
       const L = schmittLabels();
-      const lines = [];
 
-      /* === Block 1: Autor + Werk + werk-interne Stelle ======= */
+      /* ---- Werkebene: Autor + Werk + werk-interne Stelle ------- */
       const bibl = schmittEl.parentNode;
       const titleEl = bibl && bibl.querySelector(':scope > title[ref]');
+      let workLine = '';
       if (titleEl && auxDocs.works) {
         const workId = (titleEl.getAttribute('ref') || '').split('#')[1];
         if (workId) {
@@ -2140,37 +2153,32 @@ header.bar {
             const fullTitle = workBibl.querySelector(
               ':scope > title[type="full"]'
             );
-            if (author) lines.push(author.textContent.trim());
-            if (fullTitle) {
-              // Werk-interne Stelle aus Geschwister-<citedRange>
-              // (außer Schmitt selbst).
-              const internal = [];
-              const sibCR = bibl.querySelectorAll(':scope > citedRange');
-              sibCR.forEach(cr => {
-                const u = cr.getAttribute('unit');
-                if (!u || u === 'schmitt') return;
-                const txt = cr.textContent.trim();
-                if (!txt) return;
-                const prefixMap = {
-                  'letter':       L.letter + ' ',
-                  'chapter':      L.chapter + ' ',
-                  'book-chapter': '',
-                  'praefatio':    '',
-                };
-                const prefix = (u in prefixMap) ? prefixMap[u] : (u + ' ');
-                internal.push(prefix + txt);
-              });
-              let workLine = fullTitle.textContent.trim();
-              if (internal.length) workLine += ', ' + internal.join(', ');
-              lines.push(workLine);
-            }
+            const parts = [];
+            if (author) parts.push(author.textContent.trim());
+            if (fullTitle) parts.push(fullTitle.textContent.trim());
+            // werk-interne Stelle (Geschwister-citedRanges außer Schmitt)
+            const internal = [];
+            bibl.querySelectorAll(':scope > citedRange').forEach(cr => {
+              const u = cr.getAttribute('unit');
+              if (!u || u === 'schmitt') return;
+              const txt = cr.textContent.trim();
+              if (!txt) return;
+              const prefixMap = {
+                'letter':       L.letter + ' ',
+                'chapter':      L.chapter + ' ',
+                'book-chapter': '',
+                'praefatio':    '',
+              };
+              const prefix = (u in prefixMap) ? prefixMap[u] : (u + ' ');
+              internal.push(prefix + txt);
+            });
+            if (internal.length) parts.push(internal.join(', '));
+            workLine = parts.join(', ');
           }
         }
       }
 
-      /* === Block 2: Editor + Editionstitel + Schmitt-Stelle == */
-      if (lines.length) lines.push('');  // Leerzeile
-
+      /* ---- Editionsebene: Editor + Editionstitel + Stelle ----- */
       const srcAttr = schmittEl.getAttribute('source') || '';
       const edId = srcAttr.split('#')[1];
       let edTopBibl = null;
@@ -2187,26 +2195,25 @@ header.bar {
               '[*|id="' + topId + '"]'
             );
           }
-          if (!edTopBibl) edTopBibl = edBibl;  // Fallback
+          if (!edTopBibl) edTopBibl = edBibl;
         }
       }
 
-      const edLineParts = [];
+      const editionParts = [];
       if (edTopBibl) {
         const editor = edTopBibl.querySelector(':scope > editor');
         const edTitle = edTopBibl.querySelector(
           ':scope > title[type="full"]'
         );
-        if (editor) edLineParts.push(L.ed + ' ' + editor.textContent.trim());
+        if (editor) editionParts.push(L.ed + ' ' + editor.textContent.trim());
         if (edTitle) {
-          // Vollständiger lateinischer Editionstitel — bewußte
-          // Entscheidung (Wissenschaftlichkeit > Knappheit).
-          edLineParts.push(edTitle.textContent.replace(/\s+/g, ' ').trim());
+          editionParts.push(
+            edTitle.textContent.replace(/\s+/g, ' ').trim()
+          );
         }
       }
-      if (edLineParts.length) lines.push(edLineParts.join(', '));
 
-      // Schmitt-Stelle (Band/Seite/Zeile) aus den eigenen Kindern.
+      // Schmitt-Stelle (Band/Seite/Zeile)
       const vol   = schmittEl.querySelector(':scope > citedRange[unit="volume"]');
       const pages = schmittEl.querySelectorAll(':scope > citedRange[unit="page"]');
       const lns   = schmittEl.querySelectorAll(':scope > citedRange[unit="line"]');
@@ -2218,23 +2225,40 @@ header.bar {
         locParts.push(L.page + ' ' + pages[0].textContent.trim());
         locParts.push(L.line + ' ' + lns[0].textContent.trim());
       } else if (pages.length >= 2) {
-        // Verbundzitat ("; ") oder Range ("–") — @type entscheidet.
         const pairs = [];
         for (let i = 0; i < pages.length && i < lns.length; i++) {
-          pairs.push(L.page + ' ' + pages[i].textContent.trim() +
-                     ' ' + L.line + ' ' + lns[i].textContent.trim());
+          pairs.push(
+            L.page + ' ' + pages[i].textContent.trim() + ' ' +
+            L.line + ' ' + lns[i].textContent.trim()
+          );
         }
         const sep = isRange ? L.rangeSep : L.enumSep;
         locParts.push(pairs.join(sep));
       }
-      if (locParts.length) {
-        const lastLine = lines.pop() || '';
-        lines.push(lastLine
-          ? (lastLine + ', ' + locParts.join(', '))
-          : locParts.join(', '));
-      }
+      editionParts.push(...locParts);
 
-      return lines.join('\n');
+      /* ---- Tübingen-Stil komponieren ---------------------------
+         Werkebene + Klammer(Edition + Stelle) + Schlußpunkt.
+
+         Beispiel:
+           Anselm von Canterbury, Cur Deus homo, I 1
+           (ed. F. S. Schmitt, S. Anselmi Cantuariensis
+           archiepiscopi Opera Omnia, Bd. II, S. 47, Z. 9).
+
+         Fehlt eines der Blöcke, wird er sauber weggelassen. */
+      const out = [];
+      if (workLine) out.push(workLine);
+      if (editionParts.length) {
+        // Zeilenumbruch zwischen Werk- und Editionsebene, damit der
+        // Tooltip nicht in eine endlose Zeile ausläuft.
+        const editionLine = '(' + editionParts.join(', ') + ').';
+        out.push(editionLine);
+      } else if (workLine) {
+        // Kein Editionshook auflösbar — Werkebene wenigstens mit Punkt
+        // abschließen.
+        out[out.length - 1] = out[out.length - 1] + '.';
+      }
+      return out.join('\n');
     }
     
     function convertChildren(xmlNode, htmlParent) {
