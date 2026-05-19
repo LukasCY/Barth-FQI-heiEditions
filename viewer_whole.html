@@ -2696,11 +2696,8 @@ header.bar {
       return reader.querySelector('#' + cssEscape(anchorId));
     }
 
-    function renderPlaceholderForItem(label, page, customNote) {
+  function renderPlaceholderForItem(label, page, customNote) {
       teiXmlDoc = null;
-      // Stripe das eventuell vorhandene "Kapitel I."-Präfix auch hier
-      // (damit die Header-Zeile im Reader denselben Sprachstil hält
-      // wie die TOC-Spalte).
       const cleanLabel = stripTocLabel(label);
       const note = customNote
         ? '<p>' + escapeHtml(customNote) + '</p>'
@@ -2714,6 +2711,9 @@ header.bar {
           (page ? '<p style="font-size: 0.78rem; color: var(--c-muted); margin-top: 0.8em;">GA S. ' + escapeHtml(page) + ' ff.</p>' : '') +
         '</div>';
       updateWitnessButtonsAvailability();
+      
+      /* ADDED: Force updating the citation bar when switching to a placeholder/non-encoded item */
+      fillCitationBar(State.toc, witIdForView(currentViewSlug()));
     }
 
     /* ============================================================
@@ -2797,6 +2797,9 @@ header.bar {
 
       updateWitnessButtonsAvailability();
       document.getElementById("reader").scrollTo({ top: 0, behavior: "instant" });
+
+      /* ADDED: Force updating the citation bar when returning to the landing page (clears specific section citation) */
+      fillCitationBar(State.toc, witIdForView(currentViewSlug()));
     }
 
     /* ============================================================
