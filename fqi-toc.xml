@@ -1041,7 +1041,7 @@
 
               <item xml:id="toc-part-II-A">
                 <ref target="fqi-part-II-A.xml#part-II-A"
-                     >Abschnitt A. Die Voraussetzungen</ref>
+                     >A. Die Voraussetzungen</ref>
                 <num type="page">75</num>
                 <note type="encoding-status">nicht-kodiert</note>
                 <list type="toc">
@@ -1062,7 +1062,7 @@
 
               <item xml:id="toc-part-II-B">
                 <ref target="fqi-part-II-B.xml#part-II-B"
-                     >Abschnitt B. Die Durchführung
+                     >B. Die Durchführung
                   (Kommentar zu Prosl. 2–4)</ref>
                 <num type="page">103</num>
                 <note type="encoding-status">nicht-kodiert</note>
