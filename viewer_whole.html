@@ -1,1696 +1,3437 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Karl Barth, Fides quaerens intellectum — heiEDITIONS-Demo</title>
+  <meta charset="utf-8"/>
+  <title>FQI § 1 — Digitale Edition (Prototyp)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
 
-<!-- =========================================================
-     viewer.html — heiEDITIONS-konformer Reader
-     für Karl Barth, Fides quaerens intellectum (GA II.13).
+  <style>
+    /* ============================================================
+       Layout & Custom Properties
+       --font-scale wird per JS gesetzt (Schriftgrößen-Regler).
+       Alle relativen Größen leiten sich daraus ab.
+       ============================================================ */
+    :root {
+      --maxw: 760px;
+      --font-scale: 1;
+      --c-text: #1a1a1a;
+      --c-muted: #6b6b6b;
+      --c-rule: #d0d0d0;
+      --c-apparatus: #8b3a3a;
+      --c-apparatus-soft: #f6efef;
+      --c-term: #1d4e89;
+      --c-pers: #5b2a86;
+      --c-pers-soft: #f3eef8;
+      --c-quote: #2d5016;
+      --c-link: #1d4e89;
+      --c-bg-hover: #fff8e1;
+      --c-ga-page: #fafaf6;   /* Papierton in GA-Ansicht */
+      --c-ga-text: #15140f;
 
-     Architektur (vgl. PROJECT-STATE.md, Entscheidungen 2/4/5/6/8):
-     · Startup-Fetch fqi-toc.xml      → TOC-Spalte links
-     · On-demand Fetch jeder Part-Datei, gecacht
-     · Vier Status-Werte im TOC visualisiert:
-         kodiert  ✓  grün, klickbar
-         stub     ⊘  gelb, klickbar (Gerüst-Banner)
-         nicht-kodiert ○ grau, nicht klickbar (Tooltip)
-         aggregate ▣ violett, klickbar (Multi-File-Fetch)
-     · Druckansicht (kontinuierlicher Scroll mit scroll-snap)
-       vs. Lesefluss (linearer Strom ohne Seitenrahmen)
-     · |n|-Marker inline-leading im <head> nur in Lesefluss
-     · Vakatseiten (pb type=blank) nur in Druckansicht sichtbar
-     · URL-Hash-Routing  #sec-I-1, #part-I, #contents
-     · Sprach-Hook ?lang=zh-CN mit Fallback de
-     · Term-Hover (terms-heiEDITIONS.xml) auf <rs ana=hc:SubjectReference>
-     · Person/Werk-Hover auf <persName>/<title>
-     ========================================================= -->
+      /* TOC-Spalte und Statusfarben (Schritt-4-Erweiterung) */
+      --c-toc-bg: #f3eee2;
+      --c-toc-border: #d9d2c4;
+      --c-status-kodiert:       #2f7a3e;
+      --c-status-stub:          #b58800;
+      --c-status-nicht-kodiert: #9a9a9a;
+      --c-status-aggregate:     #6b3aaa;
+      --toc-width: 320px;
+      --toc-breakpoint: 900px;
+    }
+    html { font-size: calc(17px * var(--font-scale)); }
+    body {
+      font-family: "Source Serif Pro", "EB Garamond", Georgia,
+                   "Times New Roman", serif;
+      color: var(--c-text);
+      margin: 0;
+      padding: 0;
+      line-height: 1.55;
+      min-height: 100vh;
+      /* Grid: links TOC (320px), rechts Reader (1fr) */
+      display: grid;
+      grid-template-columns: var(--toc-width) 1fr;
+      grid-template-rows: auto 1fr;
+    }
+    /* Container für Reader-Inhalt, der vorher direkt am body hing.
+       Wir behalten die ursprüngliche max-width für Lesefluss und
+       Apparat-Ansichten bei (Lesbarkeitsgrenze ≈ 760 px). */
+    main.reader {
+      grid-column: 2 / 3;
+      grid-row: 2 / 3;
+      overflow-y: auto;
+      padding: 0 1em 4em;
+      max-height: calc(100vh - var(--header-height, 0px));
+    }
+    /* Innenmaß für ALLE Reader-Bereiche außer GA-Druckansicht:
+       760 px-Spalte zentriert. GA-Druck hat eigenes max-width
+       am .ga-page-stack (siehe unten). */
+    main.reader > *:not(.ga-page-stack):not(#aux-warning):not(#status) {
+      max-width: var(--maxw);
+      margin-left: auto;
+      margin-right: auto;
+    }
+    h1, h2, h3 {
+      font-family: "Source Sans Pro", -apple-system, sans-serif;
+      font-weight: 600;
+    }
+    h1 {
+      font-size: 1.3rem; color: var(--c-muted);
+      border-bottom: 1px solid var(--c-rule);
+      padding-bottom: 0.4em; margin-bottom: 1.5em;
+    }
 
-<style>
-  /* ---------------------------------------------------------
-     Typographie. Distinktiv, theologisch-akademisch:
-       Display: EB Garamond (Antiqua mit echter Italic/Sperrsatz-
-                kompatibilität, große x-Höhe, geeignet für
-                Sperrsatz-Auszeichnungen wie "Notwendigkeit")
-       Body:    EB Garamond (gleicher Satz, damit der Druck-
-                eindruck der GA-Vorlage nachhall)
-       UI:      IBM Plex Sans (für TOC, Statusanzeigen, Buttons)
-       Mono:    JetBrains Mono (für xml:id-Anker im Debug-Modus)
-     --------------------------------------------------------- */
-  @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=IBM+Plex+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400&display=swap');
+    /* ============================================================
+       TOC-Spalte (links)
+       Desktop: feste 320 px-Spalte, sticky-ähnlich (eigenes Scroll).
+       Mobile (< 900 px): TOC wird zu einer Schublade (drawer),
+       per Hamburger-Button geöffnet.
+       ============================================================ */
+    nav.toc {
+      grid-column: 1 / 2;
+      grid-row: 1 / -1;     /* TOC erstreckt sich über alle Zeilen */
+      background: var(--c-toc-bg);
+      border-right: 1px solid var(--c-toc-border);
+      overflow-y: auto;
+      padding: 1.2em 0.8em 2em 1em;
+      font-family: "Source Sans Pro", -apple-system, sans-serif;
+      font-size: 0.83rem;
+      line-height: 1.4;
+      max-height: 100vh;
+    }
+    nav.toc h2 {
+      font-family: "Source Serif Pro", Georgia, serif;
+      font-style: italic;
+      font-size: 1.05rem;
+      font-weight: 500;
+      color: var(--c-text);
+      margin: 0 0 0.3em 0.4em;
+      padding: 0;
+    }
+    nav.toc .toc-meta {
+      color: var(--c-muted);
+      font-size: 0.7rem;
+      margin: 0 0 1em 0.4em;
+      letter-spacing: 0.02em;
+    }
+    nav.toc .toc-meta .sym {
+      display: inline-block;
+      margin: 0 0.2em 0 0.4em;
+      font-weight: 700;
+    }
+    nav.toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+    }
+    nav.toc ul ul {
+      padding-left: 0.9em;
+      margin-top: 0.1em;
+      border-left: 1px dotted var(--c-toc-border);
+      margin-left: 0.5em;
+    }
+    nav.toc li { margin: 0.05em 0; }
+    nav.toc .toc-head {
+      /* Nicht-klickbare Zwischenüberschriften (work-root, back-section) */
+      font-family: "Source Serif Pro", Georgia, serif;
+      font-style: italic;
+      font-size: 0.95rem;
+      color: var(--c-text);
+      padding: 0.5em 0.35em 0.2em;
+      margin-top: 0.4em;
+      border-bottom: 1px solid var(--c-toc-border);
+    }
+    nav.toc .toc-head.clickable {
+      cursor: pointer;
+    }
+    nav.toc .toc-head.clickable:hover {
+      background: rgba(0,0,0,0.04);
+    }
+    nav.toc a.toc-link {
+      display: flex;
+      align-items: baseline;
+      gap: 0.35em;
+      padding: 0.22em 0.4em;
+      border-radius: 2px;
+      text-decoration: none;
+      color: var(--c-text);
+      cursor: pointer;
+      transition: background 0.1s;
+    }
+    nav.toc a.toc-link:hover {
+      background: rgba(0,0,0,0.05);
+    }
+    nav.toc a.toc-link.active {
+      background: var(--c-text);
+      color: white;
+    }
+    nav.toc a.toc-link.active .toc-page,
+    nav.toc a.toc-link.active .toc-status { color: white; }
+    nav.toc a.toc-link.disabled {
+      cursor: not-allowed;
+      color: var(--c-muted);
+    }
+    nav.toc a.toc-link.disabled:hover { background: transparent; }
+    .toc-status {
+      flex: 0 0 1em;
+      font-size: 0.9rem;
+      line-height: 1;
+      text-align: center;
+      font-weight: 700;
+    }
+    .toc-status.kodiert       { color: var(--c-status-kodiert); }
+    .toc-status.stub          { color: var(--c-status-stub); }
+    .toc-status.nicht-kodiert { color: var(--c-status-nicht-kodiert); }
+    .toc-status.aggregate     { color: var(--c-status-aggregate); }
+    .toc-label {
+      flex: 1 1 auto;
+      font-family: "Source Serif Pro", Georgia, serif;
+      font-size: 0.92rem;
+    }
+    .toc-page {
+      flex: 0 0 auto;
+      font-family: "Source Sans Pro", monospace;
+      font-size: 0.68rem;
+      color: var(--c-muted);
+    }
+    /* Hamburger-Button (nur mobile) und Drawer-Backdrop */
+    .toc-hamburger {
+      display: none;
+      background: transparent;
+      border: 1px solid var(--c-rule);
+      width: 38px;
+      height: 32px;
+      border-radius: 3px;
+      padding: 0;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .toc-hamburger span {
+      display: block;
+      width: 18px;
+      height: 2px;
+      background: var(--c-text);
+    }
+    .toc-drawer-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 90;
+    }
+    .toc-drawer-backdrop.visible { display: block; }
+    .toc-close {
+      display: none;
+      background: transparent;
+      border: 0;
+      font-size: 1.4rem;
+      cursor: pointer;
+      color: var(--c-muted);
+      position: absolute;
+      right: 0.4em;
+      top: 0.4em;
+    }
 
-  :root {
-    --c-paper:        #faf7f1;
-    --c-ink:          #1d1c1a;
-    --c-ink-soft:     #3a3530;
-    --c-ink-mute:     #7a7a7a;
-    --c-rule:         #d9d2c4;
-    --c-rule-soft:    #ece6d6;
-    --c-accent:       #6b1f1f;  /* deep oxblood — Barths Sigel-Apparat */
-    --c-accent-soft:  #c89090;
-    --c-link:         #284b73;
-    --c-link-hover:   #6b1f1f;
+    /* ============================================================
+       Header / Controls
+       ============================================================ */
+    header.bar {
+      grid-column: 2 / 3;
+      grid-row: 1 / 2;
+      margin: 0;
+      padding: 0.9em 1em 0.8em;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 1em;
+      background: var(--c-toc-bg);
+      border-bottom: 1px solid var(--c-toc-border);
+    }
+    header.bar h1 {
+      font-size: 1.05rem;
+      margin: 0;
+      padding: 0;
+      border: 0;
+      color: var(--c-text);
+      flex: 1 1 280px;
+      min-width: 0;
+    }
+    header.bar h1 .h1-sub {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 400;
+      color: var(--c-muted);
+      font-family: "Source Sans Pro", sans-serif;
+      letter-spacing: 0.02em;
+      margin-top: 0.15em;
+    }
+    .controls-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4em;
+      align-items: flex-end;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.3em;
+      align-items: center;
+    }
+    .controls button {
+      font: inherit;
+      font-size: 0.78rem;
+      padding: 0.3em 0.8em;
+      border: 1px solid var(--c-rule);
+      background: white;
+      cursor: pointer;
+      border-radius: 3px;
+      white-space: nowrap;
+    }
+    .controls button.active {
+      background: var(--c-text);
+      color: white;
+      border-color: var(--c-text);
+    }
+    .controls button:hover:not(.active) { background: var(--c-bg-hover); }
+    .controls .group-label {
+      font-size: 0.7rem;
+      color: var(--c-muted);
+      align-self: center;
+      margin-right: 0.3em;
+      font-family: "Source Sans Pro", sans-serif;
+    }
+    .controls .fontsize-group button {
+      font-family: "Source Serif Pro", Georgia, serif;
+      min-width: 2.2em;
+      text-align: center;
+    }
+    .controls .fontsize-group button[data-fontsize="small"]  { font-size: 0.7rem; }
+    .controls .fontsize-group button[data-fontsize="medium"] { font-size: 0.85rem; }
+    .controls .fontsize-group button[data-fontsize="large"]  { font-size: 1.0rem; }
 
-    /* Status-Farben für TOC */
-    --c-kodiert:        #2f7a3e;  /* grün */
-    --c-stub:           #b58800;  /* dunkelgelb */
-    --c-nicht-kodiert:  #9a9a9a;  /* grau */
-    --c-aggregate:      #6b3aaa;  /* violett */
+    /* ============================================================
+       teiHeader — verbergen außer in Apparat-Ansicht
+       ============================================================ */
+    .tei-teiHeader { display: none; }
+    body.view-apparat .tei-teiHeader {
+      display: block;
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 0.78rem;
+      background: #fafafa;
+      border: 1px solid var(--c-rule);
+      padding: 1em;
+      margin-bottom: 2em;
+      white-space: pre-wrap;
+      color: var(--c-muted);
+    }
 
-    /* Auszeichnungen im Text */
-    --c-term:         #284b73;       /* Sachreferenz */
-    --c-pers:         #4a2570;       /* Person */
-    --c-work:         #6b3a1f;       /* Werk */
-    --c-quote-la:     #4a3e1f;       /* lat. Primärzitat */
+    /* ============================================================
+       Grundstruktur (Default = nicht-GA-Ansichten)
+       ============================================================ */
+    .tei-TEI, .tei-text, .tei-body, .tei-front { display: block; }
+    .tei-div { display: block; margin: 1em 0; }
+    .tei-head {
+      display: block;
+      font-family: "Source Sans Pro", sans-serif;
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin: 1.5em 0 1em;
+    }
+    .tei-p {
+      display: block;
+      margin: 1em 0;
+      text-align: justify;
+      hyphens: auto;
+    }
 
-    --c-toc-bg:       #f3eee2;
-    --c-page-bg:      #ffffff;
-    --c-page-shadow:  rgba(60, 50, 30, 0.08);
+    /* ============================================================
+       GA-Lesetext-Ansicht — typografische Imitation
+       der Gesamtausgabe (Theol. Verlag Zürich, GA II.13).
+       Aktiv nur in body.view-ga-print. Jede ga-page ist eine
+       eigenständige Druckseite.
+       ============================================================ */
+    body.view-ga-print #TEI {
+      /* In GA-Ansicht ist #TEI nur ein neutraler Container —
+         der Papierhintergrund wandert auf .ga-page. */
+      background: transparent;
+      padding: 0;
+      border: none;
+      box-shadow: none;
+    }
 
-    --f-display:  'EB Garamond', 'Times New Roman', serif;
-    --f-body:     'EB Garamond', 'Times New Roman', serif;
-    --f-ui:       'IBM Plex Sans', system-ui, sans-serif;
-    --f-mono:     'JetBrains Mono', monospace;
-  }
+    .ga-page {
+      display: block;
+      background: var(--c-ga-page);
+      color: var(--c-ga-text);
+      padding: 2.5em 2.4em 1.5em;
+      border: 1px solid var(--c-rule);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      margin: 0 0 2em;
+      font-family: "Source Serif Pro", "EB Garamond", "Adobe Garamond Pro",
+                   Georgia, "Times New Roman", serif;
+      /* Mindesthöhe damit eine Seite wie eine Buchseite wirkt
+         (kein „kurzes Häppchen") */
+      min-height: 60vh;
+      position: relative;
+      /* Sanftes Einrasten beim Scrollen (Druckansicht).
+         scroll-snap-type wird am Stack-Container gesetzt. */
+      scroll-snap-align: start;
+      scroll-margin-top: 0.5em;
+    }
 
-  * { box-sizing: border-box; }
-  html, body { margin: 0; padding: 0; }
-  body {
-    background: var(--c-paper);
-    color: var(--c-ink);
-    font-family: var(--f-body);
-    font-size: 18px;
-    line-height: 1.55;
-    overflow: hidden;
-  }
+    /* Stack-Container, der die einzelnen .ga-page enthält.
+       In Druckansicht: vertikales Scroll-Snap proximity (Entscheidung 5
+       der PROJECT-STATE: kein erzwungenes Einrasten). */
+    .ga-page-stack {
+      max-width: 720px;
+      margin: 1.2em auto;
+      scroll-snap-type: y proximity;
+    }
 
-  /* =========================================================
-     Layout: Drei Spalten — TOC (links) | Reader (mitte) | (kein Panel rechts; Apparat als Footnote-Popover)
-     ========================================================= */
-  .app {
-    display: grid;
-    grid-template-columns: 320px 1fr;
-    grid-template-rows: auto 1fr;
-    height: 100vh;
-  }
+    /* Vakatseite: leerer Seitenrahmen, ohne Seitenzahl,
+       nur in Druckansicht sichtbar. */
+    .ga-page.blank {
+      min-height: 60vh;
+    }
+    .ga-page.blank .ga-page-body { display: none; }
+    .ga-page.blank .ga-page-pagenumber { display: none; }
 
-  /* ---------- Header --------------------------------------- */
-  header.app-header {
-    grid-column: 1 / -1;
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    padding: 0.9rem 1.5rem 0.7rem;
-    border-bottom: 1px solid var(--c-rule);
-    background: var(--c-toc-bg);
-    font-family: var(--f-ui);
-  }
-  header.app-header .title {
-    font-family: var(--f-display);
-    font-style: italic;
-    font-size: 1.4rem;
-    color: var(--c-ink);
-  }
-  header.app-header .subtitle {
-    color: var(--c-ink-mute);
-    font-size: 0.85rem;
-    letter-spacing: 0.02em;
-  }
-  header.app-header .controls {
-    display: flex;
-    gap: 0.6rem;
-    align-items: center;
-  }
-  .view-mode-toggle {
-    display: inline-flex;
-    border: 1px solid var(--c-rule);
-    border-radius: 3px;
-    overflow: hidden;
-    background: var(--c-paper);
-  }
-  .view-mode-toggle button {
-    background: transparent;
-    border: 0;
-    padding: 0.35rem 0.85rem;
-    font-family: var(--f-ui);
-    font-size: 0.82rem;
-    color: var(--c-ink-soft);
-    cursor: pointer;
-    transition: background 0.15s, color 0.15s;
-  }
-  .view-mode-toggle button.active {
-    background: var(--c-ink);
-    color: var(--c-paper);
-  }
-  .lang-select {
-    font-family: var(--f-ui);
-    font-size: 0.82rem;
-    padding: 0.3rem 0.5rem;
-    border: 1px solid var(--c-rule);
-    background: var(--c-paper);
-    color: var(--c-ink-soft);
-    border-radius: 3px;
-  }
+    /* Titelseite: zentrierter Kapitel-/Werktitel */
+    .ga-page.titlepage {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 60vh;
+    }
+    .ga-page.titlepage .ga-page-body {
+      text-align: center;
+      font-family: "Source Serif Pro", Georgia, serif;
+    }
 
-  /* ---------- TOC-Spalte ----------------------------------- */
-  nav.toc {
-    background: var(--c-toc-bg);
-    border-right: 1px solid var(--c-rule);
-    overflow-y: auto;
-    padding: 1.1rem 0.6rem 2rem 0.9rem;
-    font-family: var(--f-ui);
-    font-size: 0.83rem;
-    line-height: 1.4;
-  }
-  nav.toc h2 {
-    font-family: var(--f-display);
-    font-style: italic;
-    font-size: 1.05rem;
-    font-weight: 500;
-    color: var(--c-ink-soft);
-    margin: 0 0 0.4rem 0.4rem;
-    padding: 0;
-  }
-  nav.toc .toc-meta {
-    color: var(--c-ink-mute);
-    font-size: 0.72rem;
-    margin: 0 0 1rem 0.4rem;
-    letter-spacing: 0.02em;
-  }
-  nav.toc ul {
-    list-style: none;
-    padding-left: 0;
-    margin: 0;
-  }
-  nav.toc ul ul {
-    padding-left: 1rem;
-    margin-top: 0.15rem;
-  }
-  nav.toc li {
-    margin: 0.1rem 0;
-  }
-  nav.toc .toc-head {
-    /* nicht-klickbare Zwischenüberschriften (work-root, back-section) */
-    font-family: var(--f-display);
-    font-style: italic;
-    font-size: 0.95rem;
-    color: var(--c-ink-soft);
-    padding: 0.45rem 0.35rem 0.2rem;
-    margin-top: 0.45rem;
-    border-bottom: 1px solid var(--c-rule-soft);
-  }
-  nav.toc a.toc-link {
-    display: flex;
-    align-items: baseline;
-    gap: 0.4rem;
-    padding: 0.25rem 0.4rem;
-    border-radius: 2px;
-    text-decoration: none;
-    color: var(--c-ink);
-    cursor: pointer;
-    transition: background 0.1s;
-  }
-  nav.toc a.toc-link:hover {
-    background: rgba(0,0,0,0.04);
-  }
-  nav.toc a.toc-link.active {
-    background: var(--c-ink);
-    color: var(--c-paper);
-  }
-  nav.toc a.toc-link.disabled {
-    cursor: not-allowed;
-    color: var(--c-ink-mute);
-  }
-  nav.toc a.toc-link.disabled:hover {
-    background: transparent;
-  }
-  .toc-status {
-    flex: 0 0 1.1rem;
-    font-size: 0.95rem;
-    line-height: 1;
-    text-align: center;
-  }
-  .toc-status.kodiert       { color: var(--c-kodiert); }
-  .toc-status.stub          { color: var(--c-stub); }
-  .toc-status.nicht-kodiert { color: var(--c-nicht-kodiert); }
-  .toc-status.aggregate     { color: var(--c-aggregate); }
-  .toc-label {
-    flex: 1 1 auto;
-    font-family: var(--f-display);
-    font-size: 0.95rem;
-  }
-  .toc-page {
-    flex: 0 0 auto;
-    font-family: var(--f-mono);
-    font-size: 0.7rem;
-    color: var(--c-ink-mute);
-  }
-  a.toc-link.active .toc-page,
-  a.toc-link.active .toc-status { color: var(--c-paper); }
+    /* Stub-Seite: Volltext fehlt — bewusster visueller Vermerk
+       (anders als bei nicht-kodierten Sections, deren Datei nicht
+       existiert). */
+    .ga-page.stub {
+      min-height: 50vh;
+      background:
+        repeating-linear-gradient(45deg,
+          var(--c-ga-page) 0, var(--c-ga-page) 8px,
+          rgba(181,136,0,0.04) 8px, rgba(181,136,0,0.04) 16px);
+    }
+    .ga-page.stub .ga-page-body::after {
+      content: "Volltext in Vorbereitung";
+      display: block;
+      margin: 4em auto 0;
+      font-style: italic;
+      color: var(--c-status-stub);
+      text-align: center;
+      font-size: 0.9rem;
+      letter-spacing: 0.04em;
+    }
+    .ga-page.stub .ga-page-body::before {
+      content: "Full text pending transcription";
+      display: block;
+      margin: 0 auto 0.5em;
+      font-style: italic;
+      color: var(--c-muted);
+      text-align: center;
+      font-size: 0.72rem;
+      letter-spacing: 0.04em;
+      order: 99;
+    }
 
-  /* ---------- Reader-Spalte -------------------------------- */
-  main.reader {
-    overflow-y: auto;
-    background: var(--c-paper);
-    position: relative;
-  }
-  main.reader.druckansicht {
-    /* Vertikales Scrollen mit weichem Einrasten —
-       PROJECT-STATE, Entscheidung 5: scroll-snap proximity,
-       nicht mandatory. */
-    scroll-snap-type: y proximity;
-    background:
-      radial-gradient(ellipse at top, rgba(80,60,30,0.04), transparent 60%),
-      var(--c-paper);
-    padding: 2rem 1rem 4rem;
-  }
-  main.reader.lesefluss {
-    padding: 2rem 4rem 6rem;
-  }
+    /* Placeholder für komplett fehlende Sections / aggregate fallback */
+    .ga-page-placeholder {
+      max-width: 720px;
+      margin: 1.5em auto;
+      padding: 2em 2.2em;
+      border: 1px dashed var(--c-toc-border);
+      background: rgba(255,255,255,0.4);
+      font-family: "Source Sans Pro", -apple-system, sans-serif;
+      font-size: 0.86rem;
+      color: var(--c-muted);
+      line-height: 1.55;
+      text-align: center;
+    }
+    .ga-page-placeholder strong {
+      display: block;
+      font-family: "Source Serif Pro", Georgia, serif;
+      font-style: italic;
+      font-size: 1.1rem;
+      color: var(--c-text);
+      margin-bottom: 0.4em;
+    }
+    .ga-page-placeholder ul {
+      list-style: none;
+      padding: 0;
+      margin: 1em auto;
+      max-width: 360px;
+      text-align: left;
+    }
+    .ga-page-placeholder ul li {
+      padding: 0.2em 0;
+      display: flex;
+      align-items: baseline;
+      gap: 0.5em;
+    }
+    .ga-page-placeholder em {
+      display: block;
+      margin-top: 1em;
+      color: var(--c-muted);
+      font-size: 0.78rem;
+    }
 
-  /* ---------- Druckansicht: Seitenrahmen ------------------- */
-  .ga-page {
-    width: min(640px, 90%);
-    margin: 0 auto 2rem;
-    background: var(--c-page-bg);
-    border: 1px solid var(--c-rule);
-    box-shadow: 0 2px 18px var(--c-page-shadow);
-    padding: 3rem 3.5rem;
-    position: relative;
-    min-height: 80vh;
-    scroll-snap-align: start;
-    scroll-margin-top: 1rem;
-  }
-  .ga-page::after {
-    /* Seitenzahl unten rechts */
-    content: attr(data-page);
-    position: absolute;
-    bottom: 1.4rem;
-    right: 2rem;
-    font-family: var(--f-display);
-    font-size: 0.82rem;
-    color: var(--c-ink-mute);
-    font-style: italic;
-  }
-  .ga-page.blank {
-    /* Vakatseite: leerer Rahmen, ohne Seitenzahl */
-    min-height: 80vh;
-  }
-  .ga-page.blank::after {
-    content: '';
-  }
-  .ga-page.titlepage {
-    /* Titelseite des Kapitels */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 80vh;
-  }
-  .ga-page.titlepage .titlepage-content {
-    text-align: center;
-    font-family: var(--f-display);
-  }
-  .ga-page-placeholder {
-    width: min(640px, 90%);
-    margin: 0 auto 2rem;
-    border: 1px dashed var(--c-rule);
-    padding: 2.5rem 3rem;
-    background: rgba(255,255,255,0.4);
-    font-family: var(--f-ui);
-    font-size: 0.85rem;
-    color: var(--c-ink-mute);
-    line-height: 1.6;
-    text-align: center;
-    scroll-snap-align: start;
-  }
-  .ga-page-placeholder strong {
-    display: block;
-    font-family: var(--f-display);
-    font-style: italic;
-    font-size: 1.1rem;
-    color: var(--c-ink-soft);
-    margin-bottom: 0.5rem;
-  }
-  .ga-page-placeholder em {
-    display: block;
-    margin-top: 0.5rem;
-    color: var(--c-ink-mute);
-  }
+    /* Stub-Banner über dem Reader bei stub-Section */
+    .reader-banner {
+      max-width: 720px;
+      margin: 1em auto 1.5em;
+      padding: 0.65em 1em;
+      font-family: "Source Sans Pro", sans-serif;
+      font-size: 0.82rem;
+      border-radius: 3px;
+    }
+    .reader-banner.stub {
+      background: rgba(181,136,0,0.1);
+      border-left: 4px solid var(--c-status-stub);
+      color: var(--c-text);
+    }
+    .reader-banner.aggregate {
+      background: rgba(107,58,170,0.08);
+      border-left: 4px solid var(--c-status-aggregate);
+      color: var(--c-text);
+    }
 
-  /* In Lesefluss-Ansicht: Seitenrahmen verstecken,
-     Vakatseiten ausblenden, Inhalt linear strömen lassen */
-  main.reader.lesefluss .ga-page {
-    background: transparent;
-    border: 0;
-    box-shadow: none;
-    padding: 0;
-    margin: 0;
-    min-height: 0;
-    width: auto;
-    max-width: 720px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-  main.reader.lesefluss .ga-page::after { content: ''; }
-  main.reader.lesefluss .ga-page.blank { display: none; }
-  main.reader.lesefluss .ga-page.titlepage {
-    display: block;
-    min-height: 0;
-    margin-bottom: 2rem;
-  }
-  main.reader.lesefluss .ga-page-placeholder {
-    background: transparent;
-    border-top: 1px dashed var(--c-rule);
-    border-bottom: 1px dashed var(--c-rule);
-    border-left: 0;
-    border-right: 0;
-    padding: 1.5rem 0;
-    margin: 1.5rem auto;
-  }
+    /* Lesefluss-Modus (view-ga-read): Seitenrahmen wegnehmen,
+       Vakat-Seiten ausblenden, pb-Marker inline behalten. */
+    body.view-ga-read .ga-page {
+      background: transparent;
+      border: 0;
+      box-shadow: none;
+      padding: 0;
+      margin: 0;
+      min-height: 0;
+      scroll-snap-align: none;
+    }
+    body.view-ga-read .ga-page-stack {
+      scroll-snap-type: none;
+    }
+    body.view-ga-read .ga-page.blank { display: none; }
+    body.view-ga-read .ga-page.stub  { display: none; }
+    body.view-ga-read .ga-page.titlepage {
+      display: block;
+      min-height: 0;
+      margin: 0 0 1em;
+    }
+    body.view-ga-read .ga-page-pagenumber { display: none; }
+    body.view-ga-read .ga-page-footnotes  { display: block; }
 
-  /* ---------- TOC-Landing-Page (Wurzel-Klick) -------------- */
-  .toc-landing {
-    max-width: 760px;
-    margin: 2rem auto;
-    padding: 2.5rem 3rem;
-    background: var(--c-page-bg);
-    border: 1px solid var(--c-rule);
-    box-shadow: 0 2px 18px var(--c-page-shadow);
-  }
-  .toc-landing h1 {
-    font-family: var(--f-display);
-    font-style: italic;
-    font-weight: 500;
-    font-size: 2rem;
-    color: var(--c-ink);
-    margin: 0 0 0.3rem;
-    text-align: center;
-  }
-  .toc-landing h2 {
-    font-family: var(--f-display);
-    font-weight: 400;
-    font-size: 1.1rem;
-    color: var(--c-ink-soft);
-    text-align: center;
-    margin: 0 0 2rem;
-  }
-  .toc-landing-list {
-    list-style: none;
-    padding: 0;
-  }
-  .toc-landing-list > li {
-    padding: 0.4rem 0;
-    border-bottom: 1px dotted var(--c-rule-soft);
-    display: flex;
-    align-items: baseline;
-    gap: 0.5rem;
-  }
-  .toc-landing-list ul {
-    list-style: none;
-    padding-left: 1.5rem;
-    margin: 0.3rem 0;
-    flex-basis: 100%;
-  }
-  .toc-landing-list ul li {
-    padding: 0.15rem 0;
-    display: flex;
-    align-items: baseline;
-    gap: 0.5rem;
-  }
-  .toc-landing-list .leader {
-    flex: 1 1 auto;
-    border-bottom: 1px dotted var(--c-rule);
-    margin: 0 0.3rem 0.3rem;
-    height: 0;
-  }
+    /* TOC-Landing-Page (klick auf #contents oder leerer Hash) */
+    .toc-landing {
+      max-width: 760px;
+      margin: 1.5em auto;
+      padding: 2em 2.5em;
+      background: var(--c-ga-page);
+      border: 1px solid var(--c-rule);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+    .toc-landing h1 {
+      font-family: "Source Serif Pro", Georgia, serif;
+      font-style: italic;
+      font-weight: 500;
+      font-size: 1.8rem;
+      color: var(--c-text);
+      margin: 0 0 0.2em;
+      text-align: center;
+      border: 0;
+      padding: 0;
+    }
+    .toc-landing h2 {
+      font-family: "Source Serif Pro", Georgia, serif;
+      font-weight: 400;
+      font-size: 1rem;
+      color: var(--c-muted);
+      text-align: center;
+      margin: 0 0 2em;
+    }
+    .toc-landing-list { list-style: none; padding: 0; margin: 0; }
+    .toc-landing-list > li {
+      padding: 0.3em 0;
+      display: flex;
+      align-items: baseline;
+      gap: 0.5em;
+      flex-wrap: wrap;
+    }
+    .toc-landing-list ul {
+      list-style: none;
+      padding-left: 1.2em;
+      margin: 0.2em 0;
+      flex-basis: 100%;
+    }
+    .toc-landing-list ul li {
+      padding: 0.1em 0;
+      display: flex;
+      align-items: baseline;
+      gap: 0.5em;
+    }
+    .toc-landing-list .leader {
+      flex: 1 1 auto;
+      border-bottom: 1px dotted var(--c-toc-border);
+      margin: 0 0.3em 0.3em;
+      height: 0;
+    }
+    .toc-landing-list .toc-status { font-size: 0.85rem; }
+    .toc-landing-list a {
+      color: var(--c-link);
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+    }
+    .toc-landing-list a:hover { border-bottom-color: var(--c-link); }
+    .toc-landing-list .nicht-kodiert-label {
+      color: var(--c-muted);
+    }
 
-  /* ---------- TEI-Rendering (CETEIcean-Ausgabe) ------------- */
-  /* CETEIcean transformiert <persName> → <tei-persName>,
-     <hi rend="#italic"> → <tei-hi data-rend="#italic">. */
+    /* Mobile responsive: TOC wird zur Schublade */
+    @media (max-width: 900px) {
+      body {
+        grid-template-columns: 1fr;
+      }
+      nav.toc {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: min(85%, 320px);
+        z-index: 100;
+        transform: translateX(-100%);
+        transition: transform 0.2s ease-out;
+        box-shadow: 2px 0 12px rgba(0,0,0,0.15);
+      }
+      nav.toc.open {
+        transform: translateX(0);
+      }
+      nav.toc .toc-close { display: block; }
+      .toc-hamburger {
+        display: inline-flex;
+      }
+      header.bar {
+        grid-column: 1 / -1;
+      }
+      main.reader {
+        grid-column: 1 / -1;
+      }
+      .ga-page {
+        padding: 1.5em 1.2em 1em;
+      }
+    }
 
-  tei-div[data-type="chapter"],
-  tei-div[data-type="section"] {
-    display: block;
-  }
-  tei-head {
-    display: block;
-    font-family: var(--f-display);
-    font-size: 1.35rem;
-    font-weight: 500;
-    text-align: center;
-    margin: 1.6rem 0 1rem;
-    line-height: 1.3;
-  }
-  tei-head tei-num {
-    display: inline;
-    margin-right: 0.4em;
-  }
-  tei-div[data-type="chapter"] > tei-head[data-type="chapter-titlepage"] {
-    /* Titelseiten-Überschrift: zentriert, groß, viel Weißraum darum */
-    font-size: 1.75rem;
-    margin: 0;
-    padding: 0;
-  }
+    /* Aktiv-disabled Witness-Buttons (B-Schalter coverage) */
+    .controls button[disabled] {
+      opacity: 0.4;
+      cursor: not-allowed;
+      pointer-events: auto;  /* damit der Tooltip-Title noch greift */
+    }
 
-  tei-p {
-    display: block;
-    margin: 0.7rem 0;
-    text-align: justify;
-    text-indent: 1.2em;
-    hyphens: auto;
-  }
-  tei-p:first-of-type {
-    text-indent: 0;
-  }
+    /* GA-Lesetext-Ansicht — typografische Imitation
+       der Gesamtausgabe (Theol. Verlag Zürich, GA II.13).
+       Aktiv nur in body.view-ga-print. — Original-Block bleibt
+       unten erhalten (mit .ga-page-body, .ga-page-pagenumber etc.) */
+    .ga-page-body {
+      /* Wrapper für den paginierten Inhalt */
+    }
+    /* Seitenzahl unten zentriert (wie im Druck) */
+    .ga-page-pagenumber {
+      text-align: center;
+      font-family: "Source Serif Pro", Georgia, serif;
+      font-size: 0.85rem;
+      color: #444;
+      margin-top: 2em;
+      padding-top: 0.8em;
+      letter-spacing: 0.05em;
+    }
+    /* Fußnoten-Block je Seite */
+    .ga-page-footnotes {
+      margin-top: 2.2em;
+    }
+    .ga-page-footrule {
+      /* Im GA-Druck steht keine durchgehende Trennlinie über den
+         Anmerkungen — die Trennung geschieht durch typografische
+         Konvention (kleinere Schrift, Abstand). Wir setzen einen
+         dezenten, kurzen Strich linksbündig, der die Konvention
+         westlicher wissenschaftlicher Editionen wiedergibt. */
+      border-top: 1px solid #aaa;
+      width: 6em;
+      margin: 0 0 0.6em;
+    }
+    .ga-page-foot-edsep {
+      height: 0.4em;
+    }
 
-  /* Šimek-Ebene 2: visuell-materiell */
-  tei-hi[data-rend="#letter-spaced"] {
-    letter-spacing: 0.18em;
-    font-weight: 500;
-  }
-  tei-hi[data-rend="#italic"] {
-    font-style: italic;
-  }
-  tei-hi[data-rend="#bold"] { font-weight: 600; }
+    body.view-ga-print .tei-head {
+      text-align: center;
+      font-family: "Source Serif Pro", Georgia, serif;
+      font-weight: normal;
+      font-size: 1.05rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin: 0 0 1.6em;
+      padding-bottom: 0;
+      border: none;
+    }
+    /* In GA-Ansicht: <num> in den head einbinden ohne Sondergewicht */
+    body.view-ga-print .tei-head .tei-num { font-weight: normal; }
+    /* Sperrsatz im head (z.B. "Die Notwendigkeit der Theologie") soll
+       nicht doppelt gesperrt sein — der head selbst hat schon
+       letter-spacing. */
+    body.view-ga-print .tei-head .tei-hi-letter-spaced { letter-spacing: 0; }
 
-  /* pb-Marker: schmaler grauer Inline-Block */
-  tei-pb {
-    display: inline-block;
-    font-family: var(--f-mono);
-    font-size: 0.65rem;
-    color: var(--c-ink-mute);
-    vertical-align: super;
-    margin: 0 0.25em;
-    user-select: none;
-  }
-  tei-pb::before {
-    content: '|' attr(data-n) '|';
-  }
-  /* In Druckansicht werden GA-pb visuell unterdrückt (jede
-     Druckseite ist ja eine eigene .ga-page); A-pb bleiben. */
-  main.reader.druckansicht tei-pb[data-ed="#GA"] { display: none; }
-  /* Inline-leading vor head: kommt durch JS dahin */
-  tei-head .tei-pb-inline-leading {
-    margin-right: 0.4em;
-    vertical-align: baseline;
-    font-size: 0.7rem;
-  }
+    body.view-ga-print .tei-p {
+      text-indent: 1.6em;
+      margin: 0;
+      text-align: justify;
+      hyphens: auto;
+      line-height: 1.5;
+    }
+    /* Erster Absatz nach <head> ohne Erstzeilen-Einzug (klassische
+       Tradition; in der GA so umgesetzt). */
+    body.view-ga-print .tei-head + .tei-p { text-indent: 0; }
+    /* Erster Absatz einer Seite, wenn KEIN head vorausgeht (z.B.
+       Seite 14, 15, 16): ebenfalls ohne Einzug, weil das Absatz-
+       Fragment in Wahrheit die Fortsetzung des vorigen Absatzes
+       ist — kein neuer Absatz beginnt. */
+    body.view-ga-print .ga-page-body > .tei-div > .tei-p:first-of-type:not(.tei-head + .tei-p) {
+      text-indent: 0;
+    }
+    /* Sicherheitsregel: jedes erste Kind-p im ga-page-body
+       (egal wie tief verschachtelt durch div) ohne Einzug. */
+    body.view-ga-print .ga-page-body .tei-div > .tei-p:first-child {
+      text-indent: 0;
+    }
 
-  tei-lb { display: block; height: 0; }
+    /* GA-Seitenumbruch-Marker im Text:
+       Die GA-pb wird in der Druckansicht nicht inline gezeigt, weil
+       sie als Seitentrenner fungiert. Die zentrale Sichtbarkeits-
+       regel weiter unten erledigt das.
+       Hier nur noch die spezifische, leicht zurückhaltende
+       Stilanpassung für nicht-GA-pb (= ed="#A") im GA-Druck. */
+    body.view-ga-print .tei-pb-A {
+      color: #888;
+      font-size: 0.72em;
+      font-style: italic;
+    }
 
-  /* Šimek-Ebene 3: linguistisch — lat. Foreign */
-  tei-foreign[data-xml-lang="la"] { color: var(--c-quote-la); }
-  tei-quote[data-xml-lang="la"] {
-    display: block;
-    margin: 0.4rem 1.5rem;
-    padding: 0.3rem 0.6rem;
-    border-left: 2px solid var(--c-accent-soft);
-    font-style: italic;
-    color: var(--c-quote-la);
-  }
-  tei-quote[data-xml-lang="la"][data-ana~="hc:PrimarySourceQuotation"] {
-    background: rgba(200,170,100,0.06);
-  }
-  tei-cit { display: inline; }
+    /* GA-Fußnoten im paginierten Modus */
+    body.view-ga-print .tei-note-foot {
+      font-size: 0.86rem;
+      line-height: 1.42;
+      margin: 0.35em 0;
+      padding-left: 1.8em;
+      text-indent: -1.8em;
+    }
+    body.view-ga-print .tei-note-foot-first,
+    body.view-ga-print .tei-note-foot-first-app {
+      /* Im paginierten Modus übernimmt .ga-page-footrule die
+         Trennung. Die alten "first"-Klassen werden hier
+         neutralisiert. */
+      margin-top: 0.35em;
+      padding-top: 0;
+      border-top: none;
+    }
 
-  /* Šimek-Ebene 4: extensional */
-  tei-rs[data-ana~="hc:SubjectReference"] {
-    color: var(--c-term);
-    border-bottom: 1px dotted var(--c-term);
-    cursor: help;
-  }
-  tei-persname[data-ana~="hc:PersonReference"],
-  tei-persname {
-    color: var(--c-pers);
-    cursor: help;
-  }
-  tei-title[data-ana~="hc:WorkReference"],
-  tei-bibl tei-title {
-    color: var(--c-work);
-    font-style: italic;
-    cursor: help;
-  }
-  tei-bibl {
-    display: inline;
-  }
-  tei-citedrange {
-    font-family: var(--f-mono);
-    font-size: 0.85em;
-    color: var(--c-ink-soft);
-  }
+    /* ============================================================
+       GA-Seitennavigation
+       ============================================================ */
+    .ga-pagenav {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4em;
+      flex-wrap: wrap;
+      margin: 0 0 1.2em;
+      font-family: "Source Sans Pro", -apple-system, sans-serif;
+      font-size: 0.85rem;
+    }
+    .ga-pagenav-bottom {
+      margin: 1.2em 0 0;
+    }
+    .ga-pagenav button {
+      font: inherit;
+      padding: 0.3em 0.7em;
+      border: 1px solid var(--c-rule);
+      background: white;
+      cursor: pointer;
+      border-radius: 3px;
+      min-width: 2.4em;
+    }
+    .ga-pagenav button:hover:not(:disabled):not(.active) {
+      background: var(--c-bg-hover);
+    }
+    .ga-pagenav button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    .ga-pagenav button.active {
+      background: var(--c-text);
+      color: white;
+      border-color: var(--c-text);
+    }
+    .ga-pagenav-prev,
+    .ga-pagenav-next {
+      font-size: 1.1rem;
+      line-height: 1;
+      padding: 0.15em 0.7em;
+    }
+    .ga-pagenav-pages {
+      display: inline-flex;
+      flex-wrap: wrap;
+      gap: 0.3em;
+      margin: 0 0.4em;
+    }
 
-  /* Šimek-Ebene 5: Varianz (app/lem/rdg) */
-  tei-app {
-    display: inline;
-    position: relative;
-  }
-  tei-lem { display: inline; }
-  tei-rdg { display: none; }   /* nur Lemma im Text; Apparate via Footnote */
-  tei-app::after {
-    content: '⟦' attr(data-n) '⟧';
-    /* Marker entfällt — Apparate landen in Footnote */
-    content: '';
-  }
+    /* ============================================================
+       Visuelle Ebene (Šimek 2)
+       ============================================================ */
+    .tei-hi-letter-spaced { letter-spacing: 0.18em; }
+    .tei-hi-italic { font-style: italic; }
+    .tei-num { font-weight: 600; margin-right: 0.3em; }
 
-  /* Anmerkungen — Footnote-Marker als Superscript */
-  tei-note[data-place="foot"] {
-    display: inline;
-  }
-  tei-note[data-place="foot"]::before {
-    content: attr(data-n);
-    color: var(--c-accent);
-    font-size: 0.7em;
-    vertical-align: super;
-    cursor: pointer;
-    margin-left: 0.1em;
-    font-weight: 500;
-  }
-  tei-note[data-place="foot"] > * {
-    display: none;
-  }
+    .tei-pb {
+      display: inline;
+      color: var(--c-muted);
+      font-size: 0.75em;
+      margin: 0 0.15em;
+    }
+    /* Standardfarben für pb-Marker (kontinuierliche Ansichten).
+       In GA-Druck werden GA-pb ohnehin per separater Regel
+       ausgeblendet — sie fungieren dort als Seitentrenner, nicht
+       als Inline-Marker. */
+    .tei-pb-GA { color: #7a7a7a; font-weight: 600; }   /* dezenter Grauton — Lesefluss-Marker */
+    .tei-pb-A  { color: #888; font-style: italic; }
+    .tei-pb-A2 { color: #888; font-style: italic; }
+    .tei-pb-B  { color: #888; font-style: italic; }
 
-  /* Banner & Statusmeldungen im Reader */
-  .reader-banner {
-    max-width: 720px;
-    margin: 0 auto 1.5rem;
-    padding: 0.7rem 1.1rem;
-    font-family: var(--f-ui);
-    font-size: 0.85rem;
-    border-radius: 3px;
-  }
-  .reader-banner.stub {
-    background: rgba(181,136,0,0.1);
-    border-left: 4px solid var(--c-stub);
-    color: var(--c-ink-soft);
-  }
-  .reader-banner.aggregate {
-    background: rgba(107,58,170,0.08);
-    border-left: 4px solid var(--c-aggregate);
-    color: var(--c-ink-soft);
-  }
+    /* ============================================================
+       Sichtbarkeit der pb-Marker nach Ansicht (Šimek 2 + 5)
+       Logik:
+       - GA Druck:   pb ed="#GA" als Seitentrenner (→ Seitencontainer),
+                     im Inline-Fluss verborgen. Nicht-GA-pb dezent.
+       - GA Lese:    GA-pb als Inline-Marker (Lesefluss-Orientierung),
+                     ed="#A" dezent als Sekundärinfo.
+       - A:          nur ed="#A".  GA/A2/B verborgen.
+       - A2:         A2 hat keine eigenen pb im XML → alle pb verborgen.
+       - B:          B  hat keine eigenen pb im XML → alle pb verborgen.
+       - Apparat:    alle pb sichtbar (Vergleichswerkzeug).
+       ============================================================ */
+    body.view-ga-print .tei-pb-GA { display: none; }   /* Seitentrenner, nicht inline */
 
-  /* Tooltip / Popover */
-  .tip {
-    position: absolute;
-    z-index: 100;
-    max-width: 360px;
-    background: var(--c-ink);
-    color: var(--c-paper);
-    padding: 0.7rem 0.9rem;
-    border-radius: 4px;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.25);
-    font-family: var(--f-ui);
-    font-size: 0.82rem;
-    line-height: 1.45;
-    pointer-events: auto;
-    opacity: 0;
-    transform: translateY(4px);
-    transition: opacity 0.12s, transform 0.12s;
-  }
-  .tip.visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  .tip .tip-orth {
-    font-family: var(--f-display);
-    font-style: italic;
-    font-weight: 500;
-    font-size: 1rem;
-    color: var(--c-accent-soft);
-    margin-bottom: 0.3rem;
-  }
-  .tip .tip-type {
-    font-size: 0.7rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--c-ink-mute);
-    margin-bottom: 0.4rem;
-  }
-  .tip .tip-gloss {
-    color: var(--c-paper);
-  }
-  .tip .tip-gloss + .tip-gloss {
-    margin-top: 0.4rem;
-    padding-top: 0.4rem;
-    border-top: 1px dotted rgba(255,255,255,0.2);
-    color: rgba(250,247,241,0.78);
-    font-size: 0.78rem;
-  }
-  .tip .tip-source {
-    font-size: 0.7rem;
-    color: var(--c-ink-mute);
-    margin-top: 0.4rem;
-    font-style: italic;
-  }
+    body.view-ga-read  .tei-pb-GA { display: inline; }
+    body.view-ga-read  .tei-pb-A,
+    body.view-ga-read  .tei-pb-A2,
+    body.view-ga-read  .tei-pb-B  { display: inline; }
 
-  /* Loading-Indikator */
-  .loading {
-    text-align: center;
-    padding: 4rem 1rem;
-    color: var(--c-ink-mute);
-    font-family: var(--f-ui);
-    font-size: 0.95rem;
-  }
-  .loading::before {
-    content: '';
-    display: inline-block;
-    width: 14px;
-    height: 14px;
-    border: 2px solid var(--c-rule);
-    border-top-color: var(--c-accent);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    margin-right: 0.6em;
-    vertical-align: -2px;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
+    body.view-a  .tei-pb-GA,
+    body.view-a  .tei-pb-A2,
+    body.view-a  .tei-pb-B  { display: none; }
+    body.view-a  .tei-pb-A  { display: inline; }
 
-  .error-banner {
-    max-width: 720px;
-    margin: 2rem auto;
-    padding: 1rem;
-    background: rgba(107,31,31,0.07);
-    border-left: 4px solid var(--c-accent);
-    font-family: var(--f-ui);
-    font-size: 0.9rem;
-    color: var(--c-accent);
-  }
+    body.view-a2 .tei-pb { display: none; }
+    body.view-b  .tei-pb { display: none; }
 
-  /* Scrollbar — dezent */
-  ::-webkit-scrollbar { width: 8px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb {
-    background: var(--c-rule);
-    border-radius: 4px;
-  }
-  ::-webkit-scrollbar-thumb:hover { background: var(--c-ink-mute); }
-</style>
+    body.view-apparat .tei-pb { display: inline; }
+
+    /* ============================================================
+       Extensionale Ebene (Šimek 4)
+       ============================================================ */
+    .tei-rs-SubjectReference {
+      color: var(--c-term);
+      border-bottom: 1px dotted var(--c-term);
+      cursor: help;
+    }
+    .tei-rs-SubjectReference:hover { background: var(--c-bg-hover); }
+
+    .tei-persName-PersonReference {
+      color: var(--c-pers);
+      border-bottom: 1px dotted var(--c-pers);
+      cursor: help;
+    }
+    .tei-persName-PersonReference:hover { background: var(--c-pers-soft); }
+
+    .tei-title-WorkReference {
+      color: var(--c-quote);
+      cursor: help;
+    }
+    .tei-title-WorkReference:hover { background: var(--c-bg-hover); }
+
+    .tei-quote-PrimarySourceQuotation {
+      color: var(--c-quote);
+      font-style: italic;
+    }
+
+    /* Nur im GA-Druck: Farbauszeichnungen dezenter, damit das
+       Schriftbild näher am Druckoriginal wirkt. Dotted-Underlines
+       bleiben (für Tooltip-Affordance), aber neutralisiert.
+       Lesefluss / A / A2 / B / Apparat behalten die Farbgebung,
+       weil sie als Studienansichten primär die extensionale
+       Ebene (Šimek 4) sichtbar machen sollen. */
+    body.view-ga-print .tei-rs-SubjectReference,
+    body.view-ga-print .tei-persName-PersonReference,
+    body.view-ga-print .tei-title-WorkReference {
+      color: inherit;
+      border-bottom-color: rgba(0,0,0,0.18);
+    }
+    body.view-ga-print .tei-quote-PrimarySourceQuotation {
+      color: inherit;
+    }
+
+    /* ============================================================
+       Varianzebene (Šimek 5) — Witness-spezifische Sichtbarkeit
+       ============================================================ */
+    .tei-app { display: inline; }
+    .tei-lem { display: inline; }
+    .tei-rdg { display: none; }
+
+    body.view-ga-print  .tei-lem,
+    body.view-ga-read   .tei-lem { display: inline; }
+    body.view-ga-print  .tei-rdg,
+    body.view-ga-read   .tei-rdg { display: none; }
+
+    body.view-a  .tei-lem,
+    body.view-a  .tei-rdg { display: none; }
+    body.view-a  .tei-lem[data-wit~="#A"],
+    body.view-a  .tei-rdg[data-wit~="#A"] { display: inline; }
+
+    body.view-a2 .tei-lem,
+    body.view-a2 .tei-rdg { display: none; }
+    body.view-a2 .tei-lem[data-wit~="#A2"],
+    body.view-a2 .tei-rdg[data-wit~="#A2"] { display: inline; }
+
+    body.view-b  .tei-lem,
+    body.view-b  .tei-rdg { display: none; }
+    body.view-b  .tei-lem[data-wit~="#B"],
+    body.view-b  .tei-rdg[data-wit~="#B"] { display: inline; }
+
+    body.view-apparat .tei-lem,
+    body.view-apparat .tei-rdg { display: inline; }
+    body.view-apparat .tei-rdg {
+      color: var(--c-apparatus);
+      background: var(--c-apparatus-soft);
+      padding: 0 0.2em;
+      margin: 0 0.1em;
+      font-size: 0.85em;
+    }
+    body.view-apparat .tei-rdg::before {
+      content: " ⫶ " attr(data-wit) ": ";
+      color: var(--c-muted);
+    }
+    body.view-apparat .tei-lem::before {
+      content: attr(data-wit) ": ";
+      color: var(--c-muted);
+      font-size: 0.85em;
+    }
+
+    /* ============================================================
+       Buchstaben-/Zahl-Anker im Fließtext
+       ============================================================ */
+    .tei-ref-note {
+      display: inline;
+      vertical-align: super;
+      font-size: 0.7em;
+      cursor: pointer;
+      font-weight: 600;
+      padding: 0 0.1em;
+    }
+    .tei-ref-note-authorial { color: var(--c-text); }
+    .tei-ref-note-authorial:hover { background: var(--c-bg-hover); }
+    .tei-ref-note-editorial { color: var(--c-apparatus); }
+    .tei-ref-note-editorial:hover { background: var(--c-apparatus-soft); }
+
+    /* In A/B/A2-Ansicht: editorial-Anker und editorial-Notes ausblenden */
+    body.view-a  .tei-ref-note-editorial,
+    body.view-a2 .tei-ref-note-editorial,
+    body.view-b  .tei-ref-note-editorial { display: none; }
+    body.view-a  .tei-note-foot-editorial,
+    body.view-a2 .tei-note-foot-editorial,
+    body.view-b  .tei-note-foot-editorial { display: none; }
+
+    .tei-ref-bibl {
+      display: inline;
+      color: var(--c-muted);
+      font-size: 0.92em;
+    }
+
+    /* ============================================================
+       Fußnoten-Block (Default außerhalb GA-Ansicht)
+       ============================================================ */
+    .tei-note-foot {
+      display: block;
+      font-size: 0.84rem;
+      line-height: 1.45;
+      margin: 0.6em 0;
+      padding-left: 2.2em;
+      text-indent: -2.2em;
+    }
+    .tei-note-foot-authorial::before {
+      font-weight: 600;
+      color: var(--c-text);
+    }
+    .tei-note-foot-editorial::before {
+      font-weight: 600;
+      color: var(--c-apparatus);
+    }
+    .tei-note-foot-first {
+      margin-top: 2em;
+      padding-top: 1em;
+      border-top: 1px solid var(--c-rule);
+    }
+    .tei-note-foot-first-app {
+      margin-top: 1.5em;
+      padding-top: 1em;
+      border-top: 1px dashed var(--c-apparatus);
+      color: #444;
+    }
+
+    .tei-bibl { display: inline; }
+    .tei-q { display: inline; }
+    .tei-q::before { content: "„"; }
+    .tei-q::after  { content: "“"; }
+    .tei-q-la::before { content: "«"; }
+    .tei-q-la::after  { content: "»"; }
+    /* In GA-Ansicht: lateinische Zitate in »…« wie im Druck —
+       das ist schon Default. Aber Anführungszeichen für deutsche
+       Zitate sollen klassisch wirken. */
+
+    /* ============================================================
+       Tooltip — JS-gesteuert (kein ::after mehr)
+       Lösung der Probleme:
+         - vollständige Anzeige langer Texte (max-height + scroll
+           als Fallback);
+         - keine Beschneidung am Viewport-Rand;
+         - mobile: Breite = min(28em, calc(100vw - 2em));
+       ============================================================ */
+    [data-tooltip] { position: relative; }
+
+    #tei-tooltip {
+      position: absolute;
+      z-index: 1000;
+      background: var(--c-text);
+      color: white;
+      font-family: "Source Sans Pro", -apple-system, sans-serif;
+      font-style: normal;
+      font-weight: normal;
+      font-size: 0.82rem;
+      line-height: 1.4;
+      padding: 0.55em 0.85em;
+      border-radius: 5px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.22);
+      max-width: 28em;
+      width: max-content;
+      max-height: 60vh;
+      overflow-y: auto;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 0.12s ease, transform 0.12s ease;
+      white-space: normal;
+      hyphens: auto;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+    #tei-tooltip.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    /* Auf Touch-Geräten interagierbar machen, damit Inhalt gescrollt
+       und Links/Schließen-Button geklickt werden können. */
+    #tei-tooltip.touch-mode {
+      pointer-events: auto;
+    }
+    #tei-tooltip .close-btn {
+      display: none;
+      position: absolute;
+      top: 0.15em;
+      right: 0.4em;
+      cursor: pointer;
+      font-size: 1.1rem;
+      line-height: 1;
+      color: rgba(255,255,255,0.7);
+      background: none;
+      border: none;
+      padding: 0.1em 0.3em;
+    }
+    #tei-tooltip.touch-mode .close-btn { display: block; }
+    #tei-tooltip.touch-mode .content { padding-right: 1.2em; }
+
+    /* ============================================================
+       Zitierhilfe
+       ============================================================
+       Klappbar (<details>); enthält drei wissenschaftliche Formate.
+       Default: zugeklappt, um den Lesefluss nicht zu stören.
+       ============================================================ */
+    #citation-bar {
+      max-width: var(--maxw);
+      margin: 0 auto 1em;
+      font-family: "Source Sans Pro", -apple-system, sans-serif;
+      font-size: 0.8rem;
+      border: 1px solid var(--c-rule);
+      border-radius: 3px;
+      background: #fbfaf6;
+    }
+    #citation-bar > summary {
+      cursor: pointer;
+      padding: 0.45em 0.8em;
+      color: var(--c-muted);
+      font-weight: 600;
+      list-style: none;
+      user-select: none;
+    }
+    #citation-bar > summary::-webkit-details-marker { display: none; }
+    #citation-bar > summary .cite-chev {
+      display: inline-block;
+      transition: transform 0.15s ease;
+      margin-left: 0.3em;
+    }
+    #citation-bar[open] > summary .cite-chev { transform: rotate(180deg); }
+    .cite-formats {
+      padding: 0.2em 0.8em 0.7em;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5em;
+    }
+    .cite-row {
+      display: grid;
+      grid-template-columns: 5em 1fr auto;
+      gap: 0.6em;
+      align-items: start;
+    }
+    .cite-label {
+      color: var(--c-muted);
+      font-weight: 600;
+      font-size: 0.78rem;
+      padding-top: 0.15em;
+    }
+    .cite-text {
+      font-family: "Source Serif Pro", Georgia, serif;
+      font-size: 0.85rem;
+      line-height: 1.45;
+      color: var(--c-text);
+      hyphens: auto;
+    }
+    .cite-copy {
+      font: inherit;
+      font-size: 0.72rem;
+      padding: 0.25em 0.6em;
+      border: 1px solid var(--c-rule);
+      background: white;
+      cursor: pointer;
+      border-radius: 3px;
+      white-space: nowrap;
+      align-self: start;
+    }
+    .cite-copy:hover { background: var(--c-bg-hover); }
+    .cite-copy.copied {
+      background: #e6f3e0;
+      border-color: #7ab36a;
+      color: #2f5d22;
+    }
+    @media (max-width: 600px) {
+      .cite-row {
+        grid-template-columns: 1fr;
+        gap: 0.2em;
+      }
+      .cite-copy { justify-self: start; }
+    }
+
+    /* Apparat-Hinweis im Zitierblock — nur in body.view-apparat
+       sichtbar. Erinnert daran, dass die parallel angezeigten
+       lem/rdg-Lesarten nicht aus einer einzelnen Druckfassung
+       stammen, weshalb die GA als Leitfassung zitiert wird. */
+    .cite-apparat-hint {
+      display: none;
+      font-size: 0.78rem;
+      font-style: italic;
+      color: var(--c-muted);
+      padding: 0.3em 0.5em;
+      margin-bottom: 0.3em;
+      background: #f5f1e8;
+      border-left: 3px solid var(--c-rule);
+      line-height: 1.4;
+    }
+    body.view-apparat .cite-apparat-hint { display: block; }
+
+    /* ============================================================
+       Theme — Invert (Dunkelmodus durch CSS-Filter)
+       ============================================================
+       Wir wenden filter:invert + hue-rotate auf <html> an, damit
+       die GESAMTE Seite — inkl. Hintergrundfarben, Bilder und
+       UI-Chrome — invertiert wird. Dies ist eine bewusste Design-
+       Entscheidung: ein partielles Invert auf #TEI würde am
+       Desktop einen schwarzen Streifen in weißem Rahmen erzeugen.
+       hue-rotate(180deg) kompensiert die unerwünschte Farbumkehr
+       bunter Akzente (blaue Personennamen würden sonst orange).
+       Bilder bekommen einen Gegenfilter, damit sie nicht
+       doppelt-invertiert werden — hier projektrelevant z.B.
+       künftige Faksimiles. */
+    html.theme-invert {
+      filter: invert(1) hue-rotate(180deg);
+      background: #ffffff;  /* damit Filter eine Fläche zum Wirken hat */
+    }
+    html.theme-invert img,
+    html.theme-invert svg,
+    html.theme-invert video,
+    html.theme-invert iframe {
+      filter: invert(1) hue-rotate(180deg);
+    }
+
+    /* ============================================================
+       Status / Loading
+       ============================================================ */
+    #status {
+      font-size: 0.85rem;
+      color: var(--c-muted);
+      text-align: center;
+      padding: 3em 0;
+    }
+    #status.error {
+      color: #a33;
+      background: #fdf2f2;
+      padding: 1em;
+      border-radius: 4px;
+      text-align: left;
+      font-family: ui-monospace, monospace;
+      font-size: 0.8rem;
+    }
+    #aux-warning {
+      max-width: var(--maxw);
+      margin: 0 auto 1em;
+      font-size: 0.78rem;
+      color: var(--c-muted);
+      background: #fdfbf2;
+      border: 1px solid #e8dfb8;
+      padding: 0.5em 1em;
+      border-radius: 3px;
+      display: none;
+    }
+    #aux-warning.visible { display: block; }
+
+    /* ============================================================
+       Responsive — Mobile
+       ============================================================ */
+    @media (max-width: 600px) {
+      body {
+        margin: 1em auto;
+        padding: 0 0.6em 3em;
+      }
+      header.bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.6em;
+      }
+      .controls-wrap {
+        align-items: stretch;
+      }
+      h1 { font-size: 1.05rem; }
+      body.view-ga-print #TEI {
+        padding: 1.5em 1.2em 1.2em;
+      }
+      body.view-ga-print .tei-p {
+        text-indent: 1.2em;
+      }
+      #tei-tooltip {
+        font-size: 0.78rem;
+        max-width: calc(100vw - 1.2em);
+      }
+    }
+  </style>
 </head>
+<body class="view-ga-print">
 
-<body>
-
-<div class="app">
-  <header class="app-header">
-    <div>
-      <div class="title">Fides quaerens intellectum</div>
-      <div class="subtitle">Karl Barth · GA II.13 · digitale Edition (Demonstrator)</div>
+  <!-- ============================================================
+       TOC-Schublade / -Spalte (links). Auf Desktop fest,
+       auf Mobile per ☰ einblendbar.
+       ============================================================ -->
+  <nav class="toc" id="toc" aria-label="Inhaltsverzeichnis">
+    <button class="toc-close" id="toc-close" aria-label="Schließen">×</button>
+    <h2>Inhalt</h2>
+    <p class="toc-meta">
+      <span class="sym" style="color: var(--c-status-kodiert)">✓</span> kodiert
+      <span class="sym" style="color: var(--c-status-stub)">⊘</span> Gerüst
+      <span class="sym" style="color: var(--c-status-nicht-kodiert)">○</span> offen
+      <span class="sym" style="color: var(--c-status-aggregate)">▣</span> aggr.
+    </p>
+    <div id="toc-content">
+      <div style="padding: 1em; color: var(--c-muted)">TOC wird geladen …</div>
     </div>
-    <div class="controls">
-      <select class="lang-select" id="lang-select" aria-label="Sprache">
-        <option value="de" selected>Deutsch</option>
-        <option value="zh-CN">中文 (Vorbereitung)</option>
-        <option value="en">English (planned)</option>
-      </select>
-      <div class="view-mode-toggle" role="group" aria-label="Ansichtsmodus">
-        <button id="btn-druck" class="active" title="Druckansicht: Seitenrahmen der GA-Vorlage">Druckansicht</button>
-        <button id="btn-lese"  title="Lesefluss: linearer Text ohne Seitenrahmen">Lesefluss</button>
+  </nav>
+  <div class="toc-drawer-backdrop" id="toc-backdrop"></div>
+
+  <header class="bar">
+    <button class="toc-hamburger" id="toc-hamburger" aria-label="Inhaltsverzeichnis öffnen">
+      <span></span><span></span><span></span>
+    </button>
+    <h1>
+      Karl Barth, <em>Fides quaerens intellectum</em>
+      <span class="h1-sub" id="header-subtitle">
+        GA II.13 — digitale Edition (heiEDITIONS-Demonstrator)
+      </span>
+    </h1>
+    <div class="controls-wrap">
+      <div class="controls">
+        <span class="group-label">Ansicht:</span>
+        <button data-view="ga-print" class="active">GA · Druckansicht</button>
+        <button data-view="ga-read">GA · Lesefluss</button>
+        <button data-view="a">A · 1931</button>
+        <button data-view="a2">A2 · 1958</button>
+        <button data-view="b">B · Vorabdruck</button>
+        <button data-view="apparat">Apparat</button>
+      </div>
+      <div class="controls fontsize-group">
+        <span class="group-label">Schriftgröße:</span>
+        <button data-fontsize="small"  title="Kleiner">A</button>
+        <button data-fontsize="medium" class="active" title="Standard">A</button>
+        <button data-fontsize="large"  title="Größer">A</button>
+      </div>
+      <div class="controls theme-group">
+        <span class="group-label">Theme:</span>
+        <button data-theme="light"  class="active" title="Hell">☀ Hell</button>
+        <button data-theme="invert" title="Invertiert (Dunkelmodus)">☾ Invert</button>
       </div>
     </div>
   </header>
 
-  <nav class="toc" id="toc">
-    <h2>Inhalt</h2>
-    <p class="toc-meta">
-      <span style="color: var(--c-kodiert)">✓</span> kodiert &nbsp;
-      <span style="color: var(--c-stub)">⊘</span> Gerüst &nbsp;
-      <span style="color: var(--c-nicht-kodiert)">○</span> offen &nbsp;
-      <span style="color: var(--c-aggregate)">▣</span> aggr.
-    </p>
-    <div class="loading">TOC wird geladen …</div>
-  </nav>
+  <main class="reader" id="reader">
+    <!-- Zitierhilfe — drei wissenschaftliche Formate, klappbar.
+         Inhalt wird bei jedem View-Wechsel neu generiert (siehe
+         fillCitationBar): GA-Druck/GA-Lesefluss → witness GA,
+         A → witness A, A2 → witness A2, B → witness B,
+         Apparat → witness GA + Hinweistext. -->
+    <details id="citation-bar">
+      <summary>Zitiervorschlag <span class="cite-chev">▾</span></summary>
+      <div class="cite-formats">
+        <!-- Apparat-Hinweis: nur sichtbar in body.view-apparat -->
+        <div class="cite-apparat-hint">
+          Synoptische Apparat-Ansicht — eine eindeutige Zuordnung
+          zu einer Druckfassung ist hier nicht möglich. Angezeigt
+          ist die Zitierform der Leitfassung (GA).
+        </div>
+        <div class="cite-row" data-format="chicago">
+          <span class="cite-label">Chicago</span>
+          <span class="cite-text"></span>
+          <button class="cite-copy" title="In Zwischenablage kopieren">Kopieren</button>
+        </div>
+        <div class="cite-row" data-format="apa">
+          <span class="cite-label">APA</span>
+          <span class="cite-text"></span>
+          <button class="cite-copy" title="In Zwischenablage kopieren">Kopieren</button>
+        </div>
+        <div class="cite-row" data-format="tuebingen">
+          <span class="cite-label">Tübingen</span>
+          <span class="cite-text"></span>
+          <button class="cite-copy" title="In Zwischenablage kopieren">Kopieren</button>
+        </div>
+        <div class="cite-row" data-format="digital">
+          <span class="cite-label">Digitalisat</span>
+          <span class="cite-text"></span>
+          <button class="cite-copy" title="In Zwischenablage kopieren">Kopieren</button>
+        </div>
+      </div>
+    </details>
 
-  <main class="reader druckansicht" id="reader">
-    <div class="loading">Edition wird vorbereitet …</div>
+    <div id="aux-warning"></div>
+    <div id="status">Lade TEI-Daten…</div>
+    <div id="TEI"></div>
   </main>
-</div>
 
-<div class="tip" id="tooltip" role="tooltip" hidden></div>
+  <!-- Singletons Tooltip-Element — wird von JS positioniert -->
+  <div id="tei-tooltip" role="tooltip" aria-hidden="true">
+    <button class="close-btn" aria-label="Schließen">×</button>
+    <div class="content"></div>
+  </div>
 
-<!-- CETEIcean: TEI → custom-element-Rendering -->
-<script src="https://cdn.jsdelivr.net/npm/ceteicean@1.9.1/dist/CETEI.min.js"></script>
+  <script>
+    "use strict";
 
-<script>
-/* =========================================================
-   viewer.js — eingebettet
-   Architekturkommentar siehe Datei-Kopf.
-   ========================================================= */
+    /* ============================================================
+       Konfiguration
+       ============================================================ */
+    const TOC_FILE     = "fqi-toc.xml";
+    const AUX_FILES    = {
+      persons: "persons-heiEDITIONS.xml",
+      works:   "works-heiEDITIONS.xml",
+      terms:   "terms-heiEDITIONS.xml",
+    };
 
-const TEI_NS = 'http://www.tei-c.org/ns/1.0';
-const XML_NS = 'http://www.w3.org/XML/1998/namespace';
+    /* Sprach-Hook: ?lang=zh-CN o.ä. (BCP-47). Wenn vorhanden,
+       fragen wir <FILENAME>.<LANG>.xml zuerst an; fallback auf
+       Standardname. Aktuell existiert faktisch nur 'de'. */
+    const URL_PARAMS = new URLSearchParams(location.search);
+    const LANG = URL_PARAMS.get("lang") || "de";
 
-/* ---------------------------------------------------------
-   Globaler Zustand
-   --------------------------------------------------------- */
-const State = {
-  lang: 'de',                 // aktueller UI/Inhalts-Sprachcode (BCP-47)
-  viewMode: 'druckansicht',   // 'druckansicht' | 'lesefluss'
-  toc: null,                  // geparstes fqi-toc.xml DOM
-  tocItemsById: new Map(),    // xml:id → <item>-Element im TOC
-  fileCache: new Map(),       // dateiname → DOM
-  termsIndex: new Map(),      // xml:id → {orth, glossDe, glossEn, type}
-  personsIndex: new Map(),    // xml:id → {name, role, dates}
-  worksIndex: new Map(),      // xml:id → {title, author}
-  ceteicean: null,            // CETEI-Instanz
-  activeNodeId: null,         // aktuell selektierter TOC-Knoten
-};
+    const statusEl    = document.getElementById("status");
+    const auxWarnEl   = document.getElementById("aux-warning");
+    const teiContainer = document.getElementById("TEI");
+    const tooltipEl   = document.getElementById("tei-tooltip");
+    const tooltipContentEl = tooltipEl.querySelector(".content");
+    const tooltipCloseBtn  = tooltipEl.querySelector(".close-btn");
 
-/* ---------------------------------------------------------
-   Boot-Sequenz
-   --------------------------------------------------------- */
-async function boot() {
-  // (1) Sprache aus URL-Query
-  const params = new URLSearchParams(location.search);
-  const reqLang = params.get('lang');
-  if (reqLang) {
-    // Fallback-Strategie: nur 'de' existiert tatsächlich;
-    // alle anderen werden akzeptiert, fallen aber faktisch auf 'de'.
-    State.lang = reqLang;
-    document.getElementById('lang-select').value = reqLang;
-    document.documentElement.setAttribute('lang', reqLang);
-    if (reqLang !== 'de') {
-      console.info(`[lang] Sprache '${reqLang}' angefordert; faktisch nur 'de' verfügbar → Fallback.`);
+    const TEI_NS = "http://www.tei-c.org/ns/1.0";
+    const XML_NS = "http://www.w3.org/XML/1998/namespace";
+
+    /* Touch-Erkennung — auf Touch-Geräten zeigen wir Tooltips
+       click-basiert und mit Schließen-Button. */
+    const IS_TOUCH = window.matchMedia("(hover: none)").matches
+                  || ("ontouchstart" in window);
+
+    /* ============================================================
+       Globaler Zustand (Multi-File-Architektur)
+       ============================================================ */
+    const State = {
+      toc: null,                  // geparstes fqi-toc.xml
+      tocItemsById: new Map(),    // xml:id im TOC → <item>-Element
+      fileCache: new Map(),       // Dateiname → geparstes XML-Doc
+      witCoverage: new Map(),     // wit-id → {from, to} GA-Seitenbereich
+      activeTocId: null,          // momentan selektierter TOC-Knoten
+      activeAnchor: null,         // momentaner Anker (z. B. "sec-I-1")
+      activeStatus: null,         // 'kodiert' | 'stub' | 'aggregate' | …
+    };
+
+    /* ============================================================
+       Hilfsfunktionen
+       ============================================================ */
+    function localName(node) {
+      return node.localName || node.nodeName.replace(/^.*:/, "");
     }
-  }
 
-  // (2) CETEIcean initialisieren
-  State.ceteicean = new CETEI();
-  configureCeteicean(State.ceteicean);
-
-  // (3) Daten parallel laden: TOC + Indizes
-  try {
-    const [tocDoc, termsDoc, personsDoc, worksDoc] = await Promise.all([
-      fetchXml(tocFilename()),
-      fetchXml('terms-heiEDITIONS.xml'),
-      fetchXml('persons-heiEDITIONS.xml'),
-      fetchXml('works-heiEDITIONS.xml'),
-    ]);
-    State.toc = tocDoc;
-    buildTermsIndex(termsDoc);
-    buildPersonsIndex(personsDoc);
-    buildWorksIndex(worksDoc);
-    renderToc();
-  } catch (err) {
-    console.error(err);
-    showError(`TOC oder Indexdateien konnten nicht geladen werden. (${err.message})`);
-    return;
-  }
-
-  // (4) View-Mode-Toggle + Sprach-Select
-  document.getElementById('btn-druck').addEventListener('click', () => setViewMode('druckansicht'));
-  document.getElementById('btn-lese' ).addEventListener('click', () => setViewMode('lesefluss'));
-  document.getElementById('lang-select').addEventListener('change', e => {
-    const newLang = e.target.value;
-    const url = new URL(location.href);
-    if (newLang === 'de') url.searchParams.delete('lang');
-    else url.searchParams.set('lang', newLang);
-    location.href = url.toString();
-  });
-
-  // (5) URL-Hash auswerten oder Landing-Page
-  window.addEventListener('hashchange', handleHash);
-  if (location.hash) {
-    handleHash();
-  } else {
-    renderLanding();
-  }
-
-  // (6) Tooltip-Delegation
-  document.addEventListener('mouseover', handleHoverEnter, true);
-  document.addEventListener('mouseout',  handleHoverLeave, true);
-  document.addEventListener('click',     handleClickHide, true);
-}
-
-function tocFilename() {
-  return State.lang === 'de'
-    ? 'fqi-toc.xml'
-    : `fqi-toc.${State.lang}.xml`;
-}
-
-/* ---------------------------------------------------------
-   Datei-Fetch (kein eigener Cache nötig — Browser-HTTP-Cache
-   reicht; wir cachen jedoch das geparste DOM)
-   --------------------------------------------------------- */
-async function fetchXml(filename) {
-  if (State.fileCache.has(filename)) return State.fileCache.get(filename);
-
-  // Sprachvarianten-Fallback: wenn xx.xml fehlt, versuche stripped.
-  let actualName = filename;
-  let response = await fetch(actualName, { cache: 'default' });
-  if (!response.ok && /\.[a-z]{2}(-[A-Z]{2})?\.xml$/.test(filename)) {
-    actualName = filename.replace(/\.[a-z]{2}(-[A-Z]{2})?\.xml$/, '.xml');
-    response = await fetch(actualName, { cache: 'default' });
-  }
-  if (!response.ok) {
-    throw new Error(`${filename}: HTTP ${response.status}`);
-  }
-
-  const text = await response.text();
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(text, 'application/xml');
-  const parseError = doc.querySelector('parsererror');
-  if (parseError) {
-    throw new Error(`${filename}: Parserfehler — ${parseError.textContent.slice(0, 120)}`);
-  }
-  State.fileCache.set(filename, doc);
-  return doc;
-}
-
-/* ---------------------------------------------------------
-   CETEIcean-Behavior-Konfiguration
-   --------------------------------------------------------- */
-function configureCeteicean(ct) {
-  // CETEIcean hängt standardmäßig data-* Attribute an custom elements.
-  // Wir übersetzen xml:id → id, damit URL-Hash-Routing funktioniert.
-  ct.addBehaviors({
-    handlers: {
-      // Jedes Element bekommt sein xml:id als id (falls vorhanden).
-      // CETEIcean Default-Behavior verarbeitet das nicht überall einheitlich;
-      // wir machen es im Post-Processing (siehe unten).
+    function attr(node, name) {
+      return node.getAttribute(name)
+          || node.getAttributeNS(null, name)
+          || node.getAttributeNS("http://www.w3.org/XML/1998/namespace",
+                                 name.replace(/^xml:/, ""))
+          || null;
     }
-  });
-}
 
-/* ---------------------------------------------------------
-   Post-Processing nach CETEIcean: xml:id → id propagieren
-   --------------------------------------------------------- */
-function propagateXmlIds(rootEl) {
-  // CETEIcean kopiert xml:id meist als data-xml-id; wir spiegeln zu id.
-  rootEl.querySelectorAll('[data-xml-id]').forEach(el => {
-    const id = el.getAttribute('data-xml-id');
-    if (id && !el.id) el.id = id;
-  });
-}
+    function el(tag, cls) {
+      const e = document.createElement(tag);
+      if (cls) e.className = cls;
+      return e;
+    }
 
-/* ---------------------------------------------------------
-   Indizes aufbauen
-   --------------------------------------------------------- */
-function buildTermsIndex(doc) {
-  // <entry xml:id="..."><form type="lemma"><orth>...</orth></form>
-  //   <gloss xml:lang="de">...</gloss><gloss xml:lang="en">...</gloss>
-  // </entry>
-  const entries = doc.getElementsByTagNameNS(TEI_NS, 'entry');
-  for (const entry of entries) {
-    const id = entry.getAttributeNS(XML_NS, 'id');
-    if (!id) continue;
+    function directText(node) {
+      let s = "";
+      for (const c of node.childNodes) {
+        if (c.nodeType === Node.TEXT_NODE) s += c.nodeValue;
+      }
+      return s.trim();
+    }
 
-    const lemmaForm = Array.from(entry.getElementsByTagNameNS(TEI_NS, 'form'))
-      .find(f => f.getAttribute('type') === 'lemma');
-    const orth = lemmaForm
-      ? (lemmaForm.getElementsByTagNameNS(TEI_NS, 'orth')[0]?.textContent.trim() || id)
-      : id;
+    function findById(xmlDoc, id) {
+      return xmlDoc.querySelector('[*|id="' + id + '"]');
+    }
 
-    const glosses = Array.from(entry.getElementsByTagNameNS(TEI_NS, 'gloss'));
-    const glossDe = glosses.find(g => g.getAttributeNS(XML_NS, 'lang') === 'de')?.textContent.trim();
-    const glossEn = glosses.find(g => g.getAttributeNS(XML_NS, 'lang') === 'en')?.textContent.trim();
+    /* ============================================================
+       Aux-Dateien: Tooltips aus persons/works/terms ableiten
+       ============================================================ */
+    const auxDocs = { persons: null, works: null, terms: null };
+    const auxLoadErrors = [];
 
-    State.termsIndex.set(id, {
-      orth,
-      glossDe: collapseSpace(glossDe),
-      glossEn: collapseSpace(glossEn),
-      type: entry.getAttribute('type') || ''
+    function tooltipFromPerson(personEl) {
+      const preferred = personEl.querySelector(
+        'persName[ana~="hc:PreferredAppellation"]'
+      );
+      const persNames = personEl.getElementsByTagName("persName");
+      let name = "";
+      if (preferred) {
+        name = preferred.textContent.replace(/\s+/g, " ").trim();
+      } else if (persNames.length) {
+        name = persNames[0].textContent.replace(/\s+/g, " ").trim();
+      }
+
+      const birth = personEl.getElementsByTagName("birth")[0];
+      const death = personEl.getElementsByTagName("death")[0];
+      let dates = "";
+      if (birth || death) {
+        const bY = birth ? (birth.getAttribute("when") || birth.getAttribute("notBefore") || "") : "";
+        const dY = death ? (death.getAttribute("when") || death.getAttribute("notAfter") || "") : "";
+        const bs = bY ? bY.slice(0, 4) : "?";
+        const ds = dY ? dY.slice(0, 4) : "?";
+        if (bY || dY) dates = " (" + bs + "–" + ds + ")";
+      }
+
+      const occ = personEl.getElementsByTagName("occupation")[0];
+      const occText = occ ? occ.textContent.replace(/\s+/g, " ").trim() : "";
+
+      let s = name + dates;
+      if (occText) s += " — " + occText;
+      return s;
+    }
+
+    function tooltipFromEntry(entryEl) {
+      const lemma = entryEl.querySelector(
+        'form[type="lemma"] > orth, form[type="phrase"] > orth'
+      );
+      const lemmaText = lemma ? lemma.textContent.trim() : "";
+
+      const gloss = entryEl.getElementsByTagName("gloss")[0];
+      let glossText = "";
+      if (gloss) {
+        glossText = gloss.textContent.replace(/\s+/g, " ").trim();
+        const dot = glossText.indexOf(". ");
+        if (dot > 20 && dot < 200) glossText = glossText.slice(0, dot + 1);
+        else if (glossText.length > 200) glossText = glossText.slice(0, 200) + "…";
+      }
+      return lemmaText + (glossText ? " — " + glossText : "");
+    }
+
+    function tooltipFromBibl(biblEl) {
+      const auth = biblEl.getElementsByTagName("author")[0];
+      const fullTitle = biblEl.querySelector('title[type="full"]');
+      const firstTitle = biblEl.getElementsByTagName("title")[0];
+      const title = (fullTitle || firstTitle);
+      const titleText = title ? title.textContent.replace(/\s+/g, " ").trim() : "";
+      const authText  = auth  ? auth.textContent.replace(/\s+/g, " ").trim()  : "";
+      return (authText ? authText + ": " : "") + titleText;
+    }
+
+    function resolveRef(refValue) {
+      if (!refValue) return "";
+      const m = refValue.match(/^([^#]+)#(.+)$/);
+      if (!m) return "";
+      const file = m[1].trim();
+      const id   = m[2].trim();
+
+      let entry = null, builder = null;
+      if (/persons/.test(file) && auxDocs.persons) {
+        entry = findById(auxDocs.persons, id);
+        builder = tooltipFromPerson;
+      } else if (/works/.test(file) && auxDocs.works) {
+        entry = findById(auxDocs.works, id);
+        builder = tooltipFromBibl;
+      } else if (/terms/.test(file) && auxDocs.terms) {
+        entry = findById(auxDocs.terms, id);
+        builder = tooltipFromEntry;
+      }
+      if (entry && builder) return builder(entry);
+      return "→ " + refValue;
+    }
+
+    function applyRef(xmlNode, htmlEl) {
+      const ref = attr(xmlNode, "ref") || "";
+      if (ref) htmlEl.dataset.tooltip = resolveRef(ref);
+    }
+
+    function applyAna(xmlNode, htmlEl, concept, cssClass) {
+      const ana = attr(xmlNode, "ana") || "";
+      if (ana.includes(concept)) {
+        htmlEl.classList.add(cssClass);
+        htmlEl.classList.add("has-ana");
+        htmlEl.dataset.ana = ana;
+      }
+    }
+
+    /* ============================================================
+       Tooltip-Steuerung (JS-Implementation)
+       ============================================================ */
+    let tooltipHideTimer = null;
+    let currentTooltipTarget = null;
+
+    function showTooltip(targetEl) {
+      const text = targetEl.dataset.tooltip;
+      if (!text) return;
+
+      clearTimeout(tooltipHideTimer);
+      currentTooltipTarget = targetEl;
+
+      tooltipContentEl.textContent = text;
+      tooltipEl.classList.toggle("touch-mode", IS_TOUCH);
+      tooltipEl.setAttribute("aria-hidden", "false");
+
+      /* Erstes Positionieren (versteckt, um Maße zu messen),
+         dann sichtbar machen. */
+      tooltipEl.style.left = "0px";
+      tooltipEl.style.top  = "0px";
+      tooltipEl.style.visibility = "hidden";
+      tooltipEl.classList.add("visible");
+
+      // Layout-Update erzwingen, dann ausmessen
+      requestAnimationFrame(() => {
+        positionTooltip(targetEl);
+        tooltipEl.style.visibility = "visible";
+      });
+    }
+
+    function hideTooltip(immediate) {
+      const doHide = () => {
+        tooltipEl.classList.remove("visible");
+        tooltipEl.setAttribute("aria-hidden", "true");
+        currentTooltipTarget = null;
+      };
+      clearTimeout(tooltipHideTimer);
+      if (immediate) doHide();
+      else tooltipHideTimer = setTimeout(doHide, 80);
+    }
+
+    /**
+     * Positioniert das Tooltip relativ zum Viewport, mit
+     * Berücksichtigung der Viewport-Ränder. Bevorzugt: oberhalb
+     * des Target; bei zu wenig Platz: darunter. Horizontal: am
+     * Target ausgerichtet, aber nie aus dem Viewport ragend.
+     */
+    function positionTooltip(targetEl) {
+      const targetRect  = targetEl.getBoundingClientRect();
+      const tooltipRect = tooltipEl.getBoundingClientRect();
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const MARGIN = 8;          // Abstand vom Viewport-Rand
+      const GAP    = 6;          // Abstand zum Target
+
+      /* Tooltip ist position:absolute, also rechnen wir mit
+         document-Koordinaten = viewport-Koordinaten + scroll-Offset. */
+      const scrollX = window.scrollX || window.pageXOffset;
+      const scrollY = window.scrollY || window.pageYOffset;
+
+      const ttW = tooltipRect.width;
+      const ttH = tooltipRect.height;
+
+      /* Horizontale Position: am Target-Anfang ausrichten,
+         aber so verschieben, dass der Tooltip im Viewport bleibt. */
+      let leftVp = targetRect.left;
+      if (leftVp + ttW > vw - MARGIN) {
+        leftVp = vw - ttW - MARGIN;
+      }
+      if (leftVp < MARGIN) {
+        leftVp = MARGIN;
+      }
+
+      /* Vertikale Position: bevorzugt oberhalb. Wenn dort zu eng
+         (Tooltip ragt über den oberen Rand), dann unterhalb. */
+      let topVp;
+      const spaceAbove = targetRect.top - MARGIN;
+      const spaceBelow = vh - targetRect.bottom - MARGIN;
+
+      if (spaceAbove >= ttH + GAP || spaceAbove >= spaceBelow) {
+        // oberhalb
+        topVp = targetRect.top - ttH - GAP;
+        if (topVp < MARGIN) topVp = MARGIN;
+      } else {
+        // unterhalb
+        topVp = targetRect.bottom + GAP;
+        if (topVp + ttH > vh - MARGIN) topVp = vh - ttH - MARGIN;
+        if (topVp < MARGIN) topVp = MARGIN;
+      }
+
+      tooltipEl.style.left = (leftVp + scrollX) + "px";
+      tooltipEl.style.top  = (topVp  + scrollY) + "px";
+    }
+
+    /* Globaler Event-Handler-Setup (einmalig):
+       - Desktop: hover/focus zeigt, mouseleave/blur versteckt
+       - Touch:   click zeigt, click außerhalb oder ×-Button versteckt
+       Wir hängen Handler an document und filtern via closest(),
+       damit auch nachträglich gerenderte Elemente reagieren. */
+
+    function findTooltipTarget(node) {
+      if (!node || node.nodeType !== 1) return null;
+      return node.closest("[data-tooltip]");
+    }
+
+    if (!IS_TOUCH) {
+      document.addEventListener("mouseover", (e) => {
+        const target = findTooltipTarget(e.target);
+        if (target && target !== currentTooltipTarget) {
+          showTooltip(target);
+        }
+      });
+      document.addEventListener("mouseout", (e) => {
+        const target = findTooltipTarget(e.target);
+        if (!target) return;
+        // Wenn das Mouseout zu einem Kind innerhalb desselben
+        // Targets führt, nicht verstecken.
+        const related = e.relatedTarget;
+        if (related && target.contains(related)) return;
+        if (target === currentTooltipTarget) hideTooltip(false);
+      });
+      // Fokus-Steuerung für Tastatur-User
+      document.addEventListener("focusin", (e) => {
+        const target = findTooltipTarget(e.target);
+        if (target) showTooltip(target);
+      });
+      document.addEventListener("focusout", (e) => {
+        const target = findTooltipTarget(e.target);
+        if (target && target === currentTooltipTarget) hideTooltip(true);
+      });
+    } else {
+      // Touch: Tap zum Anzeigen, zweiter Tap auf gleiches Target oder
+      // Tap außerhalb zum Verstecken.
+      document.addEventListener("click", (e) => {
+        // Klick auf Schließen-Button?
+        if (e.target === tooltipCloseBtn) {
+          hideTooltip(true);
+          return;
+        }
+        // Klick im Tooltip selbst? Nicht verstecken.
+        if (tooltipEl.contains(e.target)) return;
+
+        const target = findTooltipTarget(e.target);
+        if (target) {
+          // Wenn dasselbe Target erneut getippt wird: verstecken
+          if (target === currentTooltipTarget) {
+            hideTooltip(true);
+          } else {
+            showTooltip(target);
+          }
+          // Verhindere, dass globale Listeners das wieder schließen
+          e.stopPropagation();
+        } else {
+          hideTooltip(true);
+        }
+      });
+    }
+
+    // Beim Scrollen / Resize neu positionieren oder verstecken
+    window.addEventListener("scroll", () => {
+      if (currentTooltipTarget) positionTooltip(currentTooltipTarget);
+    }, { passive: true });
+    window.addEventListener("resize", () => {
+      if (currentTooltipTarget) positionTooltip(currentTooltipTarget);
     });
-  }
-  console.info(`[index] Termini: ${State.termsIndex.size}`);
-}
 
-function buildPersonsIndex(doc) {
-  const persons = doc.getElementsByTagNameNS(TEI_NS, 'person');
-  for (const p of persons) {
-    const id = p.getAttributeNS(XML_NS, 'id');
-    if (!id) continue;
-    // Bevorzugt persName mit ana="hc:PreferredAppellation", sonst erste persName
-    const names = Array.from(p.getElementsByTagNameNS(TEI_NS, 'persName'));
-    const preferred = names.find(n => (n.getAttribute('ana') || '').includes('PreferredAppellation'))
-                   || names[0];
-    const name = preferred ? collapseSpace(preferred.textContent) : id;
+    /* ============================================================
+       Konvertierung: XML-Node → HTML-Element
+       ============================================================ */
+    function convertNode(xmlNode, htmlParent) {
+      if (xmlNode.nodeType === Node.TEXT_NODE) {
+        htmlParent.appendChild(document.createTextNode(xmlNode.nodeValue));
+        return;
+      }
+      if (xmlNode.nodeType !== Node.ELEMENT_NODE) return;
 
-    const birth = p.getElementsByTagNameNS(TEI_NS, 'birth')[0]?.getAttribute('when') || '';
-    const death = p.getElementsByTagNameNS(TEI_NS, 'death')[0]?.getAttribute('when') || '';
-    const dates = (birth || death) ? `${birth || '?'}–${death || '?'}` : '';
+      const tag = localName(xmlNode);
+      let node = null;
 
-    const note = p.getElementsByTagNameNS(TEI_NS, 'note')[0]?.textContent || '';
+      switch (tag) {
+        case "TEI":
+          node = el("div", "tei-TEI"); break;
+        case "teiHeader":
+          node = el("div", "tei-teiHeader");
+          node.textContent = xmlNode.textContent;
+          htmlParent.appendChild(node);
+          return;
+        case "text":
+          node = el("div", "tei-text"); break;
+        case "front":
+          node = el("div", "tei-front"); break;
+        case "body":
+          node = el("div", "tei-body"); break;
+        case "div":
+          node = el("div", "tei-div");
+          if (attr(xmlNode, "type"))
+            node.dataset.type = attr(xmlNode, "type");
+          break;
+        case "head":
+          node = el("div", "tei-head"); break;
+        case "p":
+          node = el("p", "tei-p"); break;
+        case "s":
+          node = el("span", "tei-s"); break;
+        case "num":
+          node = el("span", "tei-num"); break;
 
-    State.personsIndex.set(id, {
-      name,
-      dates,
-      note: collapseSpace(note).slice(0, 280)
+        case "pb": {
+          const n  = attr(xmlNode, "n")  || "";
+          const ed = attr(xmlNode, "ed") || "";
+          // ed-Wert zu CSS-Suffix normalisieren: "#GA" → "GA", etc.
+          const edKey = ed.replace(/^#/, "");
+          const pbEl = document.createElement("span");
+          pbEl.className = "tei-pb" + (edKey ? " tei-pb-" + edKey : "");
+          pbEl.dataset.ed = ed;
+          pbEl.dataset.n  = n;
+          pbEl.textContent = "|" + n + "|";
+          pbEl.title = "Seitenumbruch " + (ed || "") + " S. " + n;
+          htmlParent.appendChild(pbEl);
+          return;
+        }
+
+        case "lb":
+          htmlParent.appendChild(document.createElement("br"));
+          return;
+
+        case "hi": {
+          const rend = attr(xmlNode, "rend") || attr(xmlNode, "rendition") || "";
+          node = el("span", "tei-hi");
+          if (rend.includes("letter-spaced") || rend.includes("spaced"))
+            node.classList.add("tei-hi-letter-spaced");
+          if (rend.includes("italic") || rend.includes("i"))
+            node.classList.add("tei-hi-italic");
+          break;
+        }
+
+        case "foreign":
+          node = el("span", "tei-foreign");
+          node.lang = attr(xmlNode, "xml:lang") || attr(xmlNode, "lang") || "";
+          break;
+
+        case "rs":
+          node = el("span", "tei-rs");
+          applyAna(xmlNode, node, "SubjectReference", "tei-rs-SubjectReference");
+          applyRef(xmlNode, node);
+          break;
+        case "persName":
+          node = el("span", "tei-persName");
+          applyAna(xmlNode, node, "PersonReference", "tei-persName-PersonReference");
+          applyRef(xmlNode, node);
+          break;
+        case "placeName":
+          node = el("span", "tei-placeName");
+          applyRef(xmlNode, node);
+          break;
+        case "title": {
+          node = el("span", "tei-title");
+          const rend = attr(xmlNode, "rend") || attr(xmlNode, "rendition") || "";
+          if (rend.includes("italic") || rend.includes("i"))
+            node.classList.add("tei-hi-italic");
+          applyAna(xmlNode, node, "WorkReference", "tei-title-WorkReference");
+          applyRef(xmlNode, node);
+          break;
+        }
+        case "term":
+          node = el("span", "tei-term");
+          applyRef(xmlNode, node);
+          break;
+
+        case "quote":
+          node = el("span", "tei-quote");
+          applyAna(xmlNode, node, "PrimarySourceQuotation",
+                   "tei-quote-PrimarySourceQuotation");
+          break;
+        case "q": {
+          node = el("span", "tei-q");
+          const qlang = attr(xmlNode, "xml:lang") || "";
+          if (qlang === "la") node.classList.add("tei-q-la");
+          break;
+        }
+
+        case "ref": {
+          const type   = attr(xmlNode, "type")   || "";
+          const target = attr(xmlNode, "target") || "";
+          node = el("span", "tei-ref-" + (type || "ref"));
+          if (target) {
+            node.dataset.target = target;
+            if (type === "note") {
+              const id = target.startsWith("#") ? target.slice(1) : target;
+              const noteEl = xmlNode.ownerDocument.querySelector(
+                '[*|id="' + id + '"]'
+              );
+              if (noteEl) {
+                node.textContent = noteEl.getAttribute("n") || "";
+                const noteType = noteEl.getAttribute("type") || "";
+                if (noteType === "authorial") {
+                  node.classList.add("tei-ref-note-authorial");
+                } else if (noteType === "editorial") {
+                  node.classList.add("tei-ref-note-editorial");
+                }
+              }
+              // Backref: erstes Ref-Vorkommen pro Note bekommt eine
+              // id, damit die Fußnoten-Markierung dorthin zurück-
+              // springen kann. Mehrfach-Referenzen bekommen aktuell
+              // KEINE eigene id — Rückkehr geht zur Erstreferenz.
+              if (id && !backrefRegistry.has(id)) {
+                const backId = "backref-" + id;
+                node.id = backId;
+                backrefRegistry.set(id, backId);
+              }
+              node.addEventListener("click", () => {
+                const noteHtml = document.getElementById(id);
+                if (noteHtml) noteHtml.scrollIntoView(
+                  { behavior: "smooth", block: "center" }
+                );
+              });
+              htmlParent.appendChild(node);
+              return;
+            }
+          }
+          break;
+        }
+
+        case "bibl":
+          node = el("span", "tei-bibl"); break;
+        case "citedRange":
+          node = el("span", "tei-citedRange"); break;
+
+        case "app": {
+          node = el("span", "tei-app");
+          const appId = attr(xmlNode, "xml:id") || "";
+          if (appId) node.dataset.appId = appId;
+          break;
+        }
+        case "lem": {
+          node = el("span", "tei-lem");
+          const wit = attr(xmlNode, "wit") || "";
+          if (wit) node.dataset.wit = wit;
+          break;
+        }
+        case "rdg": {
+          node = el("span", "tei-rdg");
+          const wit = attr(xmlNode, "wit") || "";
+          if (wit) node.dataset.wit = wit;
+          break;
+        }
+        case "choice": {
+          node = el("span", "tei-choice");
+          const corr = xmlNode.querySelector("corr, reg");
+          const sic  = xmlNode.querySelector("sic, orig");
+          if (corr) {
+            const corrEl = el("span", "tei-corr");
+            convertChildren(corr, corrEl);
+            htmlParent.appendChild(corrEl);
+          } else if (sic) {
+            convertChildren(sic, htmlParent);
+          }
+          return;
+        }
+        case "sic":
+          node = el("span", "tei-sic"); break;
+        case "corr":
+          node = el("span", "tei-corr"); break;
+        case "subst":
+          node = el("span", "tei-subst"); break;
+        case "add":
+          node = el("span", "tei-add"); break;
+        case "del":
+          node = el("span", "tei-del");
+          node.style.display = "none";
+          break;
+
+        case "note": {
+          const type  = attr(xmlNode, "type")  || "";
+          const n     = attr(xmlNode, "n")     || "";
+          const xmlId = attr(xmlNode, "xml:id") || "";
+
+          node = el("div", "tei-note-foot");
+          if (type === "authorial") {
+            node.classList.add("tei-note-foot-authorial");
+          }
+          if (type === "editorial") {
+            node.classList.add("tei-note-foot-editorial");
+          }
+          node.dataset.marker = n;
+          if (n) {
+            const marker = document.createElement("span");
+            marker.className = "note-marker";
+            marker.style.fontWeight = "600";
+            marker.style.color =
+              type === "editorial" ? "var(--c-apparatus)" : "var(--c-text)";
+            marker.style.marginRight = "0.4em";
+            marker.textContent = n;
+            // Rückwärtssprung: klickt der Leser auf die Fußnoten-
+            // Markierung, springen wir zur Erstreferenz im Fließtext.
+            // backrefRegistry wird im Fließtext-Pass befüllt; im
+            // GA-Druck-Modus läuft pro Seite ein eigener Pass, sodass
+            // die Marker zur richtigen Inline-Position derselben
+            // Seite zurückspringen.
+            if (xmlId) {
+              const backId = backrefRegistry.get(xmlId);
+              if (backId) {
+                marker.style.cursor = "pointer";
+                marker.title = "Zurück zur Textstelle";
+                marker.addEventListener("click", () => {
+                  const ref = document.getElementById(backId);
+                  if (ref) ref.scrollIntoView(
+                    { behavior: "smooth", block: "center" }
+                  );
+                });
+              }
+            }
+            node.appendChild(marker);
+          }
+          if (xmlId) node.id = xmlId;
+          break;
+        }
+
+        default:
+          convertChildren(xmlNode, htmlParent);
+          return;
+      }
+
+      if (!node) return;
+      convertChildren(xmlNode, node);
+      htmlParent.appendChild(node);
+
+      if (tag === "app") {
+        const appId = attr(xmlNode, "xml:id") || "";
+        if (appId) {
+          const edNote = xmlNode.ownerDocument.querySelector(
+            'note[target="#' + appId + '"]'
+          );
+          if (edNote) {
+            const marker = edNote.getAttribute("n") || "";
+            const noteId = edNote.getAttribute("xml:id")
+                       || edNote.getAttributeNS(
+                            "http://www.w3.org/XML/1998/namespace", "id")
+                       || "";
+            if (marker) {
+              const anchor = document.createElement("span");
+              anchor.className =
+                "tei-ref-note tei-ref-note-editorial app-letter-anchor";
+              anchor.textContent = marker;
+              anchor.dataset.target = "#" + noteId;
+              // Backref registrieren (analog zu <ref type="note">).
+              if (noteId && !backrefRegistry.has(noteId)) {
+                const backId = "backref-" + noteId;
+                anchor.id = backId;
+                backrefRegistry.set(noteId, backId);
+              }
+              anchor.addEventListener("click", () => {
+                const el = document.getElementById(noteId);
+                if (el) el.scrollIntoView(
+                  { behavior: "smooth", block: "center" }
+                );
+              });
+              node.parentNode.insertBefore(anchor, node.nextSibling);
+            }
+          }
+        }
+      }
+    }
+
+    function convertChildren(xmlNode, htmlParent) {
+      xmlNode.childNodes.forEach(child => convertNode(child, htmlParent));
+    }
+
+    /* ============================================================
+       Lade-Logik: XML-Datei mit DOM-Cache
+       ============================================================
+       Mehrfach-Zugriffe auf dieselbe Datei werden aus
+       State.fileCache bedient. Insbesondere bei Aggregate-Modus
+       und beim Hin-und-Her-Navigieren wichtig.
+       ============================================================ */
+    function fetchXML(file) {
+      if (State.fileCache.has(file)) {
+        return Promise.resolve(State.fileCache.get(file));
+      }
+      return fetch(file).then(res => {
+        if (!res.ok) throw new Error("HTTP " + res.status + " bei " + file);
+        return res.text();
+      }).then(text => {
+        const doc = new DOMParser().parseFromString(text, "application/xml");
+        const err = doc.querySelector("parsererror");
+        if (err) throw new Error("XML-Parse-Fehler in " + file + ": " + err.textContent);
+        State.fileCache.set(file, doc);
+        return doc;
+      });
+    }
+
+    const auxPromises = Object.entries(AUX_FILES).map(([key, file]) =>
+      fetchXML(file).then(doc => {
+        auxDocs[key] = doc;
+      }).catch(err => {
+        auxLoadErrors.push({ file, message: err.message });
+      })
+    );
+
+    /* ============================================================
+       Globale Render-Steuerung
+       Wir speichern den jeweils gerade aktiven TEI-Doc; bei
+       Navigationen wird er neu fetchen oder aus dem fileCache
+       genommen.
+       ============================================================ */
+    let teiXmlDoc = null;
+    let activeFile = null;     // Datei-Name des momentan aktiven TEI-Doc
+    // (currentPage und GA_PAGE_NUMS entfallen — siehe Entscheidung 5)
+
+    /* Registry für Rückwärtssprung von Fußnote zu Inline-Referenz.
+       Schlüssel = xml:id der note (z.B. "fn-7", "edn-1-a");
+       Wert = HTML-id der ersten Inline-<ref>, die diese note
+       referenziert (z.B. "backref-fn-7"). Wird pro .ga-page
+       zurückgesetzt, damit der Marker auf einer Seite zur
+       Inline-Position derselben Seite springt. */
+    const backrefRegistry = new Map();
+
+    /* ============================================================
+       Boot-Sequenz
+       ============================================================
+       1. Aux-Dateien + TOC parallel laden.
+       2. Wit-Coverage aus dem TOC extrahieren (für B-Schalter).
+       3. TOC rendern (linke Spalte / Drawer).
+       4. URL-Hash auswerten oder Landing-Page zeigen.
+       ============================================================ */
+    Promise.all([
+      ...auxPromises,
+      fetchXML(TOC_FILE).then(doc => { State.toc = doc; })
+                        .catch(err => { State.tocError = err.message; }),
+    ])
+    .then(() => {
+      if (State.tocError || !State.toc) {
+        showBootError(
+          "TOC-Datei (" + TOC_FILE + ") konnte nicht geladen werden: " +
+          (State.tocError || "unbekannter Fehler")
+        );
+        return;
+      }
+      buildWitnessCoverage(State.toc);
+      renderToc(State.toc);
+      hookupViewerControls();
+
+      // Aux-Warnung wie vorher
+      if (auxLoadErrors.length > 0) {
+        auxWarnEl.classList.add("visible");
+        auxWarnEl.innerHTML =
+          "<strong>Hinweis:</strong> " +
+          auxLoadErrors.length +
+          " Hilfsregister konnten nicht geladen werden — Tooltips für " +
+          "Personen-/Werk-/Begriffsverweise fallen auf Roh-Referenzen zurück. " +
+          "Fehlende Datei(en): " +
+          auxLoadErrors.map(e => e.file).join(", ");
+      }
+
+      // Anfangs-Routing
+      if (location.hash) {
+        handleHashChange();
+      } else {
+        renderLanding();
+      }
+      window.addEventListener("hashchange", handleHashChange);
+    })
+    .catch(err => {
+      showBootError("Unbekannter Fehler beim Initialisieren: " + err.message);
     });
-  }
-  // <orgName>-Träger ebenso indizieren (für Karl Barth-Stiftung u. ä.)
-  const orgs = doc.getElementsByTagNameNS(TEI_NS, 'org');
-  for (const o of orgs) {
-    const id = o.getAttributeNS(XML_NS, 'id');
-    if (!id) continue;
-    const orgName = o.getElementsByTagNameNS(TEI_NS, 'orgName')[0]?.textContent || id;
-    State.personsIndex.set(id, { name: collapseSpace(orgName), dates: '', note: '' });
-  }
-  console.info(`[index] Personen+Orgs: ${State.personsIndex.size}`);
-}
 
-function buildWorksIndex(doc) {
-  // <bibl xml:id="..." type="work"><title>...</title>
-  const bibls = doc.getElementsByTagNameNS(TEI_NS, 'bibl');
-  for (const b of bibls) {
-    const id = b.getAttributeNS(XML_NS, 'id');
-    if (!id) continue;
-    const titles = Array.from(b.getElementsByTagNameNS(TEI_NS, 'title'));
-    const preferred = titles.find(t => (t.getAttribute('ana') || '').includes('PreferredAppellation'))
-                   || titles[0];
-    if (!preferred) continue;
-    const title = collapseSpace(preferred.textContent);
-    const author = b.getElementsByTagNameNS(TEI_NS, 'author')[0]?.textContent.trim() || '';
-    const dateEl = b.getElementsByTagNameNS(TEI_NS, 'date')[0];
-    const date = dateEl ? (dateEl.getAttribute('when') || dateEl.textContent.trim()) : '';
-    State.worksIndex.set(id, { title, author, date });
-  }
-  console.info(`[index] Werke: ${State.worksIndex.size}`);
-}
+    function showBootError(msg) {
+      statusEl.classList.add("error");
+      statusEl.innerHTML =
+        "<strong>Fehler:</strong><br><br>" + msg + "<br><br>" +
+        "Falls Sie diese Datei lokal mit Doppelklick geöffnet haben " +
+        "(Protokoll <code>file://</code>), starten Sie bitte einen " +
+        "lokalen HTTP-Server:<br><br>" +
+        "<code>python3 -m http.server 8000</code><br>" +
+        "→ <code>http://localhost:8000/viewer.html</code>";
+    }
 
-function collapseSpace(s) {
-  if (!s) return '';
-  return s.replace(/\s+/g, ' ').trim();
-}
+    /* ============================================================
+       Witness-Coverage aus TOC extrahieren (B-Schalter)
+       ============================================================
+       Liest <witness xml:id="..."><bibl><biblScope unit="ga-page"
+       from="X" to="Y"/>... und füllt State.witCoverage.
+       Witnesses ohne ga-page-Scope (A, A2, GA) gelten als
+       global → coverage Map enthält sie nicht oder mit Sentinel
+       {from: -Infinity, to: Infinity}. */
+    function buildWitnessCoverage(tocDoc) {
+      const witnesses = tocDoc.querySelectorAll('witness');
+      witnesses.forEach(w => {
+        const id = w.getAttribute("xml:id")
+                || w.getAttributeNS(XML_NS, "id");
+        if (!id) return;
+        const scope = w.querySelector('biblScope[unit="ga-page"]');
+        if (scope) {
+          const from = parseInt(scope.getAttribute("from") || "0", 10);
+          const to   = parseInt(scope.getAttribute("to")   || "999999", 10);
+          State.witCoverage.set(id, { from, to });
+        } else {
+          // Globaler Witness — keine Beschränkung
+          State.witCoverage.set(id, { from: -Infinity, to: Infinity });
+        }
+      });
+    }
 
-/* ---------------------------------------------------------
-   TOC-Rendering
-   --------------------------------------------------------- */
-function renderToc() {
-  const tocEl = document.getElementById('toc');
-  const tocList = State.toc.querySelector('div[type="contents"] list[type="toc"]');
-  if (!tocList) {
-    showError('TOC-Struktur in fqi-toc.xml nicht gefunden.');
-    return;
-  }
+    /* Prüft, ob der momentan geladene TEI-Doc Seitenmaterial im
+       Bereich des Witnesses hat. Rückgabe: boolean. */
+    function witnessAppliesToCurrentDoc(witId) {
+      if (!teiXmlDoc) return true;  // optimistisch
+      const cov = State.witCoverage.get(witId);
+      if (!cov) return true;
+      if (cov.from === -Infinity && cov.to === Infinity) return true;
 
-  // Header bleibt, Loading-Indikator weg
-  tocEl.querySelectorAll('.loading').forEach(el => el.remove());
+      const pbs = Array.from(teiXmlDoc.querySelectorAll('pb[ed="#GA"]'));
+      for (const pb of pbs) {
+        const n = parseInt(pb.getAttribute("n") || "0", 10);
+        if (!isNaN(n) && n >= cov.from && n <= cov.to) return true;
+      }
+      return false;
+    }
 
-  // Hilfsfunktion: rekursive Iteration über das TOC-Listing.
-  // Knotenarten: <list>, <item>, <head> (nicht-klickbar).
-  const root = document.createElement('ul');
-  renderTocChildren(tocList, root);
-  tocEl.appendChild(root);
+    function updateWitnessButtonsAvailability() {
+      // Die View-Buttons a / a2 / b sind an Witness-Buttons
+      // gekoppelt. ga-print / ga-read / apparat bleiben immer aktiv.
+      const map = { "a": "A", "a2": "A2", "b": "B" };
+      document.querySelectorAll(".controls button[data-view]").forEach(btn => {
+        const v = btn.dataset.view;
+        const witId = map[v];
+        if (!witId) return;
+        const ok = witnessAppliesToCurrentDoc(witId);
+        if (ok) {
+          btn.removeAttribute("disabled");
+          btn.title = "";
+        } else {
+          btn.setAttribute("disabled", "disabled");
+          const cov = State.witCoverage.get(witId);
+          const range = cov && isFinite(cov.from)
+            ? "GA S. " + cov.from + "–" + cov.to
+            : "unbekannter Bereich";
+          btn.title = "Zeuge " + witId + " deckt diesen Abschnitt nicht ab (nur " + range + ").";
+          // Falls aktuell aktiver Button: zurück auf ga-print
+          if (btn.classList.contains("active")) {
+            document.querySelector('[data-view="ga-print"]').click();
+          }
+        }
+      });
+    }
 
-  console.info(`[toc] Knoten: ${State.tocItemsById.size}`);
-}
+    /* ============================================================
+       TOC-Rendering
+       ============================================================ */
+    function renderToc(tocDoc) {
+      const tocList = tocDoc.querySelector('div[type="contents"] list[type="toc"]');
+      const target = document.getElementById("toc-content");
+      target.innerHTML = "";
+      if (!tocList) {
+        target.innerHTML = '<p style="padding:1em;color:var(--c-muted)">Kein TOC im fqi-toc.xml gefunden.</p>';
+        return;
+      }
+      const ul = document.createElement("ul");
+      renderTocChildren(tocList, ul);
+      target.appendChild(ul);
+    }
 
-function renderTocChildren(sourceListEl, targetUlEl) {
-  for (const node of sourceListEl.children) {
-    if (node.localName === 'item') {
-      renderTocItem(node, targetUlEl);
-    } else if (node.localName === 'head') {
-      // Nicht-klickbarer Zwischenkopf
-      const li = document.createElement('li');
-      li.className = 'toc-head';
-      li.textContent = node.textContent.trim();
-      // Spezialfall: work-root → bei Klick öffne TOC-Landing.
-      // Optisch trotzdem als head dargestellt.
-      const type = node.getAttribute('type');
-      if (type === 'work-root') {
-        li.style.cursor = 'pointer';
-        li.title = 'TOC-Landing-Page anzeigen';
-        li.addEventListener('click', () => {
-          location.hash = '#contents';
+    function renderTocChildren(srcListEl, targetUlEl) {
+      for (const node of srcListEl.children) {
+        if (node.localName === "item") {
+          renderTocItem(node, targetUlEl);
+        } else if (node.localName === "head") {
+          const li = document.createElement("li");
+          li.className = "toc-head";
+          li.textContent = node.textContent.trim();
+          const type = node.getAttribute("type");
+          if (type === "work-root") {
+            li.classList.add("clickable");
+            li.title = "TOC-Landing-Page anzeigen";
+            li.addEventListener("click", () => { location.hash = "#contents"; });
+          }
+          targetUlEl.appendChild(li);
+        }
+      }
+    }
+
+    function renderTocItem(itemEl, targetUlEl) {
+      const id = itemEl.getAttribute("xml:id")
+              || itemEl.getAttributeNS(XML_NS, "id") || "";
+      State.tocItemsById.set(id, itemEl);
+
+      const refEl = itemEl.querySelector(":scope > ref");
+      const numEl = itemEl.querySelector(':scope > num[type="page"]');
+      const statusEl_ = itemEl.querySelector(':scope > note[type="encoding-status"]');
+      const childList = itemEl.querySelector(':scope > list[type="toc"]');
+
+      const target = refEl ? (refEl.getAttribute("target") || "") : "";
+      const label  = refEl ? collapseSpace(refEl.textContent) : "(ohne Titel)";
+      const page   = numEl ? numEl.textContent.trim() : "";
+      const status = statusEl_ ? statusEl_.textContent.trim() : "unbekannt";
+
+      const li = document.createElement("li");
+      const a  = document.createElement("a");
+      a.className = "toc-link status-" + status;
+      a.dataset.tocId = id;
+      a.dataset.tocStatus = status;
+      a.dataset.tocTarget = target;
+
+      const sym = statusSymbol(status);
+      a.innerHTML =
+        '<span class="toc-status ' + status + '" title="' + statusLabel(status) + '">' +
+          sym +
+        '</span>' +
+        '<span class="toc-label">' + escapeHtml(label) + '</span>' +
+        (page ? '<span class="toc-page">' + escapeHtml(page) + '</span>' : '');
+
+      if (status === "nicht-kodiert") {
+        a.classList.add("disabled");
+        a.title = "Volltext nicht angelegt";
+      } else {
+        a.href = "#" + id;
+        a.addEventListener("click", e => {
+          e.preventDefault();
+          location.hash = "#" + id;
+          if (window.innerWidth < 900) closeToc();
         });
+      }
+
+      li.appendChild(a);
+      if (childList) {
+        const childUl = document.createElement("ul");
+        renderTocChildren(childList, childUl);
+        li.appendChild(childUl);
       }
       targetUlEl.appendChild(li);
     }
-  }
-}
 
-function renderTocItem(itemEl, targetUlEl) {
-  const id = itemEl.getAttributeNS(XML_NS, 'id') || '';
-  State.tocItemsById.set(id, itemEl);
-
-  const refEl = itemEl.querySelector(':scope > ref');
-  const numEl = itemEl.querySelector(':scope > num[type="page"]');
-  const statusEl = itemEl.querySelector(':scope > note[type="encoding-status"]');
-  const childList = itemEl.querySelector(':scope > list[type="toc"]');
-
-  const target = refEl ? refEl.getAttribute('target') || '' : '';
-  const label  = refEl ? collapseSpace(refEl.textContent) : '(ohne Titel)';
-  const page   = numEl ? numEl.textContent.trim() : '';
-  const status = statusEl ? statusEl.textContent.trim() : 'unbekannt';
-
-  const li = document.createElement('li');
-  const a  = document.createElement('a');
-  a.className = `toc-link status-${status}`;
-  a.dataset.tocId = id;
-  a.dataset.tocStatus = status;
-  a.dataset.tocTarget = target;
-
-  const sym = statusSymbol(status);
-  const sym_html = `<span class="toc-status ${status}" title="${statusLabel(status)}">${sym}</span>`;
-  const pg_html  = page ? `<span class="toc-page">${page}</span>` : '';
-  a.innerHTML = `${sym_html}<span class="toc-label">${escapeHtml(label)}</span>${pg_html}`;
-
-  if (status === 'nicht-kodiert') {
-    a.classList.add('disabled');
-    a.title = 'Volltext nicht angelegt';
-  } else {
-    a.addEventListener('click', e => {
-      e.preventDefault();
-      navigateToTocItem(id);
-    });
-  }
-
-  li.appendChild(a);
-
-  if (childList) {
-    const childUl = document.createElement('ul');
-    renderTocChildren(childList, childUl);
-    li.appendChild(childUl);
-  }
-  targetUlEl.appendChild(li);
-}
-
-function statusSymbol(s) {
-  return { kodiert: '✓', stub: '⊘', 'nicht-kodiert': '○', aggregate: '▣' }[s] || '?';
-}
-function statusLabel(s) {
-  return {
-    'kodiert':       'kodiert / encoded',
-    'stub':          'Gerüst / scaffold',
-    'nicht-kodiert': 'nicht angelegt / not yet drafted',
-    'aggregate':     'Aggregat / aggregate node'
-  }[s] || s;
-}
-
-/* ---------------------------------------------------------
-   Hash-Routing
-   --------------------------------------------------------- */
-function handleHash() {
-  const hash = location.hash.slice(1);
-  if (!hash || hash === 'contents') {
-    renderLanding();
-    setActiveToc(null);
-    return;
-  }
-  // hash kann sein:
-  //  · ein toc-id (z. B. "toc-section-I-1")  → wir suchen das TOC-Item
-  //  · ein xml:id eines Anker-Knotens (z. B. "sec-I-1") → wir finden ein TOC-Item, dessen ref auf #xml:id zeigt
-  let itemId = hash;
-  if (!State.tocItemsById.has(hash)) {
-    // Reverse-Lookup: welches TOC-item verweist auf einen Anker mit dieser xml:id?
-    for (const [tid, item] of State.tocItemsById) {
-      const ref = item.querySelector(':scope > ref');
-      if (!ref) continue;
-      const t = ref.getAttribute('target') || '';
-      const m = t.match(/#([^#]+)$/);
-      if (m && m[1] === hash) { itemId = tid; break; }
+    function statusSymbol(s) {
+      return ({
+        "kodiert":       "\u2713",
+        "stub":          "\u2298",
+        "nicht-kodiert": "\u25CB",
+        "aggregate":     "\u25A3"
+      })[s] || "?";
     }
-  }
-  navigateToTocItem(itemId, /*updateHash*/false);
-}
-
-function setActiveToc(id) {
-  State.activeNodeId = id;
-  document.querySelectorAll('.toc-link.active').forEach(el => el.classList.remove('active'));
-  if (!id) return;
-  const a = document.querySelector(`.toc-link[data-toc-id="${CSS.escape(id)}"]`);
-  if (a) a.classList.add('active');
-}
-
-/* ---------------------------------------------------------
-   Navigation: TOC-Item → Reader
-   --------------------------------------------------------- */
-async function navigateToTocItem(tocId, updateHash = true) {
-  const item = State.tocItemsById.get(tocId);
-  if (!item) {
-    console.warn(`[nav] unbekannte TOC-ID: ${tocId}`);
-    renderLanding();
-    return;
-  }
-  const status = item.querySelector(':scope > note[type="encoding-status"]')?.textContent.trim() || '';
-  const ref    = item.querySelector(':scope > ref')?.getAttribute('target') || '';
-  const label  = collapseSpace(item.querySelector(':scope > ref')?.textContent || '');
-
-  setActiveToc(tocId);
-  if (updateHash) {
-    history.replaceState(null, '', `#${tocId}`);
-  }
-
-  showLoading();
-
-  try {
-    if (status === 'nicht-kodiert') {
-      // Sollte eigentlich nicht klickbar sein; defensive Fallback-Anzeige.
-      renderPlaceholder(label, '—', 'Volltext nicht angelegt.');
-      return;
+    function statusLabel(s) {
+      return ({
+        "kodiert":       "kodiert / encoded",
+        "stub":          "Gerüst / scaffold",
+        "nicht-kodiert": "nicht angelegt / not yet drafted",
+        "aggregate":     "Aggregat / aggregate node"
+      })[s] || s;
     }
-    if (status === 'aggregate' && ref.startsWith('todo:')) {
-      await renderAggregate(item, label);
-      return;
-    }
-    // status ∈ { kodiert, stub } → real existierende Datei + xml:id
-    const { file, anchor } = parseRefTarget(ref);
-    if (!file) {
-      renderPlaceholder(label, '—', `Ref-Target unverständlich: ${ref}`);
-      return;
-    }
-    await renderSingleFile(file, anchor, status, label);
-  } catch (err) {
-    console.error(err);
-    showError(err.message);
-  }
-}
 
-function parseRefTarget(target) {
-  // "fqi-part-I.xml#sec-I-1" → { file: "fqi-part-I.xml", anchor: "sec-I-1" }
-  // "todo:..."                → { file: null, anchor: null }
-  if (!target || target.startsWith('todo:')) return { file: null, anchor: null };
-  const m = target.match(/^([^#]+)(?:#(.+))?$/);
-  if (!m) return { file: null, anchor: null };
-  return { file: m[1], anchor: m[2] || null };
-}
-
-/* ---------------------------------------------------------
-   Aggregate-Modus (PROJECT-STATE Entscheidung 4)
-   ---------------------------------------------------------
-   Für den einzigen aggregate-Knoten Kap II:
-   Wenn alle Kinder nicht-kodiert sind, rendern wir einen
-   konsolidierten Placeholder; die Multi-File-Fetch-Logik
-   bleibt im Code als Pfad erhalten, sobald irgendein Kind
-   auf stub/kodiert wechselt.
-   --------------------------------------------------------- */
-async function renderAggregate(itemEl, label) {
-  const reader = document.getElementById('reader');
-
-  // Kinder-Items mit Status sammeln (rekursiv erste Ebene)
-  const childItems = collectAggregateChildren(itemEl);
-  const fetchable = childItems.filter(c => c.status === 'kodiert' || c.status === 'stub');
-
-  // Banner
-  const head = `
-    <div class="reader-banner aggregate">
-      <strong>Aggregat-Knoten:</strong> ${escapeHtml(label)} —
-      besteht aus ${childItems.length} Unterabschnitt${childItems.length === 1 ? '' : 'en'}.
-      ${fetchable.length === 0
-        ? '<em>Sämtliche Teildateien sind im gegenwärtigen Demonstrator nicht angelegt.</em>'
-        : `${fetchable.length} davon ${fetchable.length === 1 ? 'ist' : 'sind'} fetchbar.`}
-    </div>
-  `;
-
-  if (fetchable.length === 0) {
-    // Placeholder-Pfad (aktuell der einzig aktive Pfad für Kap II)
-    const childListHtml = childItems.map(c => `
-      <li>
-        <span class="toc-status ${c.status}">${statusSymbol(c.status)}</span>
-        <span style="margin-left: 0.5rem">${escapeHtml(c.label)}</span>
-        <span style="margin-left: 0.5rem; color: var(--c-ink-mute); font-family: var(--f-mono); font-size: 0.75rem">S. ${escapeHtml(c.page)}</span>
-      </li>
-    `).join('');
-
-    reader.innerHTML = head + `
-      <div class="ga-page-placeholder">
-        <strong>${escapeHtml(label)}</strong>
-        <p>Dieses Kapitel ist in zwei eigenständige Part-Dateien
-        aufgeteilt; beide sind im Demonstrator nicht angelegt
-        (vgl. <em>PROJECT-STATE</em>, Entscheidung 8 / TOC-Status
-        <em>nicht-kodiert</em>).</p>
-        <ul style="text-align: left; margin: 1rem auto; max-width: 360px; list-style: none; padding: 0;">
-          ${childListHtml}
-        </ul>
-        <em>This chapter is split across two part files which
-        are intentionally out of scope for the demo edition;
-        the aggregate-render code path remains active and will
-        engage as soon as any child reaches status
-        <strong>stub</strong> or <strong>kodiert</strong>.</em>
-      </div>
-    `;
-    return;
-  }
-
-  // Aktiver Pfad (Reserve): paralleler Fetch + sequenzielle Konkatenation
-  const files = [...new Set(fetchable.map(c => c.file).filter(Boolean))];
-  const docs = await Promise.all(files.map(f => fetchXml(f).catch(err => { console.warn(err); return null; })));
-
-  let html = head;
-  for (let i = 0; i < files.length; i++) {
-    if (!docs[i]) continue;
-    html += await renderDocFragment(docs[i], null, 'kodiert');
-  }
-  reader.innerHTML = html;
-  postRender();
-}
-
-function collectAggregateChildren(itemEl) {
-  const childListEl = itemEl.querySelector(':scope > list[type="toc"]');
-  if (!childListEl) return [];
-  // Wir gehen alle Nachkommen-<item> durch — meist nur Tiefe 1+2.
-  const items = Array.from(childListEl.querySelectorAll('item'));
-  return items.map(it => {
-    const ref = it.querySelector(':scope > ref')?.getAttribute('target') || '';
-    const { file } = parseRefTarget(ref);
-    return {
-      id: it.getAttributeNS(XML_NS, 'id') || '',
-      label: collapseSpace(it.querySelector(':scope > ref')?.textContent || ''),
-      page: it.querySelector(':scope > num[type="page"]')?.textContent.trim() || '',
-      status: it.querySelector(':scope > note[type="encoding-status"]')?.textContent.trim() || '',
-      file
-    };
-  });
-}
-
-/* ---------------------------------------------------------
-   Einzeldatei-Rendering
-   --------------------------------------------------------- */
-async function renderSingleFile(file, anchor, status, label) {
-  const reader = document.getElementById('reader');
-  // Sprachvariante zuerst probieren, dann Default.
-  const langFile = (State.lang && State.lang !== 'de')
-    ? file.replace(/\.xml$/, `.${State.lang}.xml`)
-    : file;
-  let doc;
-  try {
-    doc = await fetchXml(langFile);
-  } catch {
-    doc = await fetchXml(file);
-  }
-
-  let banner = '';
-  if (status === 'stub') {
-    banner = `
-      <div class="reader-banner stub">
-        <strong>Gerüst-Modus.</strong> Für diesen Abschnitt liegt
-        ein TEI-Skelett vor (Šimek-Ebene 1: semantisch-logische
-        Struktur), aber der Volltext wird erst noch transkribiert.
-        Die strukturelle Konstanz mit den kodierten Sections ist
-        durch das Template <code>_template_stub.xml</code>
-        gewährleistet (vgl. <em>README</em>, Abschnitt
-        <em>Adding new sections — stub workflow</em>).
-      </div>
-    `;
-  }
-
-  reader.innerHTML = banner + await renderDocFragment(doc, anchor, status);
-  postRender(anchor);
-}
-
-async function renderDocFragment(doc, anchor, status) {
-  // Strategie: in Druckansicht werden Seiten als .ga-page-Container
-  // gerendert. Wir konstruieren die Container clientseitig aus der
-  // Folge von <pb>-Markern + dem dazwischen liegenden TEI-Material.
-  //
-  // Schritt A: Body-Inhalt extrahieren
-  const body = doc.querySelector('text > body');
-  if (!body) return '<div class="error-banner">Kein &lt;body&gt; gefunden.</div>';
-
-  // Schritt B: An CETEIcean übergeben — wir nutzen Make(),
-  // serialisieren das Resultat und schneiden es dann in
-  // .ga-page-Segmente.
-  const fragment = State.ceteicean.makeHTML5(serializeXml(body), () => {});
-
-  // CETEIcean produziert ein Document oder ein HTMLElement;
-  // wir normalisieren auf ein <div>-Wrapper.
-  const wrapper = document.createElement('div');
-  wrapper.className = 'tei-rendered';
-  if (fragment.nodeType === 9) { // Document
-    Array.from(fragment.body.childNodes).forEach(n => wrapper.appendChild(n.cloneNode(true)));
-  } else {
-    wrapper.appendChild(fragment.cloneNode ? fragment.cloneNode(true) : fragment);
-  }
-
-  // Schritt C: Druck-Seiten konstruieren
-  const pageHtml = segmentIntoPages(wrapper);
-  return pageHtml;
-}
-
-function serializeXml(node) {
-  return new XMLSerializer().serializeToString(node);
-}
-
-/* ---------------------------------------------------------
-   Druck-Seiten-Segmentierung
-   ---------------------------------------------------------
-   Wir iterieren die direkten und transitiven Kinder, identifizieren
-   GA-pb-Marker, und schneiden jeden Druckseitenbereich in eine
-   eigene .ga-page-Box. — Nicht-GA-pb (z. B. A-pb der Erstausgabe)
-   bleiben als Inline-Marker im Text.
-   --------------------------------------------------------- */
-function segmentIntoPages(wrapperEl) {
-  // Wir arbeiten auf einer flachen Klonliste aller GA-pb in
-  // Dokumentenreihenfolge.
-  const allGaPb = Array.from(wrapperEl.querySelectorAll('tei-pb[data-ed="#GA"]'));
-
-  if (allGaPb.length === 0) {
-    // Keine Druckseiten erkannt — Inhalt als eine Pseudo-Seite ausgeben.
-    const html = wrapperEl.innerHTML;
-    return `<div class="ga-page" data-page="—">${html}</div>`;
-  }
-
-  // Für jede pb eine .ga-page mit allem Material *ab* dieser pb
-  // (exklusive) bis zur nächsten pb (exklusive). Die pb selbst
-  // wird in das data-page-Attribut der Seite überführt.
-  //
-  // Material *vor* der ersten pb wird als "Pre-Seite" emittiert,
-  // damit z. B. Kapitel-<head> und Titelseiten-pb nicht verloren
-  // gehen. Da das erste Element im Body üblicherweise ein <pb> ist
-  // (Titelseite S. 11), ist der Pre-Bereich meist leer.
-  //
-  // Vorgehen technisch: wir benutzen einen DocumentFragment-
-  // Range-Approach. Die Originalstruktur (insb. ineinander
-  // verschachtelte <div>) muss erhalten bleiben — wir können
-  // also nicht naiv "alle Geschwister abschneiden".
-  //
-  // Pragmatische Lösung für den Demonstrator: Wir markieren jeden
-  // GA-pb mit einer eindeutigen Klasse und nutzen DOM-Splitting
-  // über serialisiertes HTML, das wir per Regex anhand der
-  // pb-Marker auftrennen. Das funktioniert hier zuverlässig, weil
-  // <tei-pb> ein leeres Element ist und damit *kein* schließendes
-  // Tag besitzt; Splitting an seiner Stelle bricht keine offenen
-  // Container.
-  //
-  // Hinweis: Diese Methode erzeugt für Schachtelelemente, die
-  // Seitengrenzen überspannen, getrennte (aber strukturell
-  // gültige) Fragmente. Für den Reader-Anwendungsfall ist das
-  // akzeptabel; der Apparat und die xml:id-Anker bleiben intakt.
-
-  // Eindeutige Tokens an jedem GA-pb platzieren.
-  allGaPb.forEach((pb, idx) => {
-    const n = pb.getAttribute('data-n') || '?';
-    const xid = pb.getAttribute('data-xml-id') || pb.id || '';
-    const type = pb.getAttribute('data-type') || '';
-    pb.setAttribute('data-page-token', `__GAPB_${idx}_${n}_${type}_${xid}__`);
-  });
-
-  // wir nehmen das innerHTML, splitten an den Tokens
-  let html = wrapperEl.innerHTML;
-
-  // Suche alle Token-Anker in HTML-Reihenfolge (sie sind in
-  // attribute-position, also als data-page-token="..." auffindbar)
-  const tokenRe = /<tei-pb[^>]*data-page-token="__GAPB_(\d+)_([^_"]*)_([^_"]*)_([^"]*)__"[^>]*>\s*<\/tei-pb>|<tei-pb[^>]*data-page-token="__GAPB_(\d+)_([^_"]*)_([^_"]*)_([^"]*)__"[^>]*\/?>(?!\s*<\/tei-pb>)/g;
-
-  const pages = [];
-  let lastIdx = 0;
-  let lastPb = null;
-  let m;
-  while ((m = tokenRe.exec(html)) !== null) {
-    const idx = m[1] || m[5];
-    const n   = m[2] || m[6];
-    const type = m[3] || m[7];
-    const xid  = m[4] || m[8];
-    const before = html.slice(lastIdx, m.index);
-    if (lastPb === null) {
-      // Material vor der ersten pb (oft leer)
-      if (before.trim()) {
-        pages.push({ n: '—', type: '', xid: '', html: before });
-      }
-    } else {
-      pages.push({ ...lastPb, html: before });
-    }
-    lastPb = { n, type, xid };
-    lastIdx = tokenRe.lastIndex;
-  }
-  // Restseite
-  if (lastPb !== null) {
-    pages.push({ ...lastPb, html: html.slice(lastIdx) });
-  }
-
-  // Rendering der Seiten
-  return pages.map(p => {
-    const cls = ['ga-page'];
-    if (p.type === 'blank')     cls.push('blank');
-    if (p.type === 'titlepage') cls.push('titlepage');
-    const dataPage = p.n || '—';
-    const idAttr = p.xid ? ` id="${escapeAttr(p.xid)}"` : '';
-    return `<div class="${cls.join(' ')}" data-page="${escapeAttr(dataPage)}"${idAttr}>${p.html}</div>`;
-  }).join('');
-}
-
-/* ---------------------------------------------------------
-   Post-Render-Schritte (auf gerenderten DOM-Inhalt)
-   --------------------------------------------------------- */
-function postRender(scrollAnchor = null) {
-  const reader = document.getElementById('reader');
-  propagateXmlIds(reader);
-
-  // |n|-Marker inline-leading (PROJECT-STATE Entscheidung 6)
-  // — nur in Lesefluss-Ansicht aktiv.
-  inlinePbIntoFollowingHead(reader);
-
-  // Anker scrollen, falls angefordert
-  if (scrollAnchor) {
-    requestAnimationFrame(() => {
-      const target = reader.querySelector(`#${CSS.escape(scrollAnchor)}`);
-      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      else reader.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-  } else {
-    reader.scrollTo({ top: 0, behavior: 'instant' });
-  }
-}
-
-function inlinePbIntoFollowingHead(rootEl) {
-  if (State.viewMode !== 'lesefluss') return;
-  // Suche alle <tei-pb> mit data-ed="#GA", deren nächstes Geschwister
-  // ein <tei-head> ist. Versetze die pb in das erste Kind des head.
-  const pbs = rootEl.querySelectorAll('tei-pb[data-ed="#GA"]');
-  for (const pb of pbs) {
-    let next = pb.nextElementSibling;
-    // White-space-Knoten zwischen pb und head überspringen
-    while (next && next.nodeType === 1 && next.localName !== 'tei-head' &&
-           next.localName !== 'tei-p' && next.localName !== 'tei-div') {
-      next = next.nextElementSibling;
-    }
-    if (next && next.localName === 'tei-head') {
-      pb.classList.add('tei-pb-inline-leading');
-      next.insertBefore(pb, next.firstChild);
-    }
-  }
-}
-
-/* ---------------------------------------------------------
-   TOC-Landing-Page (Wurzelklick, Hash leer oder #contents)
-   --------------------------------------------------------- */
-function renderLanding() {
-  const reader = document.getElementById('reader');
-
-  const tocList = State.toc.querySelector('div[type="contents"] list[type="toc"]');
-  let bodyHtml = '<ul class="toc-landing-list">';
-
-  function walk(listEl) {
-    let html = '';
-    for (const node of listEl.children) {
-      if (node.localName === 'head') {
-        html += `<li class="toc-head" style="font-style: italic; color: var(--c-ink-soft); border: 0; padding: 0.6rem 0 0.2rem;">${escapeHtml(node.textContent.trim())}</li>`;
-      } else if (node.localName === 'item') {
-        const ref    = node.querySelector(':scope > ref');
-        const num    = node.querySelector(':scope > num[type="page"]');
-        const status = node.querySelector(':scope > note[type="encoding-status"]')?.textContent.trim() || '';
-        const child  = node.querySelector(':scope > list[type="toc"]');
-        const tocId  = node.getAttributeNS(XML_NS, 'id') || '';
-        const label  = ref ? collapseSpace(ref.textContent) : '';
-        const page   = num ? num.textContent.trim() : '';
-        const sym    = statusSymbol(status);
-        const symHtml = `<span class="toc-status ${status}" title="${statusLabel(status)}">${sym}</span>`;
-
-        const clickable = status !== 'nicht-kodiert';
-        const labelHtml = clickable
-          ? `<a href="#${tocId}" style="color: inherit; text-decoration: none; border-bottom: 1px solid var(--c-rule);">${escapeHtml(label)}</a>`
-          : `<span style="color: var(--c-ink-mute)" title="Volltext nicht angelegt">${escapeHtml(label)}</span>`;
-
-        html += `<li>${symHtml}<span style="margin-left: 0.4rem">${labelHtml}</span><span class="leader"></span><span class="toc-page">${escapeHtml(page)}</span>`;
-        if (child) {
-          html += '<ul>' + walk(child) + '</ul>';
+    function setActiveToc(id) {
+      State.activeTocId = id;
+      document.querySelectorAll(".toc-link.active").forEach(el => el.classList.remove("active"));
+      if (!id) return;
+      const a = document.querySelector('.toc-link[data-toc-id="' + cssEscape(id) + '"]');
+      if (a) {
+        a.classList.add("active");
+        // In Sicht scrollen, falls außerhalb. Defensive: scrollIntoView
+        // ist in manchen Test-Environments (JSDOM) nicht implementiert.
+        if (typeof a.scrollIntoView === "function") {
+          try { a.scrollIntoView({ block: "nearest", behavior: "auto" }); }
+          catch (e) { /* ignore */ }
         }
-        html += '</li>';
       }
     }
-    return html;
-  }
-  bodyHtml += walk(tocList) + '</ul>';
 
-  reader.innerHTML = `
-    <div class="toc-landing">
-      <h1>Fides quaerens intellectum</h1>
-      <h2>Anselms Beweis der Existenz Gottes im Zusammenhang seines theologischen Programms</h2>
-      <p style="text-align: center; color: var(--c-ink-mute); font-family: var(--f-ui); font-size: 0.85rem; margin-bottom: 2rem;">
-        Karl Barth · GA II.13 · Theologischer Verlag Zürich, ³2002
-      </p>
-      ${bodyHtml}
-      <p style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--c-rule); color: var(--c-ink-mute); font-size: 0.82rem; font-family: var(--f-ui); line-height: 1.6;">
-        Demonstrator zur Heidelberger DH-Infrastruktur <em>heiEDITIONS</em>
-        (Šimek 2022). Methodisches Profil:
-        fünf editionsrelevante Textdimensionen, FRBR-Editions-Hook,
-        BCP-47-Übersetzungs-Suffix. Vollständige Volltext-Kodierung
-        liegt zur Zeit nur für § 1 <em>Die Notwendigkeit der Theologie</em>
-        vor; die übrigen Knoten sind bewußt als
-        <em>stub</em>, <em>nicht-kodiert</em> oder <em>aggregate</em>
-        ausgewiesen.
-      </p>
-    </div>
-  `;
-  reader.scrollTo({ top: 0, behavior: 'instant' });
-}
-
-/* ---------------------------------------------------------
-   Generische Placeholder
-   --------------------------------------------------------- */
-function renderPlaceholder(label, page, note) {
-  const reader = document.getElementById('reader');
-  reader.innerHTML = `
-    <div class="ga-page-placeholder">
-      <strong>${escapeHtml(label)}</strong>
-      <p>${escapeHtml(note)}</p>
-      ${page && page !== '—' ? `<p style="font-family: var(--f-mono); font-size: 0.8rem">GA S. ${escapeHtml(page)} ff.</p>` : ''}
-    </div>
-  `;
-}
-
-function showLoading() {
-  document.getElementById('reader').innerHTML = `<div class="loading">Lade …</div>`;
-}
-function showError(msg) {
-  document.getElementById('reader').innerHTML = `<div class="error-banner"><strong>Fehler.</strong> ${escapeHtml(msg)}</div>`;
-}
-
-/* ---------------------------------------------------------
-   View-Mode-Umschaltung
-   --------------------------------------------------------- */
-function setViewMode(mode) {
-  State.viewMode = mode;
-  const reader = document.getElementById('reader');
-  reader.classList.toggle('druckansicht', mode === 'druckansicht');
-  reader.classList.toggle('lesefluss',    mode === 'lesefluss');
-  document.getElementById('btn-druck').classList.toggle('active', mode === 'druckansicht');
-  document.getElementById('btn-lese' ).classList.toggle('active', mode === 'lesefluss');
-
-  // |n|-Inline-Effekt neu auswerten
-  if (mode === 'lesefluss') {
-    inlinePbIntoFollowingHead(reader);
-  } else {
-    // Inline-leading rückgängig: das ist im aktuellen Markup nicht
-    // 1:1 reversibel ohne Re-Render. Pragmatik: beim Modus-Wechsel
-    // re-rendern wir die aktuelle Section, sofern eine selektiert ist.
-    if (State.activeNodeId) {
-      navigateToTocItem(State.activeNodeId, /*updateHash*/false);
+    function cssEscape(s) {
+      // Polyfill für ältere Browser
+      if (window.CSS && window.CSS.escape) return window.CSS.escape(s);
+      return String(s).replace(/[^a-zA-Z0-9_-]/g, "\\$&");
     }
-  }
-}
 
-/* ---------------------------------------------------------
-   Tooltip (Term / Person / Werk)
-   --------------------------------------------------------- */
-function handleHoverEnter(ev) {
-  const el = ev.target.closest('tei-rs, tei-persname, tei-title, tei-bibl');
-  if (!el) return;
-  if (!document.getElementById('reader').contains(el)) return;
+    function collapseSpace(s) {
+      return (s == null) ? "" : String(s).replace(/\s+/g, " ").trim();
+    }
+    function escapeHtml(s) {
+      return String(s == null ? "" : s)
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;").replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
 
-  const info = resolveHoverInfo(el);
-  if (!info) return;
+    /* ============================================================
+       TOC-Schublade (mobile)
+       ============================================================ */
+    const tocEl = document.getElementById("toc");
+    const tocBackdrop = document.getElementById("toc-backdrop");
+    function openToc() {
+      tocEl.classList.add("open");
+      tocBackdrop.classList.add("visible");
+    }
+    function closeToc() {
+      tocEl.classList.remove("open");
+      tocBackdrop.classList.remove("visible");
+    }
+    document.getElementById("toc-hamburger").addEventListener("click", openToc);
+    document.getElementById("toc-close").addEventListener("click", closeToc);
+    tocBackdrop.addEventListener("click", closeToc);
 
-  showTip(info, el);
-}
-function handleHoverLeave(ev) {
-  if (ev.target.closest('.tip')) return;
-  hideTip();
-}
-function handleClickHide() {
-  hideTip();
-}
+    /* ============================================================
+       Hash-Routing
+       ============================================================ */
+    function handleHashChange() {
+      const hash = location.hash.slice(1);
+      if (!hash || hash === "contents") {
+        renderLanding();
+        setActiveToc(null);
+        return;
+      }
+      navigateToHash(hash);
+    }
 
-function resolveHoverInfo(el) {
-  // Wir lesen primär das ref-Attribut (CETEIcean: data-ref) und greifen
-  // auf die Indizes zu.
-  const ref = el.getAttribute('data-ref') || el.getAttribute('ref') || '';
-  if (!ref) return null;
-  const m = ref.match(/#([^#]+)$/);
-  if (!m) return null;
-  const id = m[1];
+    function navigateToHash(hash) {
+      // 1) Hash könnte direkt eine toc-id sein
+      if (State.tocItemsById.has(hash)) {
+        navigateToTocItem(hash);
+        return;
+      }
+      // 2) Oder eine xml:id eines TEI-Ankers — reverse lookup im TOC
+      for (const [tid, item] of State.tocItemsById) {
+        const refEl = item.querySelector(":scope > ref");
+        if (!refEl) continue;
+        const t = refEl.getAttribute("target") || "";
+        const m = t.match(/#([^#]+)$/);
+        if (m && m[1] === hash) {
+          navigateToTocItem(tid);
+          return;
+        }
+      }
+      // 3) Unbekannt: Landing
+      renderLanding();
+    }
 
-  if (el.localName === 'tei-rs') {
-    const e = State.termsIndex.get(id);
-    if (!e) return null;
-    return {
-      orth: e.orth,
-      type: e.type,
-      glossPrimary: e.glossDe,
-      glossSecondary: e.glossEn,
-      source: 'terms-heiEDITIONS.xml'
+    async function navigateToTocItem(tocId) {
+      const item = State.tocItemsById.get(tocId);
+      if (!item) { renderLanding(); return; }
+
+      const refEl   = item.querySelector(":scope > ref");
+      const target  = refEl ? (refEl.getAttribute("target") || "") : "";
+      const status  = item.querySelector(':scope > note[type="encoding-status"]')?.textContent.trim() || "";
+      const label   = refEl ? collapseSpace(refEl.textContent) : "";
+      const page    = item.querySelector(':scope > num[type="page"]')?.textContent.trim() || "";
+
+      State.activeTocId  = tocId;
+      State.activeStatus = status;
+      setActiveToc(tocId);
+
+      // Header-Subtitle aktualisieren
+      const sub = document.getElementById("header-subtitle");
+      if (sub) {
+        sub.textContent = label + (page ? " — GA S. " + page + " ff." : "");
+      }
+
+      teiContainer.innerHTML = '<div style="padding:2em;text-align:center;color:var(--c-muted)">Lade …</div>';
+
+      try {
+        if (status === "nicht-kodiert") {
+          renderPlaceholderForItem(label, page, "Volltext nicht angelegt.");
+          return;
+        }
+        if (status === "aggregate" && target.startsWith("todo:")) {
+          await renderAggregate(item, label);
+          return;
+        }
+        // kodiert / stub: real existierende Datei
+        const { file, anchor } = parseRefTarget(target);
+        if (!file) {
+          renderPlaceholderForItem(label, page, "Ref-Target unverständlich: " + target);
+          return;
+        }
+        await loadAndRender(file, anchor, status, label);
+      } catch (err) {
+        teiContainer.innerHTML =
+          '<div class="reader-banner" style="background:rgba(107,31,31,0.07);border-left:4px solid #6b1f1f;color:#6b1f1f">' +
+          '<strong>Fehler:</strong> ' + escapeHtml(err.message) +
+          '</div>';
+      }
+    }
+
+    function parseRefTarget(target) {
+      if (!target || target.startsWith("todo:")) return { file: null, anchor: null };
+      const m = target.match(/^([^#]+)(?:#(.+))?$/);
+      if (!m) return { file: null, anchor: null };
+      return { file: m[1], anchor: m[2] || null };
+    }
+
+    /* ============================================================
+       Aggregate-Modus — Kap II (PROJECT-STATE Entscheidung 4)
+       ============================================================
+       Aktuelle Implementation: alle Aggregate-Kinder sind
+       'nicht-kodiert', also Placeholder. Der Multi-File-Fetch-Pfad
+       bleibt aktiv, sobald irgendein Kind auf stub/kodiert wechselt.
+       ============================================================ */
+    async function renderAggregate(itemEl, label) {
+      const childList = itemEl.querySelector(':scope > list[type="toc"]');
+      const children = [];
+      if (childList) {
+        childList.querySelectorAll(":scope > item").forEach(it => {
+          children.push({
+            id: it.getAttribute("xml:id") || it.getAttributeNS(XML_NS, "id") || "",
+            label: collapseSpace(it.querySelector(":scope > ref")?.textContent || ""),
+            page: it.querySelector(':scope > num[type="page"]')?.textContent.trim() || "",
+            status: it.querySelector(':scope > note[type="encoding-status"]')?.textContent.trim() || "",
+            target: it.querySelector(":scope > ref")?.getAttribute("target") || "",
+          });
+          // Eine Ebene tiefer (§§ in II-A / II-B)
+          it.querySelectorAll(':scope > list[type="toc"] > item').forEach(it2 => {
+            children.push({
+              id: it2.getAttribute("xml:id") || it2.getAttributeNS(XML_NS, "id") || "",
+              label: "    " + collapseSpace(it2.querySelector(":scope > ref")?.textContent || ""),
+              page: it2.querySelector(':scope > num[type="page"]')?.textContent.trim() || "",
+              status: it2.querySelector(':scope > note[type="encoding-status"]')?.textContent.trim() || "",
+              target: it2.querySelector(":scope > ref")?.getAttribute("target") || "",
+            });
+          });
+        });
+      }
+
+      const fetchable = children.filter(c => c.status === "kodiert" || c.status === "stub");
+
+      const head =
+        '<div class="reader-banner aggregate">' +
+          '<strong>Aggregat-Knoten:</strong> ' + escapeHtml(label) + ' — ' +
+          'besteht aus ' + children.length + ' Unterabschnitt' + (children.length === 1 ? "" : "en") + '. ' +
+          (fetchable.length === 0
+            ? '<em>Sämtliche Teildateien sind im gegenwärtigen Demonstrator nicht angelegt.</em>'
+            : (fetchable.length + ' davon ' + (fetchable.length === 1 ? "ist" : "sind") + ' fetchbar.')) +
+        '</div>';
+
+      if (fetchable.length === 0) {
+        // Placeholder-Pfad (aktuell der einzig aktive Pfad für Kap II)
+        const childListHtml = children.map(c =>
+          '<li>' +
+            '<span class="toc-status ' + c.status + '">' + statusSymbol(c.status) + '</span>' +
+            '<span style="margin-left: 0.5em">' + escapeHtml(c.label) + '</span>' +
+            '<span style="margin-left: 0.5em; color: var(--c-muted); font-size: 0.78rem">S. ' + escapeHtml(c.page) + '</span>' +
+          '</li>'
+        ).join("");
+
+        teiContainer.innerHTML = head +
+          '<div class="ga-page-placeholder">' +
+            '<strong>' + escapeHtml(label) + '</strong>' +
+            '<p>Dieses Kapitel ist auf zwei eigenständige Part-Dateien ' +
+            'aufgeteilt; beide sind im Demonstrator nicht angelegt ' +
+            '(<em>PROJECT-STATE</em>, Entscheidung 8 / TOC-Status ' +
+            '<em>nicht-kodiert</em>).</p>' +
+            '<ul>' + childListHtml + '</ul>' +
+            '<em>This chapter is split across two part files which ' +
+            'are intentionally out of scope for the demo edition; ' +
+            'the aggregate-render code path remains active and will ' +
+            'engage as soon as any child reaches status <strong>stub</strong> ' +
+            'or <strong>kodiert</strong>.</em>' +
+          '</div>';
+        teiXmlDoc = null;
+        updateWitnessButtonsAvailability();
+        return;
+      }
+
+      // Reserve-Pfad: paralleler Fetch + sequenzielle Konkatenation
+      const files = [...new Set(fetchable.map(c => parseRefTarget(c.target).file).filter(Boolean))];
+      const docs = await Promise.all(files.map(f => fetchXML(f).catch(err => null)));
+      teiContainer.innerHTML = head;
+      for (let i = 0; i < files.length; i++) {
+        if (!docs[i]) continue;
+        // Pro Datei einen vollwertigen Render-Pass
+        teiXmlDoc = docs[i];
+        const subContainer = el("div", "");
+        teiContainer.appendChild(subContainer);
+        const isGAPrint = document.body.classList.contains("view-ga-print");
+        if (isGAPrint) renderGAPaged(teiXmlDoc, subContainer);
+        else           renderContinuous(teiXmlDoc, subContainer);
+      }
+      updateWitnessButtonsAvailability();
+    }
+
+    /* ============================================================
+       Einzeldatei laden + rendern (kodiert oder stub)
+       ============================================================ */
+    async function loadAndRender(file, anchor, status, label) {
+      // Sprachvariante mit Fallback
+      const langFile = (LANG && LANG !== "de")
+        ? file.replace(/\.xml$/, "." + LANG + ".xml")
+        : file;
+      let xmlDoc;
+      try { xmlDoc = await fetchXML(langFile); }
+      catch (e) { xmlDoc = await fetchXML(file); }
+
+      // data-first-Markierungen wie zuvor
+      const notes = xmlDoc.querySelectorAll("note[place='foot']");
+      let firstAuth = true, firstEdit = true;
+      notes.forEach(n => {
+        const t = n.getAttribute("type");
+        if (t === "authorial" && firstAuth) { n.setAttribute("data-first", "authorial"); firstAuth = false; }
+        if (t === "editorial" && firstEdit) { n.setAttribute("data-first", "editorial"); firstEdit = false; }
+      });
+
+      teiXmlDoc = xmlDoc;
+      activeFile = file;
+      State.activeAnchor = anchor;
+
+      teiContainer.innerHTML = "";
+      if (status === "stub") {
+        // stub-Banner über dem Reader
+        const banner = document.createElement("div");
+        banner.className = "reader-banner stub";
+        banner.innerHTML =
+          "<strong>Gerüst-Modus.</strong> Für diesen Abschnitt liegt ein TEI-Skelett vor " +
+          "(Šimek-Ebene 1: semantisch-logische Struktur), aber der Volltext ist noch nicht " +
+          "transkribiert. Strukturelle Konstanz mit den kodierten Abschnitten ist durch das " +
+          "Template <code>_template_stub.xml</code> gewährleistet.";
+        teiContainer.appendChild(banner);
+      }
+
+      renderAll();
+      fillCitationBar(xmlDoc, witIdForView(currentViewSlug()));
+      updateWitnessButtonsAvailability();
+
+      // Nach Render: zum Anker scrollen
+      if (anchor) {
+        requestAnimationFrame(() => {
+          const target = teiContainer.querySelector('#' + cssEscape(anchor));
+          if (target) {
+            target.scrollIntoView({ behavior: "smooth", block: "start" });
+          } else {
+            // Fallback: nach dem ersten <pb ed="#GA"> aufschlagen
+            const reader = document.getElementById("reader");
+            reader.scrollTo({ top: 0, behavior: "instant" });
+          }
+        });
+      } else {
+        document.getElementById("reader").scrollTo({ top: 0, behavior: "instant" });
+      }
+    }
+
+    function renderPlaceholderForItem(label, page, note) {
+      teiXmlDoc = null;
+      teiContainer.innerHTML =
+        '<div class="ga-page-placeholder">' +
+          '<strong>' + escapeHtml(label) + '</strong>' +
+          '<p>' + escapeHtml(note) + '</p>' +
+          (page ? '<p style="font-size: 0.78rem">GA S. ' + escapeHtml(page) + ' ff.</p>' : '') +
+        '</div>';
+      updateWitnessButtonsAvailability();
+    }
+
+    /* ============================================================
+       TOC-Landing-Page (Wurzelklick oder leerer Hash)
+       ============================================================ */
+    function renderLanding() {
+      teiXmlDoc = null;
+      setActiveToc(null);
+      const header = document.getElementById("header-subtitle");
+      if (header) header.textContent = "GA II.13 — digitale Edition (heiEDITIONS-Demonstrator)";
+
+      const tocList = State.toc.querySelector('div[type="contents"] list[type="toc"]');
+      let bodyHtml = '<ul class="toc-landing-list">';
+
+      function walk(listEl) {
+        let html = "";
+        for (const node of listEl.children) {
+          if (node.localName === "head") {
+            html += '<li class="toc-head" style="font-style:italic;color:var(--c-text);border:0;padding:0.6em 0 0.2em;">' +
+                    escapeHtml(node.textContent.trim()) + '</li>';
+          } else if (node.localName === "item") {
+            const ref    = node.querySelector(":scope > ref");
+            const num    = node.querySelector(':scope > num[type="page"]');
+            const status = node.querySelector(':scope > note[type="encoding-status"]')?.textContent.trim() || "";
+            const child  = node.querySelector(':scope > list[type="toc"]');
+            const tocId  = node.getAttribute("xml:id") || node.getAttributeNS(XML_NS, "id") || "";
+            const label  = ref ? collapseSpace(ref.textContent) : "";
+            const page   = num ? num.textContent.trim() : "";
+            const sym    = statusSymbol(status);
+            const symHtml = '<span class="toc-status ' + status + '" title="' + statusLabel(status) + '">' + sym + '</span>';
+
+            const labelHtml = (status === "nicht-kodiert")
+              ? '<span class="nicht-kodiert-label" title="Volltext nicht angelegt">' + escapeHtml(label) + '</span>'
+              : '<a href="#' + tocId + '">' + escapeHtml(label) + '</a>';
+
+            html += '<li>' + symHtml +
+                    '<span style="margin-left:0.4em">' + labelHtml + '</span>' +
+                    '<span class="leader"></span>' +
+                    '<span class="toc-page">' + escapeHtml(page) + '</span>';
+            if (child) html += '<ul>' + walk(child) + '</ul>';
+            html += '</li>';
+          }
+        }
+        return html;
+      }
+      bodyHtml += walk(tocList) + '</ul>';
+
+      teiContainer.innerHTML =
+        '<div class="toc-landing">' +
+          '<h1>Fides quaerens intellectum</h1>' +
+          '<h2>Anselms Beweis der Existenz Gottes im Zusammenhang seines theologischen Programms</h2>' +
+          '<p style="text-align:center;color:var(--c-muted);font-family:Source Sans Pro,sans-serif;font-size:0.85rem;margin-bottom:2em;">' +
+            'Karl Barth · GA II.13 · Theologischer Verlag Zürich, &sup3;2002' +
+          '</p>' +
+          bodyHtml +
+          '<p style="margin-top:2em;padding-top:1em;border-top:1px solid var(--c-rule);color:var(--c-muted);font-size:0.82rem;line-height:1.6;">' +
+            'Demonstrator zur Heidelberger DH-Infrastruktur <em>heiEDITIONS</em> ' +
+            '(Šimek 2022). Methodisches Profil: fünf editionsrelevante Textdimensionen, ' +
+            'FRBR-Editions-Hook, BCP-47-Übersetzungs-Suffix. Vollständige Volltext-Kodierung ' +
+            'liegt zur Zeit nur für § 1 <em>Die Notwendigkeit der Theologie</em> ' +
+            'vor; die übrigen Knoten sind bewußt als <em>stub</em>, <em>nicht-kodiert</em> ' +
+            'oder <em>aggregate</em> ausgewiesen.' +
+          '</p>' +
+        '</div>';
+
+      updateWitnessButtonsAvailability();
+      document.getElementById("reader").scrollTo({ top: 0, behavior: "instant" });
+    }
+
+    /* ============================================================
+       Viewer-Kontrollen aktivieren
+       ============================================================
+       Die früheren controls (view-mode, fontsize, theme) brauchen
+       jetzt einen einzigen Initialisierungs-Hook, weil sie früher
+       am Top-Level liefen, als teiXmlDoc bereits da war. — Die
+       eigentlichen Listener stehen weiter unten unverändert; hier
+       triggern wir nur einen ersten fillCitationBar-Sync.
+       ============================================================ */
+    function hookupViewerControls() {
+      statusEl.remove();
+    }
+
+    /* Wird bei jedem View-Wechsel und beim Erstladen aufgerufen.
+       Entscheidet, ob paginierte GA-Ansicht oder kontinuierlicher
+       Fluss gerendert wird. */
+    function renderAll() {
+      if (!teiXmlDoc) return;
+      // Reader-Container behalten Banner; nur das untere TEI-Material neu rendern
+      // — wir leeren #TEI komplett (Banner ist in #TEI bereits enthalten,
+      //   denn loadAndRender hat ihn dort eingehängt).
+      // Banner separieren und wieder voranstellen.
+      const banner = teiContainer.querySelector(".reader-banner");
+      teiContainer.innerHTML = "";
+      if (banner) teiContainer.appendChild(banner);
+      backrefRegistry.clear();
+
+      const isGAPrint = document.body.classList.contains("view-ga-print");
+      const isGARead  = document.body.classList.contains("view-ga-read");
+
+      // GA-Druck und GA-Lesefluss laufen beide über die ga-page-stack-
+      // Strecke (sie unterscheiden sich nur per CSS).
+      if (isGAPrint || isGARead) {
+        renderGAPaged(teiXmlDoc, teiContainer);
+      } else {
+        renderContinuous(teiXmlDoc, teiContainer);
+      }
+    }
+
+    /* Klassischer Render-Pfad: gesamten TEI-Baum als Fluss
+       konvertieren (für A / A2 / B / Apparat). */
+    function renderContinuous(xmlDoc, container) {
+      convertNode(xmlDoc.documentElement, container);
+      const firstAuthEl = container.querySelector(".tei-note-foot-authorial");
+      if (firstAuthEl) firstAuthEl.classList.add("tei-note-foot-first");
+      const firstEditEl = container.querySelector(".tei-note-foot-editorial");
+      if (firstEditEl) firstEditEl.classList.add("tei-note-foot-first-app");
+    }
+
+    /* ============================================================
+       GA-Paginierung (scroll-snap-Variante)
+       ============================================================
+       Strategie ist gegenüber der Erstfassung umgestellt
+       (vgl. PROJECT-STATE.md, Entscheidung 5):
+       - Statt einer einzelnen sichtbaren Seite + Page-Nav-Buttons
+         rendern wir ALLE Seiten untereinander in einen
+         .ga-page-stack-Container.
+       - scroll-snap-type: y proximity sorgt für sanftes Einrasten
+         bei vertikalem Scrollen, ohne erzwungene Snap-Punkte.
+       - Die ←→-Tastatur-Navigation entfällt, weil eine Edition
+         mit ~190 Druckseiten nicht über Button-Listen oder
+         Pfeil-Tasten begehbar wäre. Statt dessen: TOC links +
+         freier Scroll.
+       - Die Fußnoten-Sammlung pro Seite (authorial + editorial)
+         bleibt strikt seitenlokal, wie im Druck — also pro
+         .ga-page ein eigener Pass über das geklippte Slice.
+
+       Erkennung von "Stub"-Seiten:
+       - Eine .ga-page ist "stub", wenn ihr Slice nur ein
+         <div type="section">-Skelett enthält (ein <head> + ein
+         leerer <p> oder einer mit nur TODO-Kommentar). Solche
+         Seiten bekommen die CSS-Klasse .ga-page.stub und werden
+         visuell anders gerendert (Schraffur + Hinweistext).
+       ============================================================ */
+    function renderGAPaged(xmlDoc, container) {
+      const body = xmlDoc.querySelector("body");
+      if (!body) {
+        renderContinuous(xmlDoc, container);
+        return;
+      }
+
+      const gaPbs = Array.from(xmlDoc.querySelectorAll('pb[ed="#GA"]'));
+      if (gaPbs.length === 0) {
+        renderContinuous(xmlDoc, container);
+        return;
+      }
+
+      // Schritt 1: Alle Seiten-Slices erzeugen.
+      const pageSlices = [];
+      for (let i = 0; i < gaPbs.length; i++) {
+        const startPb = gaPbs[i];
+        const endPb = gaPbs[i + 1] || null;
+        const slice = cloneRangeBetweenPbs(body, startPb, endPb);
+        pageSlices.push({
+          n: startPb.getAttribute("n"),
+          type: startPb.getAttribute("type") || "",
+          xmlSlice: slice,
+          xmlPb: startPb,   // Original-pb für Metadaten (z.B. xml:id)
+        });
+      }
+
+      // Schritt 2: Stack-Container aufbauen
+      const stack = el("div", "ga-page-stack");
+      container.appendChild(stack);
+
+      // Schritt 3: Jede Seite als eigenes .ga-page-Element rendern
+      pageSlices.forEach(slice => {
+        renderOneGaPage(slice, stack);
+      });
+    }
+
+    /* Rendert eine einzelne GA-Seite ans Stack-Ende.
+       Behandelt Vakat-, Titel- und Stub-Seiten gesondert. */
+    function renderOneGaPage(slice, stack) {
+      // Pro-Seite-Registry für Rückwärtssprünge (s. backrefRegistry-Kommentar)
+      backrefRegistry.clear();
+
+      const pageEl = el("article", "ga-page");
+      pageEl.dataset.pageN = slice.n;
+      // xml:id der pb als HTML-id setzen, damit URL-Hash darauf zeigen kann
+      const pbXmlId = slice.xmlPb.getAttribute("xml:id")
+                  || slice.xmlPb.getAttributeNS(XML_NS, "id");
+      if (pbXmlId) pageEl.id = pbXmlId;
+
+      // Vakat- und Titelseiten markieren
+      if (slice.type === "blank")     pageEl.classList.add("blank");
+      if (slice.type === "titlepage") pageEl.classList.add("titlepage");
+
+      // Body-Inhalt der geklippten Kopie konvertieren.
+      const bodyHtml = el("div", "ga-page-body");
+      convertChildren(slice.xmlSlice, bodyHtml);
+      pageEl.appendChild(bodyHtml);
+
+      // Stub-Erkennung: wenn der konvertierte Body kein Fließtext-
+      // Material enthält (keine .tei-p mit nicht-leerem Inhalt
+      // außerhalb der head-Section), kennzeichnen wir die Seite
+      // als Stub. Volltext-Sections enthalten dagegen mindestens
+      // einen <p> mit Textinhalt > minimaler Trivialität.
+      if (slice.type !== "blank" && slice.type !== "titlepage" && isStubSlice(slice.xmlSlice)) {
+        pageEl.classList.add("stub");
+      }
+
+      // Fußnoten-Block (pro Seite) — gleiche Logik wie früher
+      // renderSinglePage. Wir holen authorial + editorial Notes.
+      // Nur sinnvoll, wenn die Seite Volltext-Inhalt hat.
+      if (!pageEl.classList.contains("blank") &&
+          !pageEl.classList.contains("titlepage") &&
+          !pageEl.classList.contains("stub")) {
+        collectAndRenderPageFootnotes(slice, pageEl);
+      }
+
+      // Seitenzahl unten — nur für nicht-blank-Seiten
+      if (!pageEl.classList.contains("blank")) {
+        const pageFoot = el("div", "ga-page-pagenumber");
+        pageFoot.textContent = slice.n;
+        pageEl.appendChild(pageFoot);
+      }
+
+      stack.appendChild(pageEl);
+    }
+
+    /* Sammelt für ein Slice alle referenzierten authorial und
+       editorial Notes und hängt sie als .ga-page-footnotes ans
+       pageEl. — Übernommen aus der früheren renderSinglePage,
+       unverändert in der Sammel-Logik. */
+    function collectAndRenderPageFootnotes(slice, pageEl) {
+      const authorialNotes = [];
+      const editorialNotes = [];
+      const seenIds = new Set();
+
+      slice.xmlSlice.querySelectorAll('ref[type="note"]').forEach(r => {
+        const t = r.getAttribute("target") || "";
+        const id = t.startsWith("#") ? t.slice(1) : t;
+        if (!id || seenIds.has(id)) return;
+        seenIds.add(id);
+        const note = teiXmlDoc.querySelector('[*|id="' + id + '"]');
+        if (!note) return;
+        const type = note.getAttribute("type") || "";
+        if (type === "editorial") editorialNotes.push(note);
+        else authorialNotes.push(note);
+      });
+
+      slice.xmlSlice.querySelectorAll("app").forEach(appEl => {
+        const appId = appEl.getAttribute("xml:id")
+                  || appEl.getAttributeNS(XML_NS, "id");
+        if (!appId) return;
+        const note = teiXmlDoc.querySelector('note[target="#' + appId + '"]');
+        if (!note) return;
+        const nId = note.getAttribute("xml:id")
+                  || note.getAttributeNS(XML_NS, "id");
+        if (!nId || seenIds.has(nId)) return;
+        seenIds.add(nId);
+        const type = note.getAttribute("type") || "";
+        if (type === "editorial") editorialNotes.push(note);
+        else authorialNotes.push(note);
+      });
+
+      const authorialSnapshot = authorialNotes.slice();
+      authorialSnapshot.forEach(authNote => {
+        authNote.querySelectorAll("app").forEach(appEl => {
+          const appId = appEl.getAttribute("xml:id")
+                    || appEl.getAttributeNS(XML_NS, "id");
+          if (!appId) return;
+          const note = teiXmlDoc.querySelector('note[target="#' + appId + '"]');
+          if (!note) return;
+          const nId = note.getAttribute("xml:id")
+                    || note.getAttributeNS(XML_NS, "id");
+          if (!nId || seenIds.has(nId)) return;
+          seenIds.add(nId);
+          const type = note.getAttribute("type") || "";
+          if (type === "editorial") editorialNotes.push(note);
+          else authorialNotes.push(note);
+        });
+      });
+
+      if (authorialNotes.length > 0 || editorialNotes.length > 0) {
+        const footEl = el("div", "ga-page-footnotes");
+        const rule = el("div", "ga-page-footrule");
+        footEl.appendChild(rule);
+
+        authorialNotes.forEach(note => convertNode(note, footEl));
+        if (editorialNotes.length > 0) {
+          const sep = el("div", "ga-page-foot-edsep");
+          footEl.appendChild(sep);
+          editorialNotes.forEach(note => convertNode(note, footEl));
+        }
+        pageEl.appendChild(footEl);
+      }
+    }
+
+    /* Heuristik: gilt ein Seiten-Slice als Stub?
+       Ein Slice ist Stub, wenn er nur <head>- und leere <p>-Elemente
+       enthält und kein Fließtext-Material substanzieller Länge
+       (Schwelle: 80 Zeichen direkter Textinhalt außerhalb <head>).
+       So passen die Stubs aus fqi-part-I.xml (§§ 2–5) zur
+       Kennzeichnung, während die kodierte § 1 unangetastet bleibt. */
+    function isStubSlice(xmlSlice) {
+      const paragraphs = xmlSlice.querySelectorAll('p, quote');
+      let chars = 0;
+      for (const p of paragraphs) {
+        // Direkt-Textgehalt: bevorzugt eigener Text, aber Kommentare
+        // und reine TODO-Markierungen sind durch den DOMParser bereits
+        // weggefiltert, weil <!-- … --> nicht im DOM-Text auftaucht.
+        chars += p.textContent.trim().length;
+        if (chars > 80) return false;
+      }
+      // Wenn die Section eine <head> hat aber keinen substanziellen
+      // Fließtext: Stub.
+      const hasHead = xmlSlice.querySelector("head");
+      return hasHead && chars < 80;
+    }
+
+    /* ============================================================
+       Kernfunktion: cloneRangeBetweenPbs
+       ============================================================
+       Klont den Baum unter `rootNode` und behält nur die Inhalte
+       zwischen `startPb` (exklusiv) und `endPb` (exklusiv, oder
+       Dokumentende wenn null). Vorfahren werden geklont, damit
+       <p>, <rs>, <hi>, <foreign> usw. korrekt umschlossen
+       bleiben — auch wenn die Seite mitten in einem <p> beginnt
+       oder endet.
+
+       Algorithmus: depth-first walk, drei Zustände:
+         "before"   — noch vor startPb (nichts behalten)
+         "inside"   — zwischen startPb und endPb (alles behalten)
+         "after"    — endPb passiert (nichts mehr)
+       Der Zustand wird durch eine veränderbare Referenz (ctx)
+       zwischen rekursiven Aufrufen geteilt.
+       Elemente, die Kinder im inside-Bereich haben, werden
+       (shallow) geklont; Kinder werden rekursiv eingehängt.
+       ============================================================ */
+    function cloneRangeBetweenPbs(rootNode, startPb, endPb) {
+      const ctx = { state: startPb ? "before" : "inside" };
+
+      function recur(node) {
+        // Marker-Knoten? Zustand umschalten und nichts beifügen.
+        if (node === startPb) {
+          ctx.state = "inside";
+          return null;
+        }
+        if (node === endPb) {
+          ctx.state = "after";
+          return null;
+        }
+        if (ctx.state === "after") return null;
+
+        // Textknoten
+        if (node.nodeType === Node.TEXT_NODE) {
+          if (ctx.state === "inside") {
+            return node.cloneNode(false);
+          }
+          return null;
+        }
+
+        // Kommentar / PI: ignorieren
+        if (node.nodeType !== Node.ELEMENT_NODE) return null;
+
+        // <note place="foot">-Elemente überspringen wir komplett:
+        // sie gehören nicht in den Lesefluss, sondern werden pro
+        // Seite über die ref-Beziehungen separat aggregiert und
+        // unten an die Seite gehängt. Ohne diesen Filter würden
+        // alle Fußnoten am Ende des <body> in die letzte Seite
+        // gespült.
+        if (localName(node) === "note") {
+          return null;
+        }
+
+        // Selbstschließende / leere Elemente in der Quelle
+        // (z.B. <ref type="note" target="#fn-1"/>, <pb ed="#A"/>,
+        // <lb/>) sind Inhaltsknoten, keine Container. Sie werden
+        // ohne Rekursion beibehalten, sofern wir uns im inside-
+        // Bereich befinden.
+        if (node.childNodes.length === 0) {
+          if (ctx.state === "inside") {
+            return node.cloneNode(false);
+          }
+          return null;
+        }
+
+        // Container-Element: shallow-clonen, Kinder rekursiv.
+        const clone = node.cloneNode(false);
+        for (const child of Array.from(node.childNodes)) {
+          if (ctx.state === "after") break;
+          const cloneChild = recur(child);
+          if (cloneChild) clone.appendChild(cloneChild);
+        }
+        if (clone.childNodes.length === 0) {
+          return null;
+        }
+        return clone;
+      }
+
+      return recur(rootNode);
+    }
+
+
+
+    /* ============================================================
+       View-Toggle
+       ============================================================ */
+    const viewButtons = document.querySelectorAll(".controls button[data-view]");
+    const VIEW_CLASSES = ["view-ga-print","view-ga-read","view-a","view-a2","view-b","view-apparat"];
+
+    /** Liest den aktuell aktiven Ansichts-Slug aus der body-Klasse.
+     *  Wird sowohl vom initialen fillCitationBar-Aufruf als auch
+     *  von ggf. von außen ausgelösten Re-Renderings verwendet. */
+    function currentViewSlug() {
+      for (const c of VIEW_CLASSES) {
+        if (document.body.classList.contains(c)) return c.replace(/^view-/, "");
+      }
+      return "ga-print";
+    }
+
+    viewButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        if (btn.hasAttribute("disabled")) return;  // B-Schalter coverage
+        const view = btn.dataset.view;
+        VIEW_CLASSES.forEach(c => document.body.classList.remove(c));
+        document.body.classList.add("view-" + view);
+        viewButtons.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        hideTooltip(true);
+        // GA vs. kontinuierlich erfordert Neurendern des Containers.
+        renderAll();
+        // Zitierangabe an den jetzt aktiven Zeugen anpassen.
+        if (teiXmlDoc) fillCitationBar(teiXmlDoc, witIdForView(view));
+      });
+    });
+
+    /* ============================================================
+       Schriftgrößen-Regler
+       Wir nutzen --font-scale auf :root. localStorage ist hier
+       möglich, weil die Datei normal ausgeliefert wird (kein
+       Artifact-Sandbox).
+       ============================================================ */
+    const FONTSIZE_MAP = {
+      small:  0.88,
+      medium: 1.00,
+      large:  1.18,
     };
-  }
-  if (el.localName === 'tei-persname') {
-    const e = State.personsIndex.get(id);
-    if (!e) return null;
-    return {
-      orth: e.name,
-      type: e.dates || 'Person',
-      glossPrimary: e.note,
-      glossSecondary: null,
-      source: 'persons-heiEDITIONS.xml'
-    };
-  }
-  if (el.localName === 'tei-title' || el.localName === 'tei-bibl') {
-    const e = State.worksIndex.get(id);
-    if (!e) return null;
-    return {
-      orth: e.title,
-      type: e.author + (e.date ? ` (${e.date})` : ''),
-      glossPrimary: null,
-      glossSecondary: null,
-      source: 'works-heiEDITIONS.xml'
-    };
-  }
-  return null;
-}
+    const fontsizeButtons = document.querySelectorAll(
+      ".controls button[data-fontsize]"
+    );
 
-function showTip(info, anchorEl) {
-  const tip = document.getElementById('tooltip');
-  let html = '';
-  if (info.orth)           html += `<div class="tip-orth">${escapeHtml(info.orth)}</div>`;
-  if (info.type)           html += `<div class="tip-type">${escapeHtml(info.type)}</div>`;
-  if (info.glossPrimary)   html += `<div class="tip-gloss">${escapeHtml(info.glossPrimary)}</div>`;
-  if (info.glossSecondary) html += `<div class="tip-gloss">${escapeHtml(info.glossSecondary)}</div>`;
-  if (info.source)         html += `<div class="tip-source">→ ${escapeHtml(info.source)}</div>`;
-  if (!html) return;
-  tip.innerHTML = html;
-  tip.hidden = false;
+    function applyFontsize(name) {
+      const scale = FONTSIZE_MAP[name] || 1;
+      document.documentElement.style.setProperty("--font-scale", String(scale));
+      fontsizeButtons.forEach(b => {
+        b.classList.toggle("active", b.dataset.fontsize === name);
+      });
+      try { localStorage.setItem("fqi-fontsize", name); } catch (e) { /* ignore */ }
+    }
 
-  const r = anchorEl.getBoundingClientRect();
-  const tipR = tip.getBoundingClientRect();
-  let top = r.bottom + 8;
-  let left = r.left;
-  if (left + tipR.width > window.innerWidth - 12) {
-    left = window.innerWidth - tipR.width - 12;
-  }
-  if (top + tipR.height > window.innerHeight - 12) {
-    top = r.top - tipR.height - 8;
-  }
-  tip.style.top  = `${top}px`;
-  tip.style.left = `${left}px`;
-  requestAnimationFrame(() => tip.classList.add('visible'));
-}
-function hideTip() {
-  const tip = document.getElementById('tooltip');
-  tip.classList.remove('visible');
-  setTimeout(() => { if (!tip.classList.contains('visible')) tip.hidden = true; }, 150);
-}
+    // Persistierte Wahl wiederherstellen
+    let savedFontsize = "medium";
+    try {
+      const v = localStorage.getItem("fqi-fontsize");
+      if (v && FONTSIZE_MAP[v]) savedFontsize = v;
+    } catch (e) { /* ignore */ }
+    applyFontsize(savedFontsize);
 
-/* ---------------------------------------------------------
-   Mini-Utilities
-   --------------------------------------------------------- */
-function escapeHtml(s) {
-  return String(s ?? '')
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;');
-}
-function escapeAttr(s) {
-  return escapeHtml(s);
-}
+    fontsizeButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        applyFontsize(btn.dataset.fontsize);
+        hideTooltip(true);
+      });
+    });
 
-/* ---------------------------------------------------------
-   Start
-   --------------------------------------------------------- */
-boot().catch(err => {
-  console.error(err);
-  showError(`Boot fehlgeschlagen: ${err.message}`);
-});
-</script>
+    /* ============================================================
+       Theme-Regler (Hell / Invert)
+       ============================================================
+       Invert wird per CSS-Filter auf <html> realisiert (siehe
+       CSS-Block oben). localStorage hält die Wahl persistent.
+       ============================================================ */
+    const themeButtons = document.querySelectorAll(
+      ".controls button[data-theme]"
+    );
 
+    function applyTheme(name) {
+      const html = document.documentElement;
+      if (name === "invert") {
+        html.classList.add("theme-invert");
+      } else {
+        html.classList.remove("theme-invert");
+      }
+      themeButtons.forEach(b => {
+        b.classList.toggle("active", b.dataset.theme === name);
+      });
+      try { localStorage.setItem("fqi-theme", name); } catch (e) { /* ignore */ }
+    }
+
+    let savedTheme = "light";
+    try {
+      const v = localStorage.getItem("fqi-theme");
+      if (v === "light" || v === "invert") savedTheme = v;
+    } catch (e) { /* ignore */ }
+    applyTheme(savedTheme);
+
+    themeButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        applyTheme(btn.dataset.theme);
+        hideTooltip(true);
+      });
+    });
+
+    /* ============================================================
+       Zitiervorschläge — Chicago / APA / Tübingen
+       ============================================================
+       Datenquelle: <witness xml:id="GA"> aus listWit (Leithand-
+       schrift dieser Edition) + <publicationStmt>/<titleStmt>
+       für den digitalen Edition-Kontext.
+
+       Formatkonventionen:
+       - Chicago Notes & Bibliography, 17. ed., humanities-bibl.
+       - APA 7th ed.
+       - Tübinger Stil (Theologie, weit verbreitet im DACH-Raum):
+         Verfasser, Vorname: Titel. Untertitel (= Reihe Bd.),
+         Auflage, Ort: Verlag Jahr, ggf. zit. Seite.
+       Alle Formate beziehen sich auf das edierte Werk in der
+       GA-Fassung (= Leithandschrift), nicht auf die digitale
+       Edition selbst — das ist der für Hausarbeiten/Aufsätze
+       relevante Anwendungsfall.
+       ============================================================ */
+    function textOf(el) {
+      return el ? el.textContent.replace(/\s+/g, " ").trim() : "";
+    }
+
+    /** Mappt einen Ansichts-Slug auf die zu zitierende witness-ID.
+     *  GA-Druck und GA-Lesefluss verweisen auf dieselbe Druckfassung;
+     *  Apparat fällt auf GA als Leitfassung zurück (zusätzlich wird
+     *  in der UI ein Hinweis eingeblendet, siehe .cite-apparat-hint). */
+    function witIdForView(view) {
+      switch (view) {
+        case "ga-print":
+        case "ga-read":
+        case "apparat":  return "GA";
+        case "a":        return "A";
+        case "a2":       return "A2";
+        case "b":        return "B";
+        default:         return "GA";
+      }
+    }
+
+    /** Splittet den Verfasser primitiv in Nachname / Vorname auf
+     *  (letztes Token = Nachname). Reicht für "Karl Barth",
+     *  "Hans Urs von Balthasar" etc. */
+    function splitName(author) {
+      const parts = author.split(/\s+/);
+      const lastName  = parts[parts.length - 1] || author;
+      const firstName = parts.slice(0, -1).join(" ");
+      return { lastName, firstName };
+    }
+
+    /** Pfad 1: Monographie / Reihenband. Trifft auf A, A2, GA zu.
+     *  Behandelt zwei Datenstrukturen:
+     *  - GA: <title type="main"> enthält Haupt+Untertitel als eine
+     *    Zeichenkette, getrennt durch ". ".
+     *  - A:  <title type="main"> + <title type="sub"> als zwei
+     *    separate Elemente. <series>/<title> + <biblScope unit="reihe">
+     *    + <biblScope unit="band">.
+     *  - A2: ein einzelnes <title> ohne @type, das beides enthält. */
+    function buildCitationsForBook(biblEl) {
+      const author = textOf(biblEl.querySelector("author"));
+      const { lastName, firstName } = splitName(author);
+
+      const titleMainEl = biblEl.querySelector('title[type="main"]')
+                       || biblEl.querySelector('title:not([type])');
+      const titleMain   = textOf(titleMainEl);
+      const titleSubEl  = biblEl.querySelector('title[type="sub"]');
+      const titleSub    = textOf(titleSubEl);
+
+      // Vollständige Titelzeile + Tübinger Kurzform
+      let titleFull  = titleMain;
+      let titleShort = titleMain;
+      let subForTueb = titleSub;
+      if (titleSub) {
+        titleFull = titleMain + ". " + titleSub;
+      } else {
+        // GA / A2: Untertitel ist im Haupttitel mit ". " angehängt.
+        const dotIdx = titleMain.indexOf(". ");
+        if (dotIdx > 0) {
+          titleShort = titleMain.slice(0, dotIdx);
+          subForTueb = titleMain.slice(dotIdx + 2);
+        }
+      }
+
+      // Reihenangabe — zwei Stile abdecken.
+      let seriesRef = "";
+      const seriesMainGA = biblEl.querySelector('title[type="series-main"]');
+      if (seriesMainGA) {
+        seriesRef = textOf(seriesMainGA);
+        const abteilung = textOf(biblEl.querySelector('biblScope[unit="abteilung"]'));
+        const band      = textOf(biblEl.querySelector('biblScope[unit="band"]'));
+        if (abteilung && band)      seriesRef += " " + abteilung + "/" + band;
+        else if (abteilung)         seriesRef += " " + abteilung;
+        else if (band)              seriesRef += " " + band;
+      } else {
+        const seriesEl = biblEl.querySelector("series");
+        if (seriesEl) {
+          const seriesTitle = textOf(seriesEl.querySelector("title"));
+          const reihe = textOf(seriesEl.querySelector('biblScope[unit="reihe"]'));
+          const band  = textOf(seriesEl.querySelector('biblScope[unit="band"]'));
+          seriesRef = seriesTitle;
+          if (reihe && band)        seriesRef += " " + reihe + ", " + band;
+          else if (reihe)           seriesRef += " " + reihe;
+          else if (band)            seriesRef += " Bd. " + band;
+        }
+      }
+
+      // Auflage — nur ab 2. Aufl. explizit in der Zitation.
+      const editionEl   = biblEl.querySelector("edition");
+      const editionN    = editionEl ? editionEl.getAttribute("n") : "";
+      const editionText = (editionN && editionN !== "1")
+        ? textOf(editionEl)
+        : "";
+
+      const pubPlace  = textOf(biblEl.querySelector("pubPlace"));
+      const publisher = textOf(biblEl.querySelector("publisher"));
+      const dateEl    = biblEl.querySelector("date");
+      const year      = dateEl ? (dateEl.getAttribute("when") || textOf(dateEl)) : "";
+
+      // ─── Chicago ───
+      const chicago =
+        (lastName ? lastName + (firstName ? ", " + firstName : "") : author) + ". " +
+        (titleFull ? "<i>" + titleFull + "</i>. " : "") +
+        (editionText ? editionText + ". " : "") +
+        (seriesRef ? seriesRef + ". " : "") +
+        (pubPlace ? pubPlace + ": " : "") +
+        (publisher ? publisher + ", " : "") +
+        (year || "") + ".";
+
+      // ─── APA 7 ───
+      const apaFirstInitial = firstName ? firstName.charAt(0) + "." : "";
+      const apa =
+        (lastName ? lastName + (apaFirstInitial ? ", " + apaFirstInitial : "") : author) +
+        (year ? " (" + year + "). " : ". ") +
+        (titleFull ? "<i>" + titleFull + "</i>" : "") +
+        (seriesRef ? " (" + seriesRef + ")" : "") +
+        (editionText ? " (" + editionText + ")" : "") +
+        ". " +
+        (publisher || "") + ".";
+
+      // ─── Tübingen ───
+      const tueb =
+        (lastName ? lastName + (firstName ? ", " + firstName : "") : author) + ": " +
+        (titleShort ? "<i>" + titleShort + "</i>" : "") +
+        (subForTueb ? ". " + subForTueb : "") +
+        (seriesRef ? " (= " + seriesRef + ")" : "") +
+        (editionText ? ", " + editionText : "") +
+        ", " +
+        (pubPlace || "") +
+        (publisher ? ": " + publisher : "") +
+        (year ? " " + year : "") + ".";
+
+      return { chicago, apa, tuebingen: tueb };
+    }
+
+    /** Pfad 2: Aufsatz in Festschrift / Zeitschrift.
+     *  Trifft auf B (Vorabdruck in ZThK 1931) zu.
+     *
+     *  TEI-Struktur (B):
+     *    <title type="main">           Aufsatztitel
+     *    <title type="hostFestschrift"> Festschriftband (Kattenbusch)
+     *    <title type="hostJournal">     ZThK
+     *    <biblScope unit="series">      N. F.
+     *    <biblScope unit="jg">          12
+     *    <biblScope unit="page" from="350" to="358">
+     */
+    function buildCitationsForArticle(biblEl) {
+      const author = textOf(biblEl.querySelector("author"));
+      const { lastName, firstName } = splitName(author);
+
+      const titleMain = textOf(biblEl.querySelector('title[type="main"]'));
+      const hostFest  = textOf(biblEl.querySelector('title[type="hostFestschrift"]'));
+      const hostJour  = textOf(biblEl.querySelector('title[type="hostJournal"]'));
+
+      const jourSeries = textOf(biblEl.querySelector('biblScope[unit="series"]'));
+      const jourJg     = textOf(biblEl.querySelector('biblScope[unit="jg"]'));
+      let jourRef = hostJour;
+      if (jourSeries) jourRef += " " + jourSeries;
+      if (jourJg)     jourRef += " " + jourJg;
+
+      const pageScope = biblEl.querySelector('biblScope[unit="page"]');
+      const pageFrom  = pageScope ? pageScope.getAttribute("from") : "";
+      const pageTo    = pageScope ? pageScope.getAttribute("to")   : "";
+      const pageRange = (pageFrom && pageTo)
+        ? pageFrom + "–" + pageTo
+        : textOf(pageScope);
+
+      const dateEl = biblEl.querySelector("date");
+      const year   = dateEl ? (dateEl.getAttribute("when") || textOf(dateEl)) : "";
+
+      // ─── Chicago (Aufsatz) ───
+      const chicago =
+        (lastName ? lastName + (firstName ? ", " + firstName : "") : author) + ". " +
+        (titleMain ? "“" + titleMain + ".” " : "") +
+        (hostFest ? "In <i>" + hostFest + "</i>" : "") +
+        (pageRange ? ", " + pageRange : "") +
+        ". " +
+        (jourRef ? jourRef + ". " : "") +
+        (year || "") + ".";
+
+      // ─── APA 7 (Aufsatz) ───
+      const apaFirstInitial = firstName ? firstName.charAt(0) + "." : "";
+      const apa =
+        (lastName ? lastName + (apaFirstInitial ? ", " + apaFirstInitial : "") : author) +
+        (year ? " (" + year + "). " : ". ") +
+        (titleMain || "") + ". " +
+        (jourRef ? "<i>" + jourRef + "</i>" : "") +
+        (pageRange ? ", " + pageRange : "") +
+        ".";
+
+      // ─── Tübingen (Aufsatz; Festschriftkontext) ───
+      const tueb =
+        (lastName ? lastName + (firstName ? ", " + firstName : "") : author) + ": " +
+        (titleMain ? "<i>" + titleMain + "</i>" : "") +
+        (hostFest ? ", in: " + hostFest : "") +
+        (jourRef ? " (= " + jourRef + ")" : "") +
+        (year ? ", " + year : "") +
+        (pageRange ? ", S. " + pageRange : "") +
+        ".";
+
+      return { chicago, apa, tuebingen: tueb };
+    }
+
+    /** Hauptfunktion: erzeugt Zitate für eine gewählte witness-ID
+     *  (GA | A | A2 | B) sowie das (sichtsunabhängige) Digitalisat-Zitat.
+     *
+     *  Wesentlicher Unterschied zur Vorgängerfassung: Die Zitation
+     *  ist nicht mehr starr an GA gebunden, sondern folgt dem
+     *  aktiven Ansichtsmodus. Die Auswahl zwischen Monographie-
+     *  und Aufsatz-Pfad geschieht automatisch via <title type=
+     *  "hostJournal">. */
+    function buildCitations(xmlDoc, witId) {
+      const witIdResolved = witId || "GA";
+      const biblEl = xmlDoc.querySelector(
+        'witness[*|id="' + witIdResolved + '"] bibl'
+      );
+      if (!biblEl) return null;
+
+      const isArticle = !!biblEl.querySelector('title[type="hostJournal"]');
+      const core = isArticle
+        ? buildCitationsForArticle(biblEl)
+        : buildCitationsForBook(biblEl);
+
+      // ----------------------------------------------------------
+      // Digitalisat: Diese digitale Edition als eigenständige
+      // Zitierangabe — sichtsunabhängig. Bezieht den Werktitel
+      // grundsätzlich aus der GA-Leitfassung, weil die digitale
+      // Edition aus dem GA-Text gespeist wird.
+      // ----------------------------------------------------------
+      const ts = xmlDoc.querySelector("titleStmt");
+      const ps = xmlDoc.querySelector("publicationStmt");
+
+      const encoderEl = ts ? ts.querySelector(
+        'respStmt persName[*|id="encoder-chen"], respStmt persName'
+      ) : null;
+      const encoderName = textOf(encoderEl);
+
+      const partTitle = ts
+        ? textOf(ts.querySelector('title[type="part"]'))
+        : "";
+
+      const gaBibl = xmlDoc.querySelector('witness[*|id="GA"] bibl');
+      const gaTitleMain = gaBibl
+        ? textOf(gaBibl.querySelector('title[type="main"]')
+                || gaBibl.querySelector('title:not([type])'))
+        : "";
+
+      const digiPublisher = ps ? textOf(ps.querySelector("publisher")) : "";
+      const digiDateEl    = ps ? ps.querySelector("date") : null;
+      const digiYear      = digiDateEl
+        ? (digiDateEl.getAttribute("when") || textOf(digiDateEl))
+        : "";
+
+      const digiURL = (typeof window !== "undefined" && window.location)
+        ? window.location.origin + window.location.pathname
+        : "";
+
+      const digital =
+        (encoderName ? encoderName + " (Hg.): " : "") +
+        (gaTitleMain ? "<i>" + gaTitleMain + "</i>" : "") +
+        (partTitle ? ", " + partTitle : "") +
+        (digiPublisher ? " — " + digiPublisher : "") +
+        (digiYear ? ", " + digiYear : "") +
+        (digiURL ? ", URL: " + digiURL : "") +
+        ".";
+
+      return {
+        chicago:   core.chicago,
+        apa:       core.apa,
+        tuebingen: core.tuebingen,
+        digital:   digital,
+      };
+    }
+
+    function fillCitationBar(xmlDoc, witId) {
+      const cites = buildCitations(xmlDoc, witId);
+      if (!cites) return;
+
+      const rows = document.querySelectorAll(".cite-row");
+      rows.forEach(row => {
+        const fmt = row.dataset.format;  // chicago | apa | tuebingen
+        const txt = cites[fmt] || "";
+        const target = row.querySelector(".cite-text");
+        if (target) target.innerHTML = txt;
+        // Plaintext-Variante für Clipboard (HTML stripping)
+        row.dataset.plaintext = txt.replace(/<[^>]+>/g, "");
+      });
+
+      // Kopierhandler nur einmalig binden — sonst feuert bei
+      // jedem View-Wechsel ein zusätzlicher Listener pro Button.
+      document.querySelectorAll(".cite-copy").forEach(btn => {
+        if (btn.dataset.bound === "1") return;
+        btn.dataset.bound = "1";
+        btn.addEventListener("click", () => {
+          const row = btn.closest(".cite-row");
+          if (!row) return;
+          const txt = row.dataset.plaintext || "";
+          if (!txt) return;
+          const done = () => {
+            btn.classList.add("copied");
+            const old = btn.textContent;
+            btn.textContent = "✓ Kopiert";
+            setTimeout(() => {
+              btn.classList.remove("copied");
+              btn.textContent = old;
+            }, 1400);
+          };
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(txt).then(done).catch(() => {
+              // Fallback
+              const ta = document.createElement("textarea");
+              ta.value = txt; document.body.appendChild(ta);
+              ta.select();
+              try { document.execCommand("copy"); done(); }
+              catch (e) { /* ignore */ }
+              document.body.removeChild(ta);
+            });
+          } else {
+            const ta = document.createElement("textarea");
+            ta.value = txt; document.body.appendChild(ta);
+            ta.select();
+            try { document.execCommand("copy"); done(); }
+            catch (e) { /* ignore */ }
+            document.body.removeChild(ta);
+          }
+        });
+      });
+    }
+  </script>
 </body>
 </html>
