@@ -2846,7 +2846,17 @@ header.bar {
     /* Klassischer Render-Pfad: gesamten TEI-Baum als Fluss
        konvertieren (für A / A2 / B / Apparat). */
     function renderContinuous(xmlDoc, container) {
-      convertNode(xmlDoc.documentElement, container);
+      let rootNode = xmlDoc.documentElement;
+      
+      /* 新增：如果有點擊特定章節（存在 anchor），則將渲染範圍縮小到該章節 */
+      if (State.activeAnchor) {
+        const anchorNode = xmlDoc.querySelector('[*|id="' + State.activeAnchor + '"]');
+        if (anchorNode) rootNode = anchorNode;
+      }
+
+      /* 修改：只渲染過濾後的 rootNode，而不是整個文檔 */
+      convertNode(rootNode, container);
+      
       const firstAuthEl = container.querySelector(".tei-note-foot-authorial");
       if (firstAuthEl) firstAuthEl.classList.add("tei-note-foot-first");
       const firstEditEl = container.querySelector(".tei-note-foot-editorial");
