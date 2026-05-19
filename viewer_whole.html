@@ -1003,6 +1003,42 @@ header.bar {
     }
 
     .tei-bibl { display: inline; }
+    /* ----------------------------------------------------------
+       Schmitt-Zitate (nested citedRange) — visuelle Signalisation
+       ----------------------------------------------------------
+       Außenschicht trägt eine zarte Unterlinie, damit der Leser die
+       strukturierte Zitatform überhaupt wahrnimmt. Innenschichten
+       (volume/page/line) sind im laufenden Text unsichtbar, werden
+       aber im Tooltip dekodiert. In GA-Druckansicht abgeschaltet
+       (Reproduktion der Druckseite muß sauber bleiben). */
+    .tei-citedRange[data-unit="schmitt"] {
+      border-bottom: 1px dotted rgba(29, 78, 137, 0.35);
+      cursor: help;
+      padding-bottom: 1px;
+      transition: background-color 0.15s ease;
+    }
+    .tei-citedRange[data-unit="schmitt"]:hover {
+      background: var(--c-bg-hover);
+      border-bottom-color: var(--c-link);
+    }
+    /* Innenschicht volume: Schmitt-Bandzahl ist immer eine römische
+       Ziffer — small-caps ist hier typographisch gerechtfertigt
+       (Reklams Konvention für Bandziffern in kritischen Ausgaben),
+       nicht bloße Verzierung. */
+    .tei-citedRange[data-unit="volume"] {
+      font-variant: small-caps;
+      letter-spacing: 0.02em;
+    }
+    /* In GA-Druckansicht keine Hervorhebung. */
+    body.view-ga-print .tei-citedRange[data-unit="schmitt"] {
+      border-bottom: none;
+      cursor: text;
+    }
+    body.view-ga-print .tei-citedRange[data-unit="volume"] {
+      font-variant: normal;
+      letter-spacing: 0;
+    }
+    
     .tei-q { display: inline; }
     .tei-q::before { content: "„"; }
     .tei-q::after  { content: "“"; }
