@@ -7,7 +7,7 @@ II/13, 3rd ed. Zurich: TVZ, 2002), encoded for the
 
 **Live demo:** <https://lukascy.github.io/Barth-FQI-heiEditions/viewer_whole.html>
 &nbsp;·&nbsp;
-**Full documentation:** [`docs/ENCODING.md`](docs/ENCODING.md)
+**Full documentation:** [`ENCODING.md`](ENCODING.md)
 
 ---
 
@@ -97,7 +97,7 @@ pp. i63–i68).
 
 Four operational rules adopted across the project, documented in
 full with rationale and examples in
-[`docs/ENCODING.md`](docs/ENCODING.md):
+[`ENCODING.md`](ENCODING.md):
 
 - **Hermeneutic discipline.** When transcribing TEI from a printed
   source, no framing labels ("Kapitel", "Abschnitt", running
@@ -105,19 +105,19 @@ full with rationale and examples in
   itself does not print. If such a label appears in an earlier
   draft, it is a bug to be reverted, not evidence of the source's
   wording.
-  [→ details](docs/ENCODING.md#hermeneutic-discipline)
+  [→ details](ENCODING.md#hermeneutic-discipline)
 - **Scaffold, don't skip.** The TOC encodes the *entire* monograph's
   structure; sections not yet transcribed are present in the TOC
   with a different status, not absent. This commits the project to
   fixed file-naming and `xml:id` conventions before encoding the
   rest, and shows the encoded fragment in its real structural place.
-  [→ details](docs/ENCODING.md#the-four-status-system)
+  [→ details](ENCODING.md#the-four-status-system)
 - **Single source of truth for part-level metadata.** Part files do
   not carry `<title type="part">` strings that duplicate the TOC.
   Citation suggestions and navigational labels are derived from the
   active TOC entry. The TOC is the only authoritative source for
   structural labels.
-  [→ details](docs/ENCODING.md#single-source-of-truth-for-part-level-metadata)
+  [→ details](ENCODING.md#single-source-of-truth-for-part-level-metadata)
 - **Interchange quality, not full interoperability.** Following
   Holmes 2017, the project distinguishes between (i) machine
   interoperability via GND / VIAF / Wikidata identifiers and
@@ -127,7 +127,7 @@ full with rationale and examples in
   quality at the data level: the TEI files are structurally and
   documentarily prepared so that they could be absorbed into
   heiEDITIONS or a comparable infrastructure with reasonable effort.
-  [→ details](docs/ENCODING.md#fair-data-and-the-interchange--interoperability-distinction)
+  [→ details](ENCODING.md#fair-data-and-the-interchange--interoperability-distinction)
 
 ---
 
@@ -205,7 +205,7 @@ angle brackets.
 
 The full element-by-element rationale, with examples and trade-off
 discussion for each of these decisions, is in
-[`docs/ENCODING.md`](docs/ENCODING.md).
+[`ENCODING.md`](ENCODING.md).
 
 ---
 
@@ -217,13 +217,13 @@ discussion for each of these decisions, is in
 | Content (one fully encoded part, six scaffolded) | `fqi-part-I.xml` &nbsp;·&nbsp; `_template_stub.xml` |
 | Data layer | `persons-heiEDITIONS.xml` &nbsp;·&nbsp; `works-heiEDITIONS.xml` &nbsp;·&nbsp; `terms-heiEDITIONS.xml` |
 | Viewer | `viewer_whole.html` |
-| Documentation | `README.md` (this file) &nbsp;·&nbsp; `docs/ENCODING.md` |
+| Documentation | `README.md` (this file) &nbsp;·&nbsp; `ENCODING.md` |
 
 Each file's role and its place in the four-status TOC is documented
-in [`docs/ENCODING.md` § Repository structure](docs/ENCODING.md#repository-structure).
+in [`ENCODING.md` § Repository structure](ENCODING.md#repository-structure).
 Naming conventions (prefix `fqi-`, suffix `-heiEDITIONS`, BCP-47
 language tags) are explained in
-[§ File-naming convention](docs/ENCODING.md#file-naming-convention).
+[§ File-naming convention](ENCODING.md#file-naming-convention).
 
 ---
 
@@ -245,7 +245,7 @@ served at `https://<user>.github.io/<repo>/viewer_whole.html`.
 Language hook: append `?lang=zh-CN` (or any BCP-47 tag) to request
 a translation; silent fallback to the German source if the
 translation sibling file does not exist. See
-[§ How to view](docs/ENCODING.md#how-to-view) for details.
+[§ How to view](ENCODING.md#how-to-view) for details.
 
 ---
 
@@ -262,7 +262,7 @@ translation sibling file does not exist. See
 
 For the full roadmap (ODD customization, additional sections,
 validation script, deployment) see
-[§ Roadmap](docs/ENCODING.md#roadmap).
+[§ Roadmap](ENCODING.md#roadmap).
 
 ---
 
@@ -286,7 +286,7 @@ validation script, deployment) see
 
 For the canonical record of editorial choices see the
 `<editorialDecl>` in `fqi-toc.xml` and the full method
-documentation in [`docs/ENCODING.md`](docs/ENCODING.md).
+documentation in [`ENCODING.md`](ENCODING.md).
 
 ---
 
