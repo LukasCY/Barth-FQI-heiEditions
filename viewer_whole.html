@@ -1945,6 +1945,17 @@
       }
 
       if (!node) return;
+      // ----------------------------------------------------------
+      // xml:id → HTML-id propagieren (universell). Damit
+      // funktionieren URL-Hash-Routing und Anker-Scrolling auch
+      // für <div type="section" xml:id="sec-I-2">, <head xml:id=…>,
+      // <note xml:id=…> usw. Schon vorher gesetzte ids
+      // (z.B. backref-Ankertargets) werden nicht überschrieben.
+      // ----------------------------------------------------------
+      const xmlIdVal = attr(xmlNode, "xml:id");
+      if (xmlIdVal && !node.id) {
+        node.id = xmlIdVal;
+      }
       convertChildren(xmlNode, node);
       htmlParent.appendChild(node);
 
@@ -2586,17 +2597,14 @@
       State.activeAnchor = anchor;
 
       teiContainer.innerHTML = "";
-      if (status === "stub") {
-        // stub-Banner über dem Reader
-        const banner = document.createElement("div");
-        banner.className = "reader-banner stub";
-        banner.innerHTML =
-          "<strong>Gerüst-Modus.</strong> Für diesen Abschnitt liegt ein TEI-Skelett vor " +
-          "(Šimek-Ebene 1: semantisch-logische Struktur), aber der Volltext ist noch nicht " +
-          "transkribiert. Strukturelle Konstanz mit den kodierten Abschnitten ist durch das " +
-          "Template <code>_template_stub.xml</code> gewährleistet.";
-        teiContainer.appendChild(banner);
-      }
+      // (Hier stand früher ein "Gerüst-Modus"-Banner für status==="stub".
+      //  Er war doppelt schädlich: erstens redundant, weil einzelne
+      //  .ga-page.stub-Seiten ihren Status ohnehin per Schraffur und
+      //  Hinweistext kommunizieren; zweitens irreführend, weil eine
+      //  Part-Datei mehrere Sections enthalten kann — beim Klick auf
+      //  die einzige stub-Section wäre der Banner auf das ganze File
+      //  bezogen worden, obwohl andere Sections darin durchaus
+      //  vollkodiert sind. Der Banner ist daher entfallen.)
 
       renderAll();
       fillCitationBar(xmlDoc, witIdForView(currentViewSlug()));
@@ -2675,27 +2683,21 @@
           } else if (node.localName === "item") {
             const ref    = node.querySelector(":scope > ref");
             const num    = node.querySelector(':scope > num[type="page"]');
-            const status = node.querySelector(':scope > note[type="encoding-status"]')?.textContent.trim() || "";
             const child  = node.querySelector(':scope > list[type="toc"]');
             const tocId  = node.getAttribute("xml:id") || node.getAttributeNS(XML_NS, "id") || "";
             const labelRaw = ref ? collapseSpace(ref.textContent) : "";
             const label  = stripTocLabel(labelRaw);
             const page   = num ? num.textContent.trim() : "";
-            const sym    = statusSymbol(status);
-            // Status-Symbol bleibt auf der Landing-Page erhalten —
-            // dort gibt sie der gewünschten Projekt-Übersicht
-            // (was ist fertig, was Gerüst, was offen) eine sinnvolle
-            // optische Dimension. In der TOC-Spalte wäre sie dagegen
-            // distrahierend (s. renderTocItem).
-            const symHtml = '<span class="toc-status ' + status + '" title="' + statusLabel(status) + '">' + sym + '</span>';
 
-            // Auf der Landing sind ALLE Knoten klickbar — nicht-
-            // kodierte landen dann auf der Placeholder-Seite,
-            // genau wie aus der TOC-Spalte.
+            // Status-Symbole sind absichtlich auch hier weg —
+            // ein Inhaltsverzeichnis ist ein Navigationsmittel,
+            // kein Status-Dashboard. Status erfährt der Leser
+            // beim Klick (kodiert → Volltext; sonst → freundlicher
+            // Placeholder).
             const labelHtml = '<a href="#' + tocId + '">' + escapeHtml(label) + '</a>';
 
-            html += '<li>' + symHtml +
-                    '<span style="margin-left:0.4em">' + labelHtml + '</span>' +
+            html += '<li>' +
+                    '<span>' + labelHtml + '</span>' +
                     '<span class="leader"></span>' +
                     '<span class="toc-page">' + escapeHtml(page) + '</span>';
             if (child) html += '<ul>' + walk(child) + '</ul>';
@@ -2717,10 +2719,10 @@
           '<p style="margin-top:2em;padding-top:1em;border-top:1px solid var(--c-rule);color:var(--c-muted);font-size:0.82rem;line-height:1.6;">' +
             'Demonstrator zur Heidelberger DH-Infrastruktur <em>heiEDITIONS</em> ' +
             '(Šimek 2022). Methodisches Profil: fünf editionsrelevante Textdimensionen, ' +
-            'FRBR-Editions-Hook, BCP-47-Übersetzungs-Suffix. Vollständige Volltext-Kodierung ' +
-            'liegt zur Zeit nur für § 1 <em>Die Notwendigkeit der Theologie</em> ' +
-            'vor; die übrigen Knoten sind bewußt als <em>stub</em>, <em>nicht-kodiert</em> ' +
-            'oder <em>aggregate</em> ausgewiesen.' +
+            'FRBR-Editions-Hook, BCP-47-Übersetzungs-Suffix. Vollständig transkribiert ' +
+            'ist in der gegenwärtigen Fassung nur § 1 <em>Die Notwendigkeit der Theologie</em>; ' +
+            'die übrigen Knoten sind klickbar, zeigen aber einen kurzen Hinweis ' +
+            '<em>Volltext in Vorbereitung</em>.' +
           '</p>' +
         '</div>';
 
@@ -2746,13 +2748,7 @@
        Fluss gerendert wird. */
     function renderAll() {
       if (!teiXmlDoc) return;
-      // Reader-Container behalten Banner; nur das untere TEI-Material neu rendern
-      // — wir leeren #TEI komplett (Banner ist in #TEI bereits enthalten,
-      //   denn loadAndRender hat ihn dort eingehängt).
-      // Banner separieren und wieder voranstellen.
-      const banner = teiContainer.querySelector(".reader-banner");
       teiContainer.innerHTML = "";
-      if (banner) teiContainer.appendChild(banner);
       backrefRegistry.clear();
 
       const isGAPrint = document.body.classList.contains("view-ga-print");
@@ -3449,13 +3445,27 @@
       ) : null;
       const encoderName = textOf(encoderEl);
 
-      // partTitle: aus dem part-Datei-Header (z.B. "§ 1. Die
-      // Notwendigkeit der Theologie"). In Aggregate-/Landing-Lagen
-      // ist xmlDoc evtl. die toc selbst — dann gibt's keinen
-      // sinnvollen partTitle.
-      const partTitle = tsPart
-        ? textOf(tsPart.querySelector('title[type="part"]'))
-        : "";
+      // ----------------------------------------------------------
+      // partTitle: präzise auf die *aktuell aufgeschlagene Section*
+      // bezogen, nicht auf die Datei. Wir holen ihn aus State.toc
+      // (Single Source of Truth für die Buchstruktur).
+      // - Falls eine Section aktiv ist (State.activeTocId), zitieren
+      //   wir genau diese (z.B. "§ 1. Die Notwendigkeit der Theologie").
+      // - Falls kein aktiver Knoten existiert (Landing-Page), bleibt
+      //   partTitle leer; das Zitat referenziert dann nur das Werk
+      //   als Ganzes.
+      // Konsequenz: die Part-Dateien führen KEINE eigenen
+      // <title type="part">-Elemente mehr (sie wären zwangsläufig
+      // unpräzise, wenn eine Datei mehrere §§ enthält).
+      // ----------------------------------------------------------
+      let partTitle = "";
+      if (State.activeTocId) {
+        const activeItem = State.tocItemsById.get(State.activeTocId);
+        if (activeItem) {
+          const refEl = activeItem.querySelector(":scope > ref");
+          if (refEl) partTitle = collapseSpace(refEl.textContent);
+        }
+      }
 
       const gaBibl = witnessRoot.querySelector('witness[*|id="GA"] bibl');
       const gaTitleMain = gaBibl
@@ -3469,9 +3479,15 @@
         ? (digiDateEl.getAttribute("when") || textOf(digiDateEl))
         : "";
 
-      const digiURL = (typeof window !== "undefined" && window.location)
+      // Für die URL: wenn ein Knoten aktiv ist, hängen wir seinen
+      // toc-id als Fragment an, damit das Zitat direkt auf diese
+      // Section verlinkt.
+      let digiURL = (typeof window !== "undefined" && window.location)
         ? window.location.origin + window.location.pathname
         : "";
+      if (digiURL && State.activeTocId) {
+        digiURL += "#" + State.activeTocId;
+      }
 
       const digital =
         (encoderName ? encoderName + " (Hg.): " : "") +

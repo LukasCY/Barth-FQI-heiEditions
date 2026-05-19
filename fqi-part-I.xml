@@ -60,7 +60,17 @@
         <title type="main" level="m">Fides quaerens intellectum</title>
         <title type="sub"  level="m">Anselms Beweis der Existenz Gottes
           im Zusammenhang seines theologischen Programms</title>
-        <title type="part" level="m" n="I">Kapitel I. Das theologische Programm</title>
+        <!-- Es wurde bewusst KEIN <title type="part"> für diese Part-Datei
+             gesetzt. Begründung: das fqi-toc.xml ist die Single Source
+             of Truth für die Buchstruktur (FRBR-Manifestationsebene).
+             Wenn diese Datei mehrere §§ enthält (§§ 1–5 unter dem Werk-
+             abschnitt I), wäre ein einziger "part"-Titel für die Datei
+             nur eine grobe Krücke und würde im Zitiervorschlag der
+             digitalen Edition immer denselben Buchabschnitt nennen,
+             auch wenn der Leser konkret bei § 3 steht. Daher liest der
+             Viewer den part-Titel zur Laufzeit aus dem TOC-Eintrag des
+             gerade aktiven Knotens — und erzeugt damit ein präzises
+             Zitat pro aufgeschlagener Section. -->
         <author>
           <persName ref="persons-heiEDITIONS.xml#barth"
                     xml:id="author-barth">Karl Barth</persName>
@@ -181,8 +191,7 @@
              ============================================ -->
         <pb n="11" ed="#GA" type="titlepage" xml:id="ga-11"/>
         <head type="chapter-titlepage">
-          <hi rend="#letter-spaced">Kapitel I.</hi>
-          <lb/>
+          <num>I.</num>
           <hi rend="#letter-spaced">Das theologische Programm</hi>
         </head>
         <pb n="12" ed="#GA" type="blank" xml:id="ga-12"/>
