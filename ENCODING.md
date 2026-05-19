@@ -429,10 +429,14 @@ a chapter number — all resolve to the **same** work ID
 The Schmitt citation system (band/page/line) is preserved as
 `<citedRange unit="schmitt">II 47,9</citedRange>`. The unit `schmitt`
 is declared in `fqi-toc.xml#cu-schmitt` (taxonomy `citation-units`).
-On the single example `<citedRange unit="schmitt">I 100,18</citedRange>`
-inside § 1, the optional `@source="works-heiEDITIONS.xml#ed-schmitt"`
-is attached as a demonstration of how editions-layer linkage scales;
-see § *Extensibility — Editions Layer*.
+Every `<citedRange unit="schmitt">` in the edition carries
+`@source="works-heiEDITIONS.xml#ed-schmitt"`, locating the citation in
+the Schmitt critical edition as a concrete *manifestation* (in FRBR
+terms) while `<title ref="…">` continues to identify the *work*. See
+§ *Schmitt citations — nested form* below for the internal structure of
+each `<citedRange unit="schmitt">`; see § *Extensibility — Editions
+Layer* for how this hook is meant to scale (e.g. to a future Migne or
+Internet-Archive link layer).
 
 By placing the *band/page/line* tail inside `<citedRange unit="schmitt">`
 rather than leaving `II 47,9` as inline text, the edition turns what is,
@@ -452,6 +456,51 @@ are no longer ornamental annotations of a base text but **first-class
 data** that can be aggregated, counted, cross-referenced and resolved
 against external manifestations — operations that print can present
 but cannot perform.
+
+##### Schmitt citations — nested form
+
+Inside every `<citedRange unit="schmitt">`, the band/page/line triple is
+not stored as plain text but as three nested `<citedRange>` children
+whose `@unit` values name the parts:
+
+```xml
+<citedRange unit="schmitt" source="works-heiEDITIONS.xml#ed-schmitt">
+  <citedRange unit="volume">II</citedRange>
+  <citedRange unit="page">47</citedRange>,
+  <citedRange unit="line" from="9">9</citedRange>
+</citedRange>
+```
+
+The rendered text remains `II 47,9` — visible punctuation (the space
+after the volume, the comma before the line) sits between children as
+plain text and is preserved verbatim. The structure adds three things:
+
+1. **Programmatic indexing.** `//citedRange[@unit='volume']/text()`
+   yields every Schmitt volume cited in the edition; counting per
+   volume becomes a trivial XPath.
+
+2. **Numeric line anchors.** `@from` on `<citedRange unit="line">`
+   carries the leading integer of the line specification, even where
+   the textual form preserves the imprecise upper bound `f.` or `ff.`.
+   A future viewer that aligns Schmitt page facsimiles to the edition
+   can use `@from` as the seek target while still displaying `8f.` to
+   the reader.
+
+3. **Faithful representation of compound and range citations.**
+   - `II 48,8f.; 49,19` — two `page,line` pairs separated by a literal
+     `; ` between them. Both refer to volume II.
+   - `I 83,27–84,2` — cross-page range, encoded as two `page,line`
+     pairs separated by `–`; no `@to` is emitted because the range
+     spans pages, not lines.
+   - `II 116,5ff.` — single page/line, the `ff.` kept in the line
+     element's text, `@from="5"`.
+
+This is a deliberate trade-off. A purely attribute-based encoding
+(`<citedRange unit="schmitt" vol="II" page="47" line="9"/>`) would be
+denser, but it cannot represent cross-page ranges or `f./ff.`
+imprecision without inventing custom attribute semantics. The nested
+form keeps the legible text untouched and uses the element tree only
+where the data are unambiguous.
 
 #### 4c. Theological concepts — `terms-heiEDITIONS.xml`
 
